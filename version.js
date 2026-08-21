@@ -10,4 +10,4 @@
 //  - service-worker.js loads it via importScripts('./version.js'), where
 //    `self` is the service worker's global scope.
 // -----------------------------------------------------------------------
-self.APP_VERSION = '1.0.4';
+self.APP_VERSION = '1.0.5';
