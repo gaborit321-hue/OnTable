@@ -104,6 +104,10 @@
   .spinner{width:16px; height:16px; border:2px solid rgba(122,46,61,0.2); border-top-color:var(--wine); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .status-line{font-size:11px; color:var(--ink-soft); margin-top:8px; text-align:center;}
+  .book-card{background:var(--card-soft); border:1.4px solid var(--basil); border-radius:14px; padding:13px 14px; margin-bottom:9px;}
+  .book-card.booked{border-color:var(--basil); background:rgba(75,122,81,0.08);}
+  .book-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:16px;}
+  .book-confirm{font-size:11.5px; color:var(--basil); font-weight:600; margin-top:4px;}
   ::-webkit-scrollbar{display:none;}
 </style>
 </head>
@@ -194,6 +198,7 @@
           <div class="section-label" data-i18n="voteSub"></div>
           <div class="note" data-i18n="voteHint" style="margin-top:0; margin-bottom:12px;"></div>
           <div id="voteList"></div>
+          <div id="bookSection"></div>
         </div>
 
       </div>
@@ -225,7 +230,8 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   votesWord:"votes", homeStatusNoName:"Enter your name first.", homeStatusNoCode:"Enter your name and a code.",
   homeStatusNotFound:"Code not found.", homeStatusError:"Error, try again.",
   prefsStatusNoType:"Choose at least one type of place.", prefsStatusError:"Error, try again.",
-  waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again."},
+  waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
+  leadingLabel:"Leading", bookBtn:"Reserve (test)", bookConfirmed:"Reservation requested"},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Fab", createBtn:"Vytvoriť nový kód",
   orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
@@ -246,7 +252,8 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   votesWord:"hlasov", homeStatusNoName:"Najprv zadaj svoje meno.", homeStatusNoCode:"Zadaj meno a kód.",
   homeStatusNotFound:"Kód sa nenašiel.", homeStatusError:"Chyba, skús to znova.",
   prefsStatusNoType:"Vyber aspoň jeden typ podniku.", prefsStatusError:"Chyba, skús to znova.",
-  waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova."},
+  waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
+  leadingLabel:"Vedie", bookBtn:"Rezervovať (test)", bookConfirmed:"Rezervácia odoslaná"},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Fab", createBtn:"Új kód létrehozása",
   orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
@@ -267,7 +274,8 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   votesWord:"szavazat", homeStatusNoName:"Először add meg a neved.", homeStatusNoCode:"Add meg a neved és egy kódot.",
   homeStatusNotFound:"A kód nem található.", homeStatusError:"Hiba, próbáld újra.",
   prefsStatusNoType:"Válassz legalább egy helytípust.", prefsStatusError:"Hiba, próbáld újra.",
-  waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra."},
+  waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
+  leadingLabel:"Vezet", bookBtn:"Foglalás (teszt)", bookConfirmed:"Foglalás elküldve"},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Fab", createBtn:"Créer un nouveau code",
   orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
@@ -288,7 +296,8 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   votesWord:"votes", homeStatusNoName:"Entre ton prénom d'abord.", homeStatusNoCode:"Entre ton prénom et un code.",
   homeStatusNotFound:"Code introuvable.", homeStatusError:"Erreur, réessaie.",
   prefsStatusNoType:"Choisis au moins un type de lieu.", prefsStatusError:"Erreur, réessaie.",
-  waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie."}
+  waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
+  leadingLabel:"En tête", bookBtn:"Réserver (test)", bookConfirmed:"Réservation demandée"}
 };
 let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
@@ -312,6 +321,23 @@ async function storageSet(key, value){
   if(!data.ok) throw new Error('storage set failed');
   return true;
 }
+
+async function storageList(prefix){
+  const url = APPS_SCRIPT_URL + '?action=list&prefix=' + encodeURIComponent(prefix);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.keys || [];
+}
+
+// Each participant only ever reads/writes THEIR OWN key below — never a
+// shared blob everyone rewrites. That's what avoids the lost-update race
+// where two people voting/answering at the same moment could erase each
+// other's entry.
+function keyMeta(code){ return 'ontable-session-'+code+'-meta'; }
+function keyPrefs(code, name){ return 'ontable-session-'+code+'-prefs-'+name; }
+function keyVote(code, name){ return 'ontable-session-'+code+'-vote-'+name; }
+function prefsPrefix(code){ return 'ontable-session-'+code+'-prefs-'; }
+function votePrefix(code){ return 'ontable-session-'+code+'-vote-'; }
 
 function renderLangRow(){
   const row = document.getElementById('langRow');
@@ -634,9 +660,8 @@ async function createSession(){
   const name = document.getElementById('myName').value.trim();
   if(!name){ document.getElementById('homeStatus').textContent=t('homeStatusNoName'); return; }
   const code = randCode();
-  const session = { code, createdAt: Date.now(), participants:{}, votes:{} };
   try{
-    await storageSet('ontable-session-'+code, JSON.stringify(session));
+    await storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now() }));
     state.code = code; state.name = name;
     document.getElementById('codeDisplay').textContent = code;
     showView('prefs');
@@ -648,7 +673,7 @@ async function joinSession(){
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
   if(!name || !code){ document.getElementById('homeStatus').textContent=t('homeStatusNoCode'); return; }
   try{
-    const res = await storageGet('ontable-session-'+code);
+    const res = await storageGet(keyMeta(code));
     if(!res){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); return; }
     state.code = code; state.name = name;
     document.getElementById('codeDisplay').textContent = code;
@@ -666,19 +691,30 @@ async function submitPrefs(){
   if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
 
   try{
-    const res = await storageGet('ontable-session-'+state.code);
-    const session = JSON.parse(res.value);
-    session.participants[state.name] = { types, districts, restrictions, budget, at: Date.now() };
-    await storageSet('ontable-session-'+state.code, JSON.stringify(session));
+    const data = { types, districts, restrictions, budget, at: Date.now() };
+    await storageSet(keyPrefs(state.code, state.name), JSON.stringify(data));
     showView('waiting');
   }catch(e){ document.getElementById('prefsStatus').textContent = t('prefsStatusError'); }
 }
 
+async function fetchAllParticipants(){
+  const prefix = prefsPrefix(state.code);
+  const keys = await storageList(prefix);
+  const participants = {};
+  for(const k of keys){
+    const name = k.substring(prefix.length);
+    try{
+      const res = await storageGet(k);
+      if(res && res.value) participants[name] = JSON.parse(res.value);
+    }catch(e){}
+  }
+  return participants;
+}
+
 async function refreshWaiting(){
   try{
-    const res = await storageGet('ontable-session-'+state.code);
-    const session = JSON.parse(res.value);
-    document.getElementById('whoStrip').innerHTML = Object.keys(session.participants).map(n=>
+    const participants = await fetchAllParticipants();
+    document.getElementById('whoStrip').innerHTML = Object.keys(participants).map(n=>
       `<div class="who-pill">${n} ✓</div>`
     ).join('');
   }catch(e){}
@@ -703,9 +739,7 @@ function scoreVenue(v, participants){
 
 async function generateSuggestions(){
   try{
-    const res = await storageGet('ontable-session-'+state.code);
-    const session = JSON.parse(res.value);
-    const participants = session.participants;
+    const participants = await fetchAllParticipants();
     if(Object.keys(participants).length===0){
       document.getElementById('waitingStatus').textContent = t('waitingStatusNoAnswer');
       return;
@@ -713,6 +747,7 @@ async function generateSuggestions(){
     const scored = VENUES.map(v=>scoreVenue(v, participants)).filter(Boolean);
     scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
     lastResults = scored.slice(0,3);
+    bookedVenues = {};
     renderResults();
     showView('suggestions');
   }catch(e){ document.getElementById('waitingStatus').textContent = t('waitingStatusError'); }
@@ -743,32 +778,45 @@ function renderResults(){
 
 async function castVote(venueName){
   try{
-    const res = await storageGet('ontable-session-'+state.code);
-    const session = JSON.parse(res.value);
-    session.votes = session.votes || {};
-    let arr = session.votes[state.name] || [];
+    const key = keyVote(state.code, state.name);
+    let arr = [];
+    try{
+      const res = await storageGet(key);
+      if(res && res.value) arr = JSON.parse(res.value);
+    }catch(e){}
     const idx = arr.indexOf(venueName);
     if(idx>=0){ arr.splice(idx,1); }
     else { if(arr.length>=2) return; arr.push(venueName); }
-    session.votes[state.name] = arr;
-    await storageSet('ontable-session-'+state.code, JSON.stringify(session));
+    await storageSet(key, JSON.stringify(arr));
     renderVoteList();
   }catch(e){}
 }
 
 async function renderVoteList(){
   try{
-    const res = await storageGet('ontable-session-'+state.code);
-    const session = JSON.parse(res.value);
-    const votes = session.votes || {};
+    const prefix = votePrefix(state.code);
+    const keys = await storageList(prefix);
     const counts = {}; lastResults.forEach(r=>counts[r.v.n]=0);
-    Object.values(votes).forEach(arr=>{ (arr||[]).forEach(v=>{ if(counts[v]!==undefined) counts[v]++; }); });
-    const totalBallots = Object.values(votes).reduce((a,arr)=>a+(arr?arr.length:0),0) || 1;
-    const myVotes = votes[state.name] || [];
+    let myVotes = [];
+    let totalBallots = 0;
+
+    for(const k of keys){
+      const name = k.substring(prefix.length);
+      try{
+        const res = await storageGet(k);
+        if(res && res.value){
+          const arr = JSON.parse(res.value);
+          arr.forEach(v=>{ if(counts[v]!==undefined) counts[v]++; });
+          totalBallots += arr.length;
+          if(name === state.name) myVotes = arr;
+        }
+      }catch(e){}
+    }
+    const totalForBars = totalBallots || 1;
 
     document.getElementById('voteList').innerHTML = lastResults.map(r=>{
       const c = counts[r.v.n];
-      const pct = Math.round((c/totalBallots)*100);
+      const pct = Math.round((c/totalForBars)*100);
       const mine = myVotes.includes(r.v.n);
       return `
         <div class="vote-item ${mine?'voted':''}" onclick="castVote('${r.v.n.replace(/'/g,"\\'")}')">
@@ -779,7 +827,40 @@ async function renderVoteList(){
           <div class="vote-bar-bg"><div class="vote-bar" style="width:${pct}%"></div></div>
         </div>`;
     }).join('');
+
+    renderBookSection(counts);
   }catch(e){}
+}
+
+// ---------- Mock reservation (test only — no real booking happens) ----------
+let bookedVenues = {};
+
+function renderBookSection(counts){
+  const section = document.getElementById('bookSection');
+  const maxCount = Math.max(0, ...Object.values(counts));
+  if(maxCount === 0){ section.innerHTML = ''; return; }
+  const winners = lastResults.filter(r => counts[r.v.n] === maxCount);
+
+  section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>` + winners.map(r => {
+    if(bookedVenues[r.v.n]){
+      return `<div class="book-card booked">
+        <div class="book-name">${r.v.n}</div>
+        <div class="book-confirm">${t('bookConfirmed')} — #${bookedVenues[r.v.n]}</div>
+      </div>`;
+    }
+    return `<div class="book-card">
+      <div class="book-name">${r.v.n}</div>
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="mockBook('${r.v.n.replace(/'/g,"\\'")}', this)">${t('bookBtn')}</button>
+    </div>`;
+  }).join('');
+}
+
+async function mockBook(name, btnEl){
+  btnEl.disabled = true;
+  btnEl.textContent = '…';
+  await new Promise(r => setTimeout(r, 700)); // fake booking delay
+  bookedVenues[name] = 'OT-' + Math.random().toString(36).slice(2,7).toUpperCase();
+  renderVoteList();
 }
 
 renderLangRow();
