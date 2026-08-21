@@ -329,6 +329,13 @@ async function storageList(prefix){
   return data.keys || [];
 }
 
+async function storageGetByPrefix(prefix){
+  const url = APPS_SCRIPT_URL + '?action=getbyprefix&prefix=' + encodeURIComponent(prefix);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.data || {}; // { name: rawValueString, ... } — already stripped of the prefix
+}
+
 // Each participant only ever reads/writes THEIR OWN key below — never a
 // shared blob everyone rewrites. That's what avoids the lost-update race
 // where two people voting/answering at the same moment could erase each
@@ -698,26 +705,27 @@ async function submitPrefs(){
 }
 
 async function fetchAllParticipants(){
-  const prefix = prefsPrefix(state.code);
-  const keys = await storageList(prefix);
+  const raw = await storageGetByPrefix(prefsPrefix(state.code));
   const participants = {};
-  for(const k of keys){
-    const name = k.substring(prefix.length);
-    try{
-      const res = await storageGet(k);
-      if(res && res.value) participants[name] = JSON.parse(res.value);
-    }catch(e){}
+  for(const name in raw){
+    try{ participants[name] = JSON.parse(raw[name]); }catch(e){}
   }
   return participants;
 }
 
+let waitingBusy = false;
 async function refreshWaiting(){
+  if(waitingBusy) return;
+  waitingBusy = true;
   try{
     const participants = await fetchAllParticipants();
     document.getElementById('whoStrip').innerHTML = Object.keys(participants).map(n=>
       `<div class="who-pill">${n} ✓</div>`
     ).join('');
-  }catch(e){}
+  }catch(e){
+  }finally{
+    waitingBusy = false;
+  }
 }
 
 function scoreVenue(v, participants){
@@ -792,24 +800,22 @@ async function castVote(venueName){
   }catch(e){}
 }
 
+let voteListBusy = false;
 async function renderVoteList(){
+  if(voteListBusy) return; // skip this poll tick if the previous one is still in flight
+  voteListBusy = true;
   try{
-    const prefix = votePrefix(state.code);
-    const keys = await storageList(prefix);
+    const raw = await storageGetByPrefix(votePrefix(state.code));
     const counts = {}; lastResults.forEach(r=>counts[r.v.n]=0);
     let myVotes = [];
     let totalBallots = 0;
 
-    for(const k of keys){
-      const name = k.substring(prefix.length);
+    for(const name in raw){
       try{
-        const res = await storageGet(k);
-        if(res && res.value){
-          const arr = JSON.parse(res.value);
-          arr.forEach(v=>{ if(counts[v]!==undefined) counts[v]++; });
-          totalBallots += arr.length;
-          if(name === state.name) myVotes = arr;
-        }
+        const arr = JSON.parse(raw[name]);
+        arr.forEach(v=>{ if(counts[v]!==undefined) counts[v]++; });
+        totalBallots += arr.length;
+        if(name === state.name) myVotes = arr;
       }catch(e){}
     }
     const totalForBars = totalBallots || 1;
@@ -829,7 +835,10 @@ async function renderVoteList(){
     }).join('');
 
     renderBookSection(counts);
-  }catch(e){}
+  }catch(e){
+  }finally{
+    voteListBusy = false;
+  }
 }
 
 // ---------- Mock reservation (test only — no real booking happens) ----------
