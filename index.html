@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7A2E3D">
+<meta name="description" content="Decide together where to eat, in one shared code.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OnTable">
+<title>OnTable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#2B1620; --bg-deep:#1C0E15; --card:#F3EDE3; --card-soft:#EAE1D2;
+    --ink:#2B1620; --ink-soft:#7A6459; --wine:#7A2E3D; --basil:#4B7A51;
+    --citrus:#E8A93B; --tomato:#C4472E; --line: rgba(43,22,32,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    min-height:100dvh;
+    font-family:'Karla', sans-serif;
+  }
+  .screen{
+    background: var(--card); min-height:100dvh; width:100%; max-width:480px; margin:0 auto;
+    display:flex; flex-direction:column; position:relative; color:var(--ink);
+  }
+  .update-btn{
+    position:fixed; bottom:10px; right:10px; z-index:50;
+    background:rgba(43,22,32,0.06); color:var(--ink-soft); border:1px solid var(--line);
+    border-radius:999px; padding:5px 10px; font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px; letter-spacing:.03em; cursor:pointer; display:flex; align-items:center; gap:5px;
+    opacity:.55;
+  }
+  .update-btn:hover{opacity:1;}
+  .topbar-row{display:flex; justify-content:space-between; align-items:center;}
+  .lang-row{display:flex; gap:5px;}
+  .lang-btn{
+    padding:5px 9px; border-radius:999px; border:1px solid var(--line);
+    background:transparent; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px; letter-spacing:.04em; cursor:pointer;
+  }
+  .lang-btn.on{background:var(--wine); color:var(--card); border-color:var(--wine);}
+  .topbar{padding:34px 20px 10px; display:flex; flex-direction:column; gap:4px; flex-shrink:0;}
+  .brand{font-family:'IBM Plex Mono', monospace; font-weight:500; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--wine); display:flex; align-items:center; gap:6px;}
+  .screen-title{font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic; font-size:26px; letter-spacing:-0.01em; margin:3px 0 0;}
+  .screen-sub{font-size:12px; color:var(--ink-soft); margin:2px 0 0;}
+  .content{flex:1; overflow-y:auto; padding:6px 20px 28px;}
+  .view{display:none;}
+  .view.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .section-label{font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin:18px 0 9px;}
+  .section-label:first-child{margin-top:6px;}
+  input[type=text]{
+    width:100%; padding:14px 16px; border-radius:14px; background:var(--card-soft);
+    border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:14px; color:var(--ink); outline:none;
+  }
+  input[type=text]::placeholder{color:rgba(122,100,89,0.6);}
+  .btn{width:100%; padding:14px; border-radius:14px; border:none; font-family:'Karla', sans-serif; font-weight:700; font-size:13.5px; cursor:pointer; margin-top:10px;}
+  .btn-primary{background:var(--wine); color:var(--card);}
+  .btn-ghost{background:transparent; color:var(--ink); border:1.4px solid var(--line);}
+  .chip-grid{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{padding:9px 14px; border-radius:999px; border:1.4px solid var(--line); background:var(--card-soft); font-size:12.5px; cursor:pointer; user-select:none;}
+  .chip.on{background:var(--wine); color:var(--card); border-color:var(--wine);}
+  .chip.warn.on{background:var(--tomato); border-color:var(--tomato);}
+  .budget-row{display:flex; gap:8px;}
+  .budget-opt{flex:1; text-align:center; padding:11px 4px; border-radius:12px; border:1.4px solid var(--line); font-size:13px; cursor:pointer; background:var(--card-soft);}
+  .budget-opt.on{background:var(--citrus); border-color:var(--citrus); color:var(--ink);}
+  .ticket{margin-top:6px; background:var(--card-soft); border-radius:16px; padding:20px; text-align:center; border:1.5px dashed rgba(122,46,61,0.35);}
+  .ticket-code{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:36px; letter-spacing:0.12em; color:var(--wine); margin:4px 0;}
+  .copy-hint{font-size:10.5px; color:var(--ink-soft); margin-top:4px;}
+  .who-strip{display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+  .who-pill{display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:999px; background:var(--card-soft); font-size:11.5px; border:1px solid var(--line);}
+  .result-card{background:var(--card-soft); border-radius:16px; padding:14px; margin-bottom:11px; border:1px solid var(--line);}
+  .result-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:8px;}
+  .result-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:18px;}
+  .result-type{font-size:11px; color:var(--ink-soft); margin-top:1px;}
+  .score-badge{display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; flex-shrink:0; background:var(--basil); color:white; font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:700;}
+  .match-row{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
+  .match-tag{font-size:10px; padding:5px 9px; border-radius:8px; background:rgba(75,122,81,0.12); color:var(--basil); font-weight:600;}
+  .vote-item{background:var(--card-soft); border-radius:14px; padding:12px 14px; margin-bottom:9px; border:1px solid var(--line); cursor:pointer;}
+  .vote-top{display:flex; justify-content:space-between; align-items:center;}
+  .vote-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:16px; display:flex; align-items:center; gap:8px;}
+  .vote-check{width:18px; height:18px; border-radius:6px; border:1.6px solid var(--ink-soft); flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .vote-check svg{width:11px; opacity:0;}
+  .vote-item.voted .vote-check{background:var(--wine); border-color:var(--wine);}
+  .vote-item.voted .vote-check svg{opacity:1;}
+  .vote-count{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+  .vote-bar-bg{height:7px; border-radius:999px; background:rgba(43,22,32,0.08); margin-top:7px; overflow:hidden;}
+  .vote-bar{height:100%; border-radius:999px; background:var(--citrus); transition:width .3s ease;}
+  .vote-item.voted{border-color:var(--wine);}
+  .vote-item.voted .vote-bar{background:var(--wine);}
+  .note{margin-top:10px; padding:11px 13px; background:rgba(122,46,61,0.06); border:1px solid rgba(122,46,61,0.18); border-radius:12px; font-size:11px; line-height:1.5; color:#5a3340;}
+  .spinner{width:16px; height:16px; border:2px solid rgba(122,46,61,0.2); border-top-color:var(--wine); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .status-line{font-size:11px; color:var(--ink-soft); margin-top:8px; text-align:center;}
+  ::-webkit-scrollbar{display:none;}
+</style>
+</head>
+<body>
+
+<div class="screen">
+      <div class="topbar">
+        <div class="topbar-row">
+          <div class="brand">ONTABLE</div>
+          <div class="lang-row" id="langRow"></div>
+        </div>
+        <div class="screen-title" id="title"></div>
+        <p class="screen-sub" id="sub"></p>
+      </div>
+      <div class="content">
+
+        <!-- HOME -->
+        <div class="view active" id="view-home">
+          <div class="section-label" data-i18n="yourName"></div>
+          <input type="text" id="myName" maxlength="20">
+          <button class="btn btn-primary" id="createBtn" onclick="createSession()"></button>
+
+          <div class="section-label" data-i18n="orJoin"></div>
+          <input type="text" id="joinCode" maxlength="6" style="text-transform:uppercase">
+          <button class="btn btn-ghost" id="joinBtn" onclick="joinSession()"></button>
+          <div class="status-line" id="homeStatus"></div>
+        </div>
+
+        <!-- PREFS -->
+        <div class="view" id="view-prefs">
+          <div class="ticket">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-soft); letter-spacing:.08em; text-transform:uppercase;" data-i18n="groupCode"></div>
+            <div class="ticket-code" id="codeDisplay">------</div>
+            <div class="copy-hint" data-i18n="shareHint"></div>
+          </div>
+
+          <div class="section-label" data-i18n="typeLabel"></div>
+          <div class="chip-grid">
+            <div class="chip" data-val="restaurant" onclick="toggleChip(this)" data-i18n="restaurantChip"></div>
+            <div class="chip" data-val="cafe" onclick="toggleChip(this)" data-i18n="cafeChip"></div>
+            <div class="chip" data-val="bar" onclick="toggleChip(this)" data-i18n="barChip"></div>
+          </div>
+
+          <div class="section-label" data-i18n="budgetLabel"></div>
+          <div class="budget-row">
+            <div class="budget-opt" data-val="2" onclick="budgetSelect(this)">€</div>
+            <div class="budget-opt" data-val="3" onclick="budgetSelect(this)">€€</div>
+            <div class="budget-opt" data-val="4" onclick="budgetSelect(this)">€€€</div>
+          </div>
+
+          <div class="section-label" data-i18n="districtLabel"></div>
+          <div class="chip-grid">
+            <div class="chip" data-val="I" onclick="toggleChip(this)">Bratislava I</div>
+            <div class="chip" data-val="II" onclick="toggleChip(this)">Bratislava II</div>
+            <div class="chip" data-val="III" onclick="toggleChip(this)">Bratislava III</div>
+            <div class="chip" data-val="IV" onclick="toggleChip(this)">Bratislava IV</div>
+            <div class="chip" data-val="V" onclick="toggleChip(this)">Bratislava V</div>
+          </div>
+
+          <div class="section-label" data-i18n="restrictionsLabel"></div>
+          <div class="chip-grid">
+            <div class="chip warn" data-val="vegetarien" onclick="toggleChip(this)" data-i18n="vegChip"></div>
+          </div>
+          <div class="note" data-i18n="vegNote"></div>
+
+          <button class="btn btn-primary" id="submitPrefsBtn" onclick="submitPrefs()"></button>
+          <div class="status-line" id="prefsStatus"></div>
+        </div>
+
+        <!-- WAITING -->
+        <div class="view" id="view-waiting">
+          <div class="section-label" data-i18n="participantsLabel"></div>
+          <div class="who-strip" id="whoStrip"></div>
+          <div class="note" data-i18n="waitingNote"></div>
+          <button class="btn btn-primary" id="seeIdeasBtn" onclick="generateSuggestions()"></button>
+          <div class="status-line" id="waitingStatus"></div>
+        </div>
+
+        <!-- SUGGESTIONS -->
+        <div class="view" id="view-suggestions">
+          <div class="section-label" data-i18n="suggestionsSub"></div>
+          <div id="resultsList"></div>
+          <button class="btn btn-primary" id="launchVoteBtn" onclick="showView('vote')"></button>
+        </div>
+
+        <!-- VOTE -->
+        <div class="view" id="view-vote">
+          <div class="section-label" data-i18n="voteSub"></div>
+          <div class="note" data-i18n="voteHint" style="margin-top:0; margin-bottom:12px;"></div>
+          <div id="voteList"></div>
+        </div>
+
+      </div>
+
+  <button id="updateBtn" class="update-btn" onclick="checkForUpdate()">⟳ <span id="verLabel"></span></button>
+</div>
+
+<script src="version.js"></script>
+<script>
+// ---------- i18n ----------
+const LANGS = {
+en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever you want.",
+  yourName:"Your name", namePlaceholder:"e.g. Fab", createBtn:"Create a new code",
+  orJoin:"Or join an existing code", joinPlaceholder:"E.G. 7F3QK", joinBtn:"Join",
+  prefsTitle:"Your preferences", prefsSub:"Everyone answers on their own.",
+  groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
+  typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
+  budgetLabel:"Max budget", districtLabel:"District (Bratislava I–V)",
+  restrictionsLabel:"Dietary restrictions", vegChip:"Vegetarian / vegan",
+  vegNote:"Check this if anyone in the group needs a veg option — we then keep any place offering at least one vegetarian dish, not only 100% veg/vegan restaurants (those get a separate badge). Only this restriction is checked in this test.",
+  submitPrefsBtn:"Submit my preferences", waitingTitle:"Waiting", waitingSub:"Others are answering live.",
+  participantsLabel:"Participants", waitingNote:"Waiting for at least one answer. You can generate ideas any time, even if not everyone has answered yet.",
+  seeIdeasBtn:"See ideas", waitingStatus:"waiting for the others…",
+  suggestionsTitle:"Ideas for the group", suggestionsSub:"Ranked by what fits the most people.",
+  launchVoteBtn:"Start the vote", noMatchNote:"No place matches every restriction/budget/district combined — try widening a criterion.",
+  likedByPrefix:"Liked by", vegOnlyBadge:"100% veg/vegan", vegOptionBadge:"Veg option available",
+  voteTitle:"Vote in progress", voteSub:"The group decides, live.",
+  voteHint:"Pick up to 2 — that way, two people can still land on a common choice.",
+  votesWord:"votes", homeStatusNoName:"Enter your name first.", homeStatusNoCode:"Enter your name and a code.",
+  homeStatusNotFound:"Code not found.", homeStatusError:"Error, try again.",
+  prefsStatusNoType:"Choose at least one type of place.", prefsStatusError:"Error, try again.",
+  waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again."},
+sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
+  yourName:"Tvoje meno", namePlaceholder:"napr. Fab", createBtn:"Vytvoriť nový kód",
+  orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
+  prefsTitle:"Tvoje preferencie", prefsSub:"Každý odpovedá sám za seba.",
+  groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
+  typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
+  budgetLabel:"Maximálny rozpočet", districtLabel:"Mestská časť (Bratislava I–V)",
+  restrictionsLabel:"Stravovacie obmedzenia", vegChip:"Vegetariánske / vegánske",
+  vegNote:"Zaškrtni, ak niekto v skupine potrebuje vegetariánsku možnosť — ponecháme podniky ponúkajúce aspoň jedno vegetariánske jedlo, nielen 100% vege/vegánske reštaurácie (tie majú vlastný odznak). V tomto teste sa kontroluje iba toto obmedzenie.",
+  submitPrefsBtn:"Potvrdiť moje preferencie", waitingTitle:"Čakanie", waitingSub:"Ostatní práve odpovedajú.",
+  participantsLabel:"Účastníci", waitingNote:"Čaká sa aspoň na jednu odpoveď. Nápady môžeš zobraziť kedykoľvek, aj keď ešte neodpovedali všetci.",
+  seeIdeasBtn:"Zobraziť nápady", waitingStatus:"čaká sa na ostatných…",
+  suggestionsTitle:"Nápady pre skupinu", suggestionsSub:"Zoradené podľa toho, čo vyhovuje najviac ľuďom.",
+  launchVoteBtn:"Spustiť hlasovanie", noMatchNote:"Žiadny podnik nevyhovuje všetkým obmedzeniam/rozpočtu/mestskej časti súčasne — skús rozšíriť niektoré kritérium.",
+  likedByPrefix:"Páči sa", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Vegetariánska možnosť",
+  voteTitle:"Prebieha hlasovanie", voteSub:"Skupina rozhoduje naživo.",
+  voteHint:"Vyber max. 2 — tak môžu dvaja ľudia stále nájsť spoločnú voľbu.",
+  votesWord:"hlasov", homeStatusNoName:"Najprv zadaj svoje meno.", homeStatusNoCode:"Zadaj meno a kód.",
+  homeStatusNotFound:"Kód sa nenašiel.", homeStatusError:"Chyba, skús to znova.",
+  prefsStatusNoType:"Vyber aspoň jeden typ podniku.", prefsStatusError:"Chyba, skús to znova.",
+  waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova."},
+hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
+  yourName:"A neved", namePlaceholder:"pl. Fab", createBtn:"Új kód létrehozása",
+  orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
+  prefsTitle:"A preferenciáid", prefsSub:"Mindenki saját maga válaszol.",
+  groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
+  typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
+  budgetLabel:"Maximális költségkeret", districtLabel:"Kerület (Pozsony I–V)",
+  restrictionsLabel:"Étkezési korlátozások", vegChip:"Vegetáriánus / vegán",
+  vegNote:"Jelöld be, ha valakinek a csoportból vegetáriánus opcióra van szüksége — ekkor minden olyan helyet megtartunk, ahol van legalább egy vegetáriánus fogás, nemcsak a 100%-ban vegetáriánus/vegán éttermeket (azok külön jelvényt kapnak). Ebben a tesztben csak ezt a korlátozást ellenőrizzük.",
+  submitPrefsBtn:"Preferenciák elküldése", waitingTitle:"Várakozás", waitingSub:"A többiek élőben válaszolnak.",
+  participantsLabel:"Résztvevők", waitingNote:"Várakozás legalább egy válaszra. Bármikor megnézheted az ötleteket, még ha nem is válaszolt még mindenki.",
+  seeIdeasBtn:"Ötletek megtekintése", waitingStatus:"várakozás a többiekre…",
+  suggestionsTitle:"Ötletek a csoportnak", suggestionsSub:"A legtöbb embernek megfelelő sorrendben.",
+  launchVoteBtn:"Szavazás indítása", noMatchNote:"Egyetlen hely sem felel meg az összes korlátozásnak/költségkeretnek/kerületnek együtt — próbálj tágítani egy szempontot.",
+  likedByPrefix:"Kedveli", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Van vegetáriánus opció",
+  voteTitle:"Folyamatban a szavazás", voteSub:"A csoport dönt, élőben.",
+  voteHint:"Válassz max. 2-t — így két embernek is lehet közös választása.",
+  votesWord:"szavazat", homeStatusNoName:"Először add meg a neved.", homeStatusNoCode:"Add meg a neved és egy kódot.",
+  homeStatusNotFound:"A kód nem található.", homeStatusError:"Hiba, próbáld újra.",
+  prefsStatusNoType:"Válassz legalább egy helytípust.", prefsStatusError:"Hiba, próbáld újra.",
+  waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra."},
+fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
+  yourName:"Ton prénom", namePlaceholder:"Ex : Fab", createBtn:"Créer un nouveau code",
+  orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
+  prefsTitle:"Tes préférences", prefsSub:"Chacun répond de son côté.",
+  groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
+  typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
+  budgetLabel:"Budget max", districtLabel:"Quartier (Bratislava I–V)",
+  restrictionsLabel:"Restrictions alimentaires", vegChip:"Végétarien / végan",
+  vegNote:"Coche-la si quelqu'un du groupe a besoin d'une option végé — on garde alors tout lieu proposant au moins un plat végétarien, pas seulement les restaurants 100% végé/vegan (ceux-là ont un badge à part). Seule cette restriction est vérifiée dans ce test.",
+  submitPrefsBtn:"Valider mes préférences", waitingTitle:"En attente", waitingSub:"Les autres répondent en direct.",
+  participantsLabel:"Participants", waitingNote:"En attente d'au moins une réponse. Tu peux générer les idées à tout moment, même si tout le monde n'a pas encore répondu.",
+  seeIdeasBtn:"Voir les idées", waitingStatus:"en attente des autres…",
+  suggestionsTitle:"Idées pour le groupe", suggestionsSub:"Classées selon ce qui convient au plus de monde.",
+  launchVoteBtn:"Lancer le vote", noMatchNote:"Aucun lieu ne correspond à toutes les restrictions/budget/quartier combinés — élargis un critère.",
+  likedByPrefix:"Aimé par", vegOnlyBadge:"100% végé/vegan", vegOptionBadge:"Option végé dispo",
+  voteTitle:"Vote en cours", voteSub:"Le groupe tranche, en direct.",
+  voteHint:"Choisis jusqu'à 2 options — comme ça, à deux, vous aurez toujours au moins un choix commun.",
+  votesWord:"votes", homeStatusNoName:"Entre ton prénom d'abord.", homeStatusNoCode:"Entre ton prénom et un code.",
+  homeStatusNotFound:"Code introuvable.", homeStatusError:"Erreur, réessaie.",
+  prefsStatusNoType:"Choisis au moins un type de lieu.", prefsStatusError:"Erreur, réessaie.",
+  waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie."}
+};
+let currentLang = 'en';
+function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
+
+// ---------- Backend: Apps Script (replaces window.storage) ----------
+// Paste your deployed Apps Script Web App URL here (ends with /exec).
+// See Code.gs for the backend code and deployment steps.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHq_QnpPlgI0rK5ywV032zY0w3uG-oW5fzoZEXcjabfoYa3cSf_8tdImfny2f2Wu7X/exec';
+
+async function storageGet(key){
+  const url = APPS_SCRIPT_URL + '?action=get&key=' + encodeURIComponent(key);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.value ? { value: data.value } : null;
+}
+
+async function storageSet(key, value){
+  const url = APPS_SCRIPT_URL + '?action=set&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value);
+  const res = await fetch(url);
+  const data = await res.json();
+  if(!data.ok) throw new Error('storage set failed');
+  return true;
+}
+
+function renderLangRow(){
+  const row = document.getElementById('langRow');
+  row.innerHTML = Object.keys(LANGS).map(l=>
+    `<button class="lang-btn ${l===currentLang?'on':''}" onclick="setLang('${l}')">${LANGS[l].code}</button>`
+  ).join('');
+}
+function setLang(l){
+  currentLang = l;
+  renderLangRow();
+  applyLang();
+}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.getElementById('myName').placeholder = t('namePlaceholder');
+  document.getElementById('joinCode').placeholder = t('joinPlaceholder');
+  document.getElementById('createBtn').textContent = t('createBtn');
+  document.getElementById('joinBtn').textContent = t('joinBtn');
+  document.getElementById('submitPrefsBtn').textContent = t('submitPrefsBtn');
+  document.getElementById('seeIdeasBtn').textContent = t('seeIdeasBtn');
+  document.getElementById('waitingStatus').textContent = t('waitingStatus');
+  document.getElementById('launchVoteBtn').textContent = t('launchVoteBtn');
+  refreshTitles(currentView);
+  if(currentView==='suggestions' && lastResults.length) renderResults();
+  if(currentView==='vote') renderVoteList();
+}
+
+// ---------- Bratislava data: 23 real venues (I & II) + synthetic filler for load testing (50/district) ----------
+const VENUES = [
+  {n:"Urban House", t:["restaurant","bar","cafe"], p:3, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Bistronomy", t:["restaurant"], p:4, r:4.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Gatto Matto Pánska", t:["restaurant"], p:3, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Meanto", t:["restaurant"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Koliba Kamzík", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Modrá Hviezda", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Bratislava Flagship", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Mezcalli", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Foxford", t:["cafe"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Schöndorf", t:["cafe","restaurant","bar"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"MONDIEU", t:["cafe"], p:2, r:4.4, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Matsu", t:["cafe"], p:2, r:4.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Caffe4U", t:["cafe"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"MAD", t:["bar","cafe"], p:2, r:4.9, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Michalska Cocktail Room", t:["bar"], p:3, r:4.8, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Gufman & Matyáš Wine House", t:["bar","restaurant"], p:3, r:4.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"After", t:["bar"], p:2, r:4.6, veg:false, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Víno alebo Kvety", t:["bar"], p:3, r:4.8, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Viecha pod hradom", t:["bar"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Green Leaf", t:["restaurant"], p:2, r:4.9, veg:true, vegOnly:true, district:"I", area:"Staré Mesto"},
+  {n:"Balans Bistro", t:["restaurant"], p:2, r:4.8, veg:true, vegOnly:true, district:"I", area:"Staré Mesto"},
+  {n:"Foodstock", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:true, district:"I", area:"Staré Mesto"},
+  {n:"Bistro Laf", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:true, district:"I", area:"Staré Mesto"},
+  {n:"Zelená Pražiareň", t:["cafe","bar"], p:2, r:3.7, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Modrá Pražiareň", t:["cafe","restaurant"], p:3, r:3.6, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Stará Búda", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Domáca Stodola", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Rustikálna Pivnica", t:["bar"], p:4, r:4.4, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Slnečná Kaviareň", t:["cafe","restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Domáca Cukráreň", t:["cafe"], p:3, r:3.9, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Letná Bageteria", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Nová Pražiareň", t:["cafe"], p:4, r:4.6, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Mestská Bistro", t:["restaurant"], p:4, r:4.1, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Rustikálna Grill", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Veselá Pražiareň", t:["cafe","restaurant"], p:4, r:4.6, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Letná Taverna", t:["restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Drevená Čajovňa", t:["cafe"], p:4, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Drevená Taverna", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Rustikálna Búda", t:["restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Slnečná Vinotéka", t:["bar"], p:2, r:4.7, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Rustikálna Čajovňa", t:["cafe"], p:2, r:4.5, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Južná Bistro", t:["restaurant"], p:4, r:4.6, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Letná Klub", t:["bar"], p:3, r:3.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Zelená Kaviareň", t:["cafe"], p:2, r:4.4, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Drevená Terasa", t:["bar","restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Veselá Krčma", t:["restaurant"], p:4, r:4.1, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Veselá Kaviareň", t:["cafe"], p:3, r:4.0, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Tichá Trattoria", t:["restaurant"], p:3, r:4.2, veg:true, vegOnly:true, district:"I", area:"Staré Mesto"},
+  {n:"Stará Krčma", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Zlatá Lounge", t:["bar"], p:2, r:4.1, veg:false, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Rustikálna Jedáleň", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Cesta Čajovňa", t:["cafe","bar"], p:3, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto"},
+  {n:"Severná Krčma", t:["restaurant","cafe"], p:4, r:4.3, veg:true, vegOnly:true, district:"II", area:"Ružinov"},
+  {n:"Cesta Pizzeria", t:["restaurant"], p:4, r:3.9, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Letná Pizzeria", t:["restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Cesta Pivnica", t:["bar","restaurant"], p:2, r:4.1, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Rustikálna Chata", t:["restaurant"], p:3, r:4.9, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Veselá Vinotéka", t:["bar"], p:3, r:4.8, veg:false, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Jarná Grill", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Tichá Jedáleň", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Rustikálna Kuchyňa", t:["restaurant","cafe"], p:4, r:4.4, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Nová Pizzeria", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Zelená Whisky Bar", t:["bar"], p:3, r:4.6, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Mestská Búda", t:["restaurant"], p:4, r:4.6, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Severná Stodola", t:["restaurant"], p:2, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Zelená Bistro", t:["restaurant"], p:2, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Rustikálna Pizzeria", t:["restaurant"], p:4, r:3.7, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Domáca Chata", t:["restaurant"], p:4, r:4.2, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Stará Taverna", t:["restaurant","bar"], p:4, r:4.3, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Mestská Kantína", t:["restaurant"], p:3, r:4.7, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Slnečná Pekáreň", t:["cafe"], p:2, r:4.1, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Elegantná Cukráreň", t:["cafe"], p:3, r:4.7, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Mestská Halušky", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Malá Stodola", t:["restaurant","bar"], p:4, r:3.9, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Jarná Kantína", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Severná Pražiareň", t:["cafe"], p:2, r:4.5, veg:false, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Cesta Lounge", t:["bar"], p:2, r:3.9, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Cesta Taverna", t:["restaurant"], p:3, r:4.8, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Rustikálna Lounge", t:["bar"], p:4, r:4.6, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Drevená Whisky Bar", t:["bar"], p:4, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Drevená Pizzeria", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Južná Trattoria", t:["restaurant"], p:3, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Stará Whisky Bar", t:["bar"], p:4, r:4.3, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Južná Taverna", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Severná Pizzeria", t:["restaurant"], p:4, r:4.6, veg:false, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Severná Klub", t:["bar"], p:3, r:3.6, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Drevená Lounge", t:["bar"], p:3, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Južná Grill", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:true, district:"II", area:"Vrakuňa"},
+  {n:"Stará Bistro", t:["restaurant","cafe"], p:3, r:3.6, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Letná Chata", t:["restaurant"], p:3, r:4.1, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Slnečná Krčma", t:["restaurant"], p:3, r:4.8, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Malá Kantína", t:["restaurant"], p:4, r:4.4, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Elegantná Čajovňa", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Južná Čajovňa", t:["cafe"], p:3, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Cesta Espresso", t:["cafe"], p:3, r:4.7, veg:true, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Elegantná Grill", t:["restaurant"], p:3, r:3.9, veg:false, vegOnly:false, district:"II", area:"Vrakuňa"},
+  {n:"Rýchla Jedáleň", t:["restaurant"], p:3, r:3.6, veg:false, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Drevená Kantína", t:["restaurant"], p:4, r:4.0, veg:true, vegOnly:false, district:"II", area:"Ružinov"},
+  {n:"Zelená Chata", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:true, district:"II", area:"Vrakuňa"},
+  {n:"Slnečná Jedáleň", t:["restaurant"], p:3, r:4.2, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice"},
+  {n:"Letná Cukráreň", t:["cafe"], p:3, r:3.9, veg:false, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Zlatá Bistro", t:["restaurant"], p:3, r:4.2, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Modrá Cukráreň", t:["cafe"], p:3, r:3.8, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Jarná Krčma", t:["restaurant","cafe"], p:4, r:4.3, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Jarná Bar", t:["bar"], p:4, r:4.1, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Malá Pražiareň", t:["cafe"], p:2, r:4.6, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Letná Halušky", t:["restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Modrá Espresso", t:["cafe"], p:3, r:4.5, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Južná Bageteria", t:["cafe"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Letná Kaviareň", t:["cafe"], p:4, r:4.8, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Modrá Bageteria", t:["cafe"], p:2, r:3.9, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Slnečná Klub", t:["bar","restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Severná Grill", t:["restaurant"], p:3, r:4.2, veg:true, vegOnly:true, district:"III", area:"Rača"},
+  {n:"Stará Kaviareň", t:["cafe"], p:3, r:4.5, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Drevená Klub", t:["bar"], p:2, r:4.6, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Elegantná Trattoria", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Mestská Trattoria", t:["restaurant","cafe"], p:4, r:4.0, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Mestská Krčma", t:["restaurant","bar"], p:4, r:4.1, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Nová Vinotéka", t:["bar"], p:3, r:4.4, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Rustikálna Vinotéka", t:["bar"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Zlatá Grill", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Jarná Chata", t:["restaurant","cafe"], p:3, r:4.5, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Severná Bistro", t:["restaurant"], p:4, r:4.3, veg:false, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Mestská Whisky Bar", t:["bar"], p:3, r:4.7, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Jarná Whisky Bar", t:["bar"], p:2, r:4.3, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Modrá Terasa", t:["bar"], p:3, r:4.1, veg:false, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Severná Trattoria", t:["restaurant"], p:4, r:4.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Mestská Stodola", t:["restaurant"], p:2, r:4.7, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Tichá Kaviareň", t:["cafe"], p:3, r:4.9, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Rustikálna Trattoria", t:["restaurant","bar"], p:4, r:4.4, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Malá Trattoria", t:["restaurant","bar"], p:4, r:4.6, veg:false, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Nová Cukráreň", t:["cafe"], p:4, r:4.0, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Zlatá Reštaurácia", t:["restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Letná Terasa", t:["bar"], p:3, r:3.9, veg:true, vegOnly:false, district:"III", area:"Rača"},
+  {n:"Zlatá Bar", t:["bar"], p:3, r:4.0, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Letná Whisky Bar", t:["bar"], p:3, r:4.9, veg:false, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Slnečná Kuchyňa", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Rýchla Terasa", t:["bar"], p:3, r:4.8, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Modrá Pekáreň", t:["cafe"], p:3, r:4.6, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Nová Pivnica", t:["bar"], p:4, r:3.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Južná Reštaurácia", t:["restaurant"], p:3, r:4.6, veg:false, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Slnečná Terasa", t:["bar"], p:4, r:4.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Malá Búda", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Domáca Kaviareň", t:["cafe"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Malá Jedáleň", t:["restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Zelená Taverna", t:["restaurant","bar"], p:2, r:4.2, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Veselá Stodola", t:["restaurant"], p:3, r:4.1, veg:true, vegOnly:true, district:"III", area:"Rača"},
+  {n:"Zelená Stodola", t:["restaurant"], p:3, r:4.9, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Modrá Krčma", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"III", area:"Vajnory"},
+  {n:"Elegantná Pražiareň", t:["cafe","bar"], p:2, r:4.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto"},
+  {n:"Tichá Whisky Bar", t:["bar"], p:4, r:3.6, veg:false, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Stará Vinotéka", t:["bar"], p:2, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Tichá Chata", t:["restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Rýchla Kaviareň", t:["cafe","restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Nová Halušky", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Malá Reštaurácia", t:["restaurant","cafe"], p:3, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Veselá Búda", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Južná Pizzeria", t:["restaurant"], p:4, r:4.1, veg:false, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Tichá Espresso", t:["cafe"], p:4, r:3.7, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Domáca Búda", t:["restaurant"], p:2, r:3.7, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Južná Stodola", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Jarná Pražiareň", t:["cafe"], p:4, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Južná Whisky Bar", t:["bar"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Drevená Kaviareň", t:["cafe"], p:3, r:4.5, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Tichá Kantína", t:["restaurant"], p:4, r:3.7, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Mestská Pražiareň", t:["cafe"], p:3, r:4.5, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Rýchla Bar", t:["bar"], p:4, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Modrá Čajovňa", t:["cafe"], p:3, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Zelená Bageteria", t:["cafe"], p:4, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Slnečná Pivnica", t:["bar"], p:2, r:4.2, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Domáca Krčma", t:["restaurant"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Elegantná Lounge", t:["bar"], p:4, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Rýchla Lounge", t:["bar"], p:4, r:4.8, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Cesta Krčma", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Modrá Búda", t:["restaurant"], p:3, r:4.5, veg:false, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Zlatá Kantína", t:["restaurant"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Elegantná Halušky", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Tichá Lounge", t:["bar"], p:2, r:4.2, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Malá Cukráreň", t:["cafe"], p:3, r:3.6, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Rýchla Taverna", t:["restaurant"], p:3, r:4.4, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Modrá Pizzeria", t:["restaurant"], p:4, r:4.3, veg:false, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Letná Lounge", t:["bar","restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Rýchla Kuchyňa", t:["restaurant"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Rýchla Stodola", t:["restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Severná Vinotéka", t:["bar"], p:3, r:4.8, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Cesta Kaviareň", t:["cafe"], p:4, r:4.2, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Jarná Bistro", t:["restaurant"], p:3, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Mestská Čajovňa", t:["cafe"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Zlatá Terasa", t:["bar"], p:3, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Letná Vinotéka", t:["bar"], p:3, r:4.0, veg:false, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Slnečná Whisky Bar", t:["bar"], p:3, r:4.3, veg:false, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Drevená Bar", t:["bar"], p:4, r:4.7, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Veselá Cukráreň", t:["cafe"], p:2, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Letná Pivnica", t:["bar","restaurant"], p:4, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Lamač"},
+  {n:"Domáca Bistro", t:["restaurant"], p:2, r:4.8, veg:false, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Tichá Búda", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:true, district:"IV", area:"Lamač"},
+  {n:"Južná Krčma", t:["restaurant"], p:4, r:3.9, veg:true, vegOnly:false, district:"IV", area:"Devín"},
+  {n:"Cesta Kantína", t:["restaurant"], p:3, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Dúbravka"},
+  {n:"Malá Pekáreň", t:["cafe"], p:4, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Drevená Chata", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves"},
+  {n:"Mestská Vinotéka", t:["bar"], p:2, r:4.3, veg:false, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Jarná Terasa", t:["bar"], p:3, r:3.8, veg:false, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Modrá Kuchyňa", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Modrá Grill", t:["restaurant"], p:3, r:4.6, veg:false, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Severná Terasa", t:["bar"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Cesta Grill", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Slnečná Cukráreň", t:["cafe"], p:3, r:4.5, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Rýchla Trattoria", t:["restaurant","bar"], p:3, r:4.9, veg:true, vegOnly:true, district:"V", area:"Čunovo"},
+  {n:"Zlatá Kuchyňa", t:["restaurant"], p:2, r:4.4, veg:true, vegOnly:true, district:"V", area:"Petržalka"},
+  {n:"Domáca Trattoria", t:["restaurant"], p:4, r:3.6, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Elegantná Reštaurácia", t:["restaurant"], p:3, r:4.1, veg:true, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Cesta Trattoria", t:["restaurant"], p:4, r:3.8, veg:false, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Jarná Vinotéka", t:["bar"], p:2, r:4.7, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Mestská Terasa", t:["bar"], p:3, r:3.7, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Zlatá Whisky Bar", t:["bar"], p:3, r:3.9, veg:false, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Domáca Taverna", t:["restaurant"], p:3, r:4.2, veg:false, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Jarná Taverna", t:["restaurant"], p:3, r:4.1, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Cesta Cukráreň", t:["cafe"], p:2, r:4.7, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Cesta Whisky Bar", t:["bar"], p:2, r:3.8, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Zelená Pizzeria", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:true, district:"V", area:"Jarovce"},
+  {n:"Rustikálna Kaviareň", t:["cafe"], p:3, r:3.8, veg:false, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Rýchla Pizzeria", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:true, district:"V", area:"Petržalka"},
+  {n:"Modrá Whisky Bar", t:["bar"], p:3, r:4.4, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Zelená Čajovňa", t:["cafe"], p:4, r:4.1, veg:true, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Letná Bistro", t:["restaurant"], p:3, r:3.8, veg:false, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Domáca Klub", t:["bar"], p:3, r:4.0, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Nová Grill", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Jarná Pivnica", t:["bar"], p:3, r:3.7, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Domáca Bar", t:["bar"], p:2, r:4.2, veg:false, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Nová Trattoria", t:["restaurant","cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Rýchla Espresso", t:["cafe"], p:4, r:3.8, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Domáca Whisky Bar", t:["bar"], p:2, r:4.4, veg:true, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Letná Reštaurácia", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Slnečná Kantína", t:["restaurant"], p:3, r:4.7, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Veselá Trattoria", t:["restaurant","bar"], p:3, r:4.6, veg:false, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Elegantná Pekáreň", t:["cafe"], p:3, r:3.7, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Nová Kantína", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Cesta Búda", t:["restaurant"], p:4, r:4.2, veg:false, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Jarná Pekáreň", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Drevená Pekáreň", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Slnečná Búda", t:["restaurant"], p:3, r:3.9, veg:false, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Drevená Cukráreň", t:["cafe"], p:2, r:4.5, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Tichá Pivnica", t:["bar"], p:2, r:4.8, veg:true, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Rustikálna Cukráreň", t:["cafe"], p:4, r:4.5, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Cesta Bistro", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"V", area:"Petržalka"},
+  {n:"Rustikálna Pražiareň", t:["cafe"], p:3, r:4.8, veg:false, vegOnly:false, district:"V", area:"Čunovo"},
+  {n:"Slnečná Espresso", t:["cafe"], p:2, r:4.6, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Zlatá Kaviareň", t:["cafe"], p:4, r:4.1, veg:true, vegOnly:false, district:"V", area:"Rusovce"},
+  {n:"Mestská Pivnica", t:["bar","restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"V", area:"Jarovce"},
+  {n:"Veselá Pivnica", t:["bar"], p:3, r:4.2, veg:true, vegOnly:false, district:"V", area:"Jarovce"}
+];
+
+let state = { code:null, name:null };
+let currentView = 'home';
+let lastResults = [];
+let pollTimer = null;
+
+function refreshTitles(name){
+  const titles = {
+    home:['homeTitle','homeSub'], prefs:['prefsTitle','prefsSub'], waiting:['waitingTitle','waitingSub'],
+    suggestions:['suggestionsTitle','suggestionsSub'], vote:['voteTitle','voteSub']
+  };
+  document.getElementById('title').textContent = t(titles[name][0]);
+  document.getElementById('sub').textContent = t(titles[name][1]);
+}
+
+function showView(name){
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  refreshTitles(name);
+  stopPolling();
+  if(name==='waiting'){ startPolling(refreshWaiting); }
+  if(name==='vote'){ renderVoteList(); startPolling(renderVoteList); }
+}
+
+function toggleChip(el){ el.classList.toggle('on'); }
+function budgetSelect(el){
+  el.parentElement.querySelectorAll('.budget-opt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+}
+function randCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c=''; for(let i=0;i<5;i++) c+=chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+function startPolling(fn){ pollTimer = setInterval(fn, 3000); }
+function stopPolling(){ if(pollTimer) clearInterval(pollTimer); }
+
+async function createSession(){
+  const name = document.getElementById('myName').value.trim();
+  if(!name){ document.getElementById('homeStatus').textContent=t('homeStatusNoName'); return; }
+  const code = randCode();
+  const session = { code, createdAt: Date.now(), participants:{}, votes:{} };
+  try{
+    await storageSet('ontable-session-'+code, JSON.stringify(session));
+    state.code = code; state.name = name;
+    document.getElementById('codeDisplay').textContent = code;
+    showView('prefs');
+  }catch(e){ document.getElementById('homeStatus').textContent = t('homeStatusError'); }
+}
+
+async function joinSession(){
+  const name = document.getElementById('myName').value.trim();
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if(!name || !code){ document.getElementById('homeStatus').textContent=t('homeStatusNoCode'); return; }
+  try{
+    const res = await storageGet('ontable-session-'+code);
+    if(!res){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); return; }
+    state.code = code; state.name = name;
+    document.getElementById('codeDisplay').textContent = code;
+    showView('prefs');
+  }catch(e){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); }
+}
+
+async function submitPrefs(){
+  const types = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['restaurant','cafe','bar'].includes(v));
+  const districts = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['I','II','III','IV','V'].includes(v));
+  const restrictions = [...document.querySelectorAll('#view-prefs .chip.warn.on')].map(c=>c.dataset.val);
+  const budgetEl = document.querySelector('#view-prefs .budget-opt.on');
+  const budget = budgetEl ? parseInt(budgetEl.dataset.val) : 4;
+
+  if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
+
+  try{
+    const res = await storageGet('ontable-session-'+state.code);
+    const session = JSON.parse(res.value);
+    session.participants[state.name] = { types, districts, restrictions, budget, at: Date.now() };
+    await storageSet('ontable-session-'+state.code, JSON.stringify(session));
+    showView('waiting');
+  }catch(e){ document.getElementById('prefsStatus').textContent = t('prefsStatusError'); }
+}
+
+async function refreshWaiting(){
+  try{
+    const res = await storageGet('ontable-session-'+state.code);
+    const session = JSON.parse(res.value);
+    document.getElementById('whoStrip').innerHTML = Object.keys(session.participants).map(n=>
+      `<div class="who-pill">${n} ✓</div>`
+    ).join('');
+  }catch(e){}
+}
+
+function scoreVenue(v, participants){
+  const needsVeg = Object.values(participants).some(p=>p.restrictions.includes('vegetarien'));
+  if(needsVeg && !v.veg) return null;
+  const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
+  if(v.p > maxBudget) return null;
+  for(const p of Object.values(participants)){
+    if(p.districts && p.districts.length>0 && !p.districts.includes(v.district)) return null;
+  }
+  const total = Object.keys(participants).length;
+  let matchCount = 0; const likedBy = [];
+  Object.entries(participants).forEach(([name,p])=>{
+    if(p.types.some(ty=>v.t.includes(ty))){ matchCount++; likedBy.push(name); }
+  });
+  const score = Math.round((matchCount/total)*100);
+  return { v, score, likedBy };
+}
+
+async function generateSuggestions(){
+  try{
+    const res = await storageGet('ontable-session-'+state.code);
+    const session = JSON.parse(res.value);
+    const participants = session.participants;
+    if(Object.keys(participants).length===0){
+      document.getElementById('waitingStatus').textContent = t('waitingStatusNoAnswer');
+      return;
+    }
+    const scored = VENUES.map(v=>scoreVenue(v, participants)).filter(Boolean);
+    scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
+    lastResults = scored.slice(0,3);
+    renderResults();
+    showView('suggestions');
+  }catch(e){ document.getElementById('waitingStatus').textContent = t('waitingStatusError'); }
+}
+
+function renderResults(){
+  const list = document.getElementById('resultsList');
+  if(lastResults.length===0){
+    list.innerHTML = `<div class="note">${t('noMatchNote')}</div>`;
+    return;
+  }
+  list.innerHTML = lastResults.map(r=>`
+    <div class="result-card">
+      <div class="result-top">
+        <div>
+          <div class="result-name">${r.v.n}</div>
+          <div class="result-type">${r.v.t.join(' · ')} · ${'€'.repeat(r.v.p-1)} · Bratislava ${r.v.district} – ${r.v.area}</div>
+        </div>
+        <div class="score-badge" style="background:${r.score>=80?'var(--basil)':r.score>=50?'var(--citrus)':'var(--tomato)'}; color:${r.score>=50&&r.score<80?'var(--ink)':'white'}">${r.score}%</div>
+      </div>
+      <div class="match-row">
+        ${r.v.vegOnly?`<span class="match-tag">${t('vegOnlyBadge')}</span>`:(r.v.veg?`<span class="match-tag">${t('vegOptionBadge')}</span>`:'')}
+        <span class="match-tag" style="background:rgba(43,22,32,0.06); color:var(--ink-soft); font-weight:400;">${t('likedByPrefix')} ${r.likedBy.join(', ')||'—'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function castVote(venueName){
+  try{
+    const res = await storageGet('ontable-session-'+state.code);
+    const session = JSON.parse(res.value);
+    session.votes = session.votes || {};
+    let arr = session.votes[state.name] || [];
+    const idx = arr.indexOf(venueName);
+    if(idx>=0){ arr.splice(idx,1); }
+    else { if(arr.length>=2) return; arr.push(venueName); }
+    session.votes[state.name] = arr;
+    await storageSet('ontable-session-'+state.code, JSON.stringify(session));
+    renderVoteList();
+  }catch(e){}
+}
+
+async function renderVoteList(){
+  try{
+    const res = await storageGet('ontable-session-'+state.code);
+    const session = JSON.parse(res.value);
+    const votes = session.votes || {};
+    const counts = {}; lastResults.forEach(r=>counts[r.v.n]=0);
+    Object.values(votes).forEach(arr=>{ (arr||[]).forEach(v=>{ if(counts[v]!==undefined) counts[v]++; }); });
+    const totalBallots = Object.values(votes).reduce((a,arr)=>a+(arr?arr.length:0),0) || 1;
+    const myVotes = votes[state.name] || [];
+
+    document.getElementById('voteList').innerHTML = lastResults.map(r=>{
+      const c = counts[r.v.n];
+      const pct = Math.round((c/totalBallots)*100);
+      const mine = myVotes.includes(r.v.n);
+      return `
+        <div class="vote-item ${mine?'voted':''}" onclick="castVote('${r.v.n.replace(/'/g,"\\'")}')">
+          <div class="vote-top">
+            <div class="vote-name"><span class="vote-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round"/></svg></span>${r.v.n}</div>
+            <div class="vote-count">${c} ${t('votesWord')}</div>
+          </div>
+          <div class="vote-bar-bg"><div class="vote-bar" style="width:${pct}%"></div></div>
+        </div>`;
+    }).join('');
+  }catch(e){}
+}
+
+renderLangRow();
+applyLang();
+
+// ---------- PWA: version display + service worker + manual update check ----------
+document.getElementById('verLabel').textContent = 'v' + (window.APP_VERSION || '?');
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+
+async function checkForUpdate(){
+  const btn = document.getElementById('updateBtn');
+  const original = btn.innerHTML;
+  btn.innerHTML = '⟳ …';
+  try{
+    if('serviceWorker' in navigator){
+      const reg = await navigator.serviceWorker.getRegistration();
+      if(reg){
+        await reg.update();
+        // Force the new service worker (with the bumped CACHE_NAME) to take over,
+        // then hard-reload so the freshly cached files are actually used.
+        if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
+      }
+    }
+    if(window.caches){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  }catch(e){}
+  location.reload(true);
+}
+</script>
+
+</body>
+</html>
