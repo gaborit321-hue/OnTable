@@ -40,8 +40,17 @@ self.addEventListener('message', (event) => {
 // Cache-first (fast, works offline), refreshed in the background on every
 // request so the next visit already has the newer file — combined with the
 // version-based purge above so nothing stale lingers across a real deploy.
+//
+// IMPORTANT: only intercept requests for the app's own files (same origin).
+// Cross-origin calls (like the ones to the Apps Script backend) must go
+// straight to the network, untouched — intercepting them here is what was
+// causing "Error, try again" once the service worker became active.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return; // let it pass through unmodified
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request)
