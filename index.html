@@ -646,7 +646,7 @@ function showView(name){
   document.getElementById('view-'+name).classList.add('active');
   refreshTitles(name);
   stopPolling();
-  if(name==='waiting'){ startPolling(refreshWaiting); }
+  if(name==='waiting'){ refreshWaiting(); startPolling(refreshWaiting); }
   if(name==='vote'){ renderVoteList(); startPolling(renderVoteList); }
 }
 
@@ -663,22 +663,44 @@ function randCode(){
 function startPolling(fn){ pollTimer = setInterval(fn, 3000); }
 function stopPolling(){ if(pollTimer) clearInterval(pollTimer); }
 
-async function createSession(){
+// Small non-blocking banner for background write failures — used only when
+// we've already moved the user to the next screen optimistically and the
+// actual save fails afterward (rare), so they still get told about it.
+function showToast(msg){
+  let el = document.getElementById('toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = 'position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:var(--tomato);color:#fff;padding:10px 16px;border-radius:999px;font-size:12px;font-family:Karla,sans-serif;z-index:100;box-shadow:0 6px 16px rgba(0,0,0,0.25);max-width:85%;text-align:center;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.style.opacity = '0'; }, 4000);
+}
+
+function createSession(){
   const name = document.getElementById('myName').value.trim();
   if(!name){ document.getElementById('homeStatus').textContent=t('homeStatusNoName'); return; }
   const code = randCode();
-  try{
-    await storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now() }));
-    state.code = code; state.name = name;
-    document.getElementById('codeDisplay').textContent = code;
-    showView('prefs');
-  }catch(e){ document.getElementById('homeStatus').textContent = t('homeStatusError'); }
+  // Optimistic: the code is generated locally, so there's nothing to wait
+  // for before showing the next screen — the write to the backend happens
+  // in the background.
+  state.code = code; state.name = name;
+  document.getElementById('codeDisplay').textContent = code;
+  showView('prefs');
+  storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now() }))
+    .catch(()=> showToast(t('homeStatusError')));
 }
 
 async function joinSession(){
   const name = document.getElementById('myName').value.trim();
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
   if(!name || !code){ document.getElementById('homeStatus').textContent=t('homeStatusNoCode'); return; }
+  const btn = document.getElementById('joinBtn');
+  const original = btn.textContent;
+  btn.textContent = '…'; btn.disabled = true;
   try{
     const res = await storageGet(keyMeta(code));
     if(!res){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); return; }
@@ -686,9 +708,10 @@ async function joinSession(){
     document.getElementById('codeDisplay').textContent = code;
     showView('prefs');
   }catch(e){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); }
+  finally{ btn.textContent = original; btn.disabled = false; }
 }
 
-async function submitPrefs(){
+function submitPrefs(){
   const types = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['restaurant','cafe','bar'].includes(v));
   const districts = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['I','II','III','IV','V'].includes(v));
   const restrictions = [...document.querySelectorAll('#view-prefs .chip.warn.on')].map(c=>c.dataset.val);
@@ -697,11 +720,12 @@ async function submitPrefs(){
 
   if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
 
-  try{
-    const data = { types, districts, restrictions, budget, at: Date.now() };
-    await storageSet(keyPrefs(state.code, state.name), JSON.stringify(data));
-    showView('waiting');
-  }catch(e){ document.getElementById('prefsStatus').textContent = t('prefsStatusError'); }
+  // Optimistic: we already know what was chosen, so move to "waiting" right
+  // away — the write happens in the background.
+  showView('waiting');
+  const data = { types, districts, restrictions, budget, at: Date.now() };
+  storageSet(keyPrefs(state.code, state.name), JSON.stringify(data))
+    .catch(()=> showToast(t('prefsStatusError')));
 }
 
 async function fetchAllParticipants(){
@@ -746,6 +770,9 @@ function scoreVenue(v, participants){
 }
 
 async function generateSuggestions(){
+  const btn = document.getElementById('seeIdeasBtn');
+  const original = btn.textContent;
+  btn.textContent = '…'; btn.disabled = true;
   try{
     const participants = await fetchAllParticipants();
     if(Object.keys(participants).length===0){
@@ -759,6 +786,7 @@ async function generateSuggestions(){
     renderResults();
     showView('suggestions');
   }catch(e){ document.getElementById('waitingStatus').textContent = t('waitingStatusError'); }
+  finally{ btn.textContent = original; btn.disabled = false; }
 }
 
 function renderResults(){
