@@ -793,6 +793,83 @@ function scoreVenue(v, participants){
   return { v, score, likedBy };
 }
 
+// ---------- Live venues via Google Places API (New), proxied through Apps Script ----------
+async function fetchPlacesForQuery(query){
+  const url = APPS_SCRIPT_URL + '?action=places&query=' + encodeURIComponent(query);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.places || [];
+}
+
+function priceLevelToNum(pl){
+  switch(pl){
+    case 'PRICE_LEVEL_INEXPENSIVE': return 2;
+    case 'PRICE_LEVEL_MODERATE': return 3;
+    case 'PRICE_LEVEL_EXPENSIVE': return 4;
+    case 'PRICE_LEVEL_VERY_EXPENSIVE': return 4;
+    default: return 3; // unknown -> moderate, rather than wrongly excluding it on budget
+  }
+}
+
+function typesFromGoogle(types){
+  const out = [];
+  if((types||[]).some(x=>['restaurant','meal_takeaway','meal_delivery'].includes(x))) out.push('restaurant');
+  if((types||[]).some(x=>['cafe','bakery'].includes(x))) out.push('cafe');
+  if((types||[]).some(x=>['bar','night_club','wine_bar'].includes(x))) out.push('bar');
+  if(out.length===0) out.push('restaurant');
+  return out;
+}
+
+function hoursFromGoogle(place){
+  const periods = place.regularOpeningHours && place.regularOpeningHours.periods;
+  if(!periods || periods.length===0) return { open: 0, close: 24 }; // unknown -> don't filter it out
+  // Simplification: uses the first listed period as a representative range —
+  // doesn't handle split lunch/dinner hours or day-specific schedules.
+  const p = periods[0];
+  const open = p.open ? (p.open.hour + (p.open.minute||0)/60) : 0;
+  let close = p.close ? (p.close.hour + (p.close.minute||0)/60) : 24;
+  if(close < open) close = 24; // rough fallback for overnight venues
+  return { open, close };
+}
+
+const DISTRICT_QUERIES = {
+  I:   'restaurants cafes bars in Staré Mesto, Bratislava I, Slovakia',
+  II:  'restaurants cafes bars in Ružinov, Bratislava II, Slovakia',
+  III: 'restaurants cafes bars in Nové Mesto, Bratislava III, Slovakia',
+  IV:  'restaurants cafes bars in Karlova Ves, Bratislava IV, Slovakia',
+  V:   'restaurants cafes bars in Petržalka, Bratislava V, Slovakia'
+};
+
+async function fetchLiveVenues(districts){
+  const targets = districts.length ? districts : ['I','II','III','IV','V'];
+  const batches = await Promise.all(targets.map(d =>
+    fetchPlacesForQuery(DISTRICT_QUERIES[d]).then(places => ({d, places})).catch(()=>({d, places:[]}))
+  ));
+  const venues = [];
+  const seen = new Set();
+  batches.forEach(({d, places}) => {
+    places.forEach(p => {
+      const name = p.displayName ? p.displayName.text : null;
+      if(!name || seen.has(name)) return;
+      seen.add(name);
+      const hrs = hoursFromGoogle(p);
+      venues.push({
+        n: name,
+        t: typesFromGoogle(p.types),
+        p: priceLevelToNum(p.priceLevel),
+        r: p.rating || 4.0,
+        veg: p.servesVegetarianFood !== false, // unknown -> assume possible rather than excluding
+        vegOnly: false,
+        district: d,
+        area: p.formattedAddress || '',
+        open: hrs.open,
+        close: hrs.close
+      });
+    });
+  });
+  return venues;
+}
+
 async function generateSuggestions(){
   const btn = document.getElementById('seeIdeasBtn');
   const original = btn.textContent;
@@ -803,7 +880,15 @@ async function generateSuggestions(){
       document.getElementById('waitingStatus').textContent = t('waitingStatusNoAnswer');
       return;
     }
-    const scored = VENUES.map(v=>scoreVenue(v, participants)).filter(Boolean);
+    const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
+
+    let pool = VENUES; // safe fallback: the built-in 250-venue test dataset
+    try{
+      const live = await fetchLiveVenues(districtUnion);
+      if(live.length > 0) pool = live; // real data available -> use it instead
+    }catch(e){ /* Places API not configured yet or failed — silently keep the fallback */ }
+
+    const scored = pool.map(v=>scoreVenue(v, participants)).filter(Boolean);
     scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
     lastResults = scored.slice(0,3);
     latestBooking = null;
