@@ -61,11 +61,18 @@
   @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
   .section-label{font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin:18px 0 9px;}
   .section-label:first-child{margin-top:6px;}
-  input[type=text], input[type=time]{
+  input[type=text]{
     width:100%; padding:14px 16px; border-radius:14px; background:var(--card-soft);
     border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:14px; color:var(--ink); outline:none;
   }
   input[type=text]::placeholder{color:rgba(122,100,89,0.6);}
+  select{
+    width:100%; padding:14px 40px 14px 16px; border-radius:14px; background:var(--card-soft);
+    border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:14px; color:var(--ink); outline:none;
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A6459' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center; background-size:16px;
+  }
   .btn{width:100%; padding:14px; border-radius:14px; border:none; font-family:'Karla', sans-serif; font-weight:700; font-size:13.5px; cursor:pointer; margin-top:10px;}
   .btn-primary{background:var(--wine); color:var(--card);}
   .btn-ghost{background:transparent; color:var(--ink); border:1.4px solid var(--line);}
@@ -143,6 +150,10 @@
             <div class="ticket-code" id="codeDisplay">------</div>
             <div class="copy-hint" data-i18n="shareHint"></div>
           </div>
+          <button class="btn btn-ghost" id="shareBtn" onclick="shareCode()" style="display:flex; align-items:center; justify-content:center; gap:7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+            <span data-i18n="shareBtn"></span>
+          </button>
 
           <div class="section-label" data-i18n="typeLabel"></div>
           <div class="chip-grid">
@@ -167,8 +178,23 @@
             <div class="chip" data-val="V" onclick="toggleChip(this)">Bratislava V</div>
           </div>
 
-          <div class="section-label" data-i18n="timeLabel"></div>
-          <input type="time" id="timeInput">
+          <div class="section-label" data-i18n="whenLabel"></div>
+          <div class="chip-grid" id="dateChips">
+            <div class="chip" onclick="pickDatePreset(this,'today')" data-i18n="dateToday"></div>
+            <div class="chip" onclick="pickDatePreset(this,'tomorrow')" data-i18n="dateTomorrow"></div>
+            <div class="chip" onclick="pickDatePreset(this,'weekend')" data-i18n="dateWeekend"></div>
+          </div>
+          <input type="hidden" id="dateInput">
+          <select id="dateSelect" onchange="onDateSelectChange(this.value)" style="margin-top:8px;"></select>
+
+          <div class="chip-grid" style="margin-top:14px;" id="timeChips">
+            <div class="chip" onclick="pickTimePreset(this,12.5)" data-i18n="timeLunch"></div>
+            <div class="chip" onclick="pickTimePreset(this,18)" data-i18n="timeAperitif"></div>
+            <div class="chip" onclick="pickTimePreset(this,20)" data-i18n="timeDinner"></div>
+          </div>
+          <input type="hidden" id="timeInput">
+          <select id="timeSelect" onchange="onTimeSelectChange(this.value)" style="margin-top:8px;"></select>
+
           <div class="note" data-i18n="timeNote" style="margin-top:8px;"></div>
 
           <div class="section-label" data-i18n="restrictionsLabel"></div>
@@ -219,6 +245,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   orJoin:"Or join an existing code", joinPlaceholder:"E.G. 7F3QK", joinBtn:"Join",
   prefsTitle:"Your preferences", prefsSub:"Everyone answers on their own.",
   groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
+  shareBtn:"Share the code", shareMessage:"Join me on OnTable — code {code}:", shareCopied:"Copied to clipboard",
   typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Max budget", districtLabel:"District (Bratislava I–V)",
   restrictionsLabel:"Dietary restrictions", vegChip:"Vegetarian / vegan",
@@ -235,14 +262,16 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   homeStatusNotFound:"Code not found.", homeStatusError:"Error, try again.",
   prefsStatusNoType:"Choose at least one type of place.", prefsStatusError:"Error, try again.",
   waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
+  waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.",
   leadingLabel:"Leading", bookBtn:"Reserve (test)", bookConfirmed:"Reservation requested",
-  timeLabel:"What time?", timeNote:"Optional — leave blank for no time constraint. We'll only keep places open at this time.",
-  bookPendingBy:"is reserving", bookConfirmedBy:"reserved"},
+  whenLabel:"When?", selectPlaceholder:"Select…", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
+  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again."},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Fab", createBtn:"Vytvoriť nový kód",
   orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
   prefsTitle:"Tvoje preferencie", prefsSub:"Každý odpovedá sám za seba.",
   groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
+  shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na OnTable — kód {code}:", shareCopied:"Skopírované do schránky",
   typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
   budgetLabel:"Maximálny rozpočet", districtLabel:"Mestská časť (Bratislava I–V)",
   restrictionsLabel:"Stravovacie obmedzenia", vegChip:"Vegetariánske / vegánske",
@@ -259,14 +288,16 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   homeStatusNotFound:"Kód sa nenašiel.", homeStatusError:"Chyba, skús to znova.",
   prefsStatusNoType:"Vyber aspoň jeden typ podniku.", prefsStatusError:"Chyba, skús to znova.",
   waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
+  waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať (test)", bookConfirmed:"Rezervácia odoslaná",
-  timeLabel:"O koľkej?", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží na čase. Ponecháme len podniky otvorené v tomto čase.",
-  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)"},
+  whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
+  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova."},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Fab", createBtn:"Új kód létrehozása",
   orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
   prefsTitle:"A preferenciáid", prefsSub:"Mindenki saját maga válaszol.",
   groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
+  shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az OnTable-ön — kód {code}:", shareCopied:"Vágólapra másolva",
   typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
   budgetLabel:"Maximális költségkeret", districtLabel:"Kerület (Pozsony I–V)",
   restrictionsLabel:"Étkezési korlátozások", vegChip:"Vegetáriánus / vegán",
@@ -283,14 +314,16 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   homeStatusNotFound:"A kód nem található.", homeStatusError:"Hiba, próbáld újra.",
   prefsStatusNoType:"Válassz legalább egy helytípust.", prefsStatusError:"Hiba, próbáld újra.",
   waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
+  waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.",
   leadingLabel:"Vezet", bookBtn:"Foglalás (teszt)", bookConfirmed:"Foglalás elküldve",
-  timeLabel:"Hánykor?", timeNote:"Nem kötelező — hagyd üresen, ha nem számít az időpont. Csak az ekkor nyitva tartó helyeket tartjuk meg.",
-  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta"},
+  whenLabel:"Mikor?", selectPlaceholder:"Válassz…", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
+  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra."},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Fab", createBtn:"Créer un nouveau code",
   orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
   prefsTitle:"Tes préférences", prefsSub:"Chacun répond de son côté.",
   groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
+  shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur OnTable — code {code} :", shareCopied:"Copié dans le presse-papiers",
   typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Budget max", districtLabel:"Quartier (Bratislava I–V)",
   restrictionsLabel:"Restrictions alimentaires", vegChip:"Végétarien / végan",
@@ -307,9 +340,10 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   homeStatusNotFound:"Code introuvable.", homeStatusError:"Erreur, réessaie.",
   prefsStatusNoType:"Choisis au moins un type de lieu.", prefsStatusError:"Erreur, réessaie.",
   waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
+  waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.",
   leadingLabel:"En tête", bookBtn:"Réserver (test)", bookConfirmed:"Réservation demandée",
-  timeLabel:"À quelle heure ?", timeNote:"Facultatif — laisse vide si l'heure n'a pas d'importance. On ne garde alors que les lieux ouverts à cette heure-là.",
-  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé"}
+  whenLabel:"Quand ?", selectPlaceholder:"Choisir…", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
+  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer."}
 };
 let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
@@ -380,264 +414,13 @@ function applyLang(){
   document.getElementById('seeIdeasBtn').textContent = t('seeIdeasBtn');
   document.getElementById('waitingStatus').textContent = t('waitingStatus');
   document.getElementById('launchVoteBtn').textContent = t('launchVoteBtn');
+  populateDateOptions();
+  populateTimeOptions();
   refreshTitles(currentView);
   if(currentView==='suggestions' && lastResults.length) renderResults();
   if(currentView==='vote') renderVoteList();
 }
 
-// ---------- Bratislava data: 23 real venues (I & II) + synthetic filler for load testing (50/district). Includes approximate opening/closing hours (decimal 24h). ----------
-const VENUES = [
-  {n:"Urban House", t:["restaurant","bar","cafe"], p:3, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:9, close:24},
-  {n:"Bistronomy", t:["restaurant"], p:4, r:4.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11.5, close:22},
-  {n:"Gatto Matto Pánska", t:["restaurant"], p:3, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:22},
-  {n:"Meanto", t:["restaurant"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11.5, close:22},
-  {n:"Koliba Kamzík", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:23},
-  {n:"Modrá Hviezda", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:17.5, close:22},
-  {n:"Bratislava Flagship", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:22},
-  {n:"Mezcalli", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11.5, close:22},
-  {n:"Foxford", t:["cafe"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8.5, close:21},
-  {n:"Schöndorf", t:["cafe","restaurant","bar"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8.5, close:19},
-  {n:"MONDIEU", t:["cafe"], p:2, r:4.4, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:21},
-  {n:"Matsu", t:["cafe"], p:2, r:4.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:18},
-  {n:"Caffe4U", t:["cafe"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:19},
-  {n:"MAD", t:["bar","cafe"], p:2, r:4.9, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:7, close:21},
-  {n:"Michalska Cocktail Room", t:["bar"], p:3, r:4.8, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:18, close:24},
-  {n:"Gufman & Matyáš Wine House", t:["bar","restaurant"], p:3, r:4.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"After", t:["bar"], p:2, r:4.6, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:16.5, close:23},
-  {n:"Víno alebo Kvety", t:["bar"], p:3, r:4.8, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:16, close:22},
-  {n:"Viecha pod hradom", t:["bar"], p:2, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:16, close:24},
-  {n:"Green Leaf", t:["restaurant"], p:2, r:4.9, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Balans Bistro", t:["restaurant"], p:2, r:4.8, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Foodstock", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:11, close:22},
-  {n:"Bistro Laf", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Zelená Pražiareň", t:["cafe","bar"], p:2, r:3.7, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:22},
-  {n:"Cesta Kantína", t:["restaurant","cafe"], p:2, r:3.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:23},
-  {n:"Zlatá Chata", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:22},
-  {n:"Rýchla Grill", t:["restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:23},
-  {n:"Domáca Kantína", t:["restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Domáca Reštaurácia", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:23},
-  {n:"Zlatá Halušky", t:["restaurant"], p:3, r:4.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Severná Pivnica", t:["bar"], p:2, r:4.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:16, close:24},
-  {n:"Letná Reštaurácia", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"Tichá Taverna", t:["restaurant"], p:3, r:4.6, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"Rýchla Bageteria", t:["cafe"], p:3, r:4.9, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:8.5, close:20},
-  {n:"Drevená Búda", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:21},
-  {n:"Cesta Pekáreň", t:["cafe","bar"], p:3, r:4.1, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:22},
-  {n:"Slnečná Bistro", t:["restaurant","bar"], p:2, r:4.7, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:23},
-  {n:"Jarná Klub", t:["bar"], p:3, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:16, close:24},
-  {n:"Domáca Halušky", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:12, close:23},
-  {n:"Malá Chata", t:["restaurant"], p:4, r:3.9, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:21},
-  {n:"Rustikálna Reštaurácia", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11.5, close:21},
-  {n:"Domáca Trattoria", t:["restaurant"], p:3, r:4.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:22},
-  {n:"Veselá Pražiareň", t:["cafe"], p:3, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8, close:19},
-  {n:"Letná Búda", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11, close:21},
-  {n:"Modrá Stodola", t:["restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:11.5, close:22},
-  {n:"Rustikálna Jedáleň", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"Cesta Stodola", t:["restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:21},
-  {n:"Veselá Pekáreň", t:["cafe"], p:3, r:4.4, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8.5, close:20},
-  {n:"Drevená Pražiareň", t:["cafe"], p:4, r:4.0, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:8.5, close:20},
-  {n:"Malá Kuchyňa", t:["restaurant"], p:3, r:4.9, veg:true, vegOnly:true, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"Malá Bistro", t:["restaurant"], p:3, r:3.8, veg:false, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:23},
-  {n:"Tichá Grill", t:["restaurant"], p:2, r:3.7, veg:true, vegOnly:false, district:"I", area:"Staré Mesto", open:12, close:22},
-  {n:"Drevená Taverna", t:["restaurant"], p:3, r:4.8, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:11.5, close:21},
-  {n:"Drevená Reštaurácia", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:true, district:"II", area:"Ružinov", open:12, close:21},
-  {n:"Elegantná Pekáreň", t:["cafe"], p:2, r:3.8, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:8, close:18},
-  {n:"Domáca Čajovňa", t:["cafe"], p:3, r:4.7, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:7.5, close:18},
-  {n:"Zlatá Lounge", t:["bar"], p:2, r:4.6, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:16, close:23},
-  {n:"Severná Stodola", t:["restaurant"], p:2, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:11.5, close:21},
-  {n:"Severná Pizzeria", t:["restaurant"], p:3, r:3.7, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:11.5, close:23},
-  {n:"Stará Bar", t:["bar"], p:4, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:15, close:22},
-  {n:"Mestská Bageteria", t:["cafe"], p:4, r:4.3, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:7.5, close:19},
-  {n:"Cesta Búda", t:["restaurant"], p:3, r:4.5, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:11.5, close:21},
-  {n:"Rýchla Pivnica", t:["bar"], p:4, r:3.8, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:17, close:24},
-  {n:"Slnečná Taverna", t:["restaurant"], p:2, r:4.1, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:12, close:23},
-  {n:"Stará Grill", t:["restaurant"], p:3, r:4.2, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:11.5, close:22},
-  {n:"Zlatá Espresso", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:7.5, close:18},
-  {n:"Modrá Pražiareň", t:["cafe"], p:2, r:3.9, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:8, close:19},
-  {n:"Severná Lounge", t:["bar"], p:3, r:3.8, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:18, close:22},
-  {n:"Cesta Halušky", t:["restaurant"], p:2, r:3.9, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:12, close:23},
-  {n:"Letná Klub", t:["bar"], p:4, r:4.8, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:18, close:22},
-  {n:"Drevená Čajovňa", t:["cafe"], p:3, r:4.4, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:8, close:20},
-  {n:"Drevená Pizzeria", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:11, close:23},
-  {n:"Mestská Taverna", t:["restaurant"], p:3, r:3.7, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:12, close:21},
-  {n:"Stará Pivnica", t:["bar"], p:3, r:4.1, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:16, close:23},
-  {n:"Stará Trattoria", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:11, close:23},
-  {n:"Stará Kaviareň", t:["cafe"], p:4, r:3.8, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:8, close:19},
-  {n:"Mestská Búda", t:["restaurant"], p:4, r:4.0, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:11.5, close:21},
-  {n:"Zelená Espresso", t:["cafe","bar"], p:2, r:4.8, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:7.5, close:22},
-  {n:"Zelená Vinotéka", t:["bar"], p:3, r:3.7, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:17, close:23},
-  {n:"Veselá Búda", t:["restaurant"], p:4, r:4.9, veg:true, vegOnly:true, district:"II", area:"Vrakuňa", open:12, close:23},
-  {n:"Modrá Bar", t:["bar"], p:3, r:4.7, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:17, close:24},
-  {n:"Elegantná Čajovňa", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:8.5, close:20},
-  {n:"Jarná Krčma", t:["restaurant"], p:3, r:4.1, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:11.5, close:21},
-  {n:"Drevená Pekáreň", t:["cafe"], p:4, r:4.3, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:8.5, close:20},
-  {n:"Malá Grill", t:["restaurant"], p:4, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:11.5, close:21},
-  {n:"Jarná Bistro", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:12, close:21},
-  {n:"Južná Bageteria", t:["cafe"], p:3, r:3.9, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:8, close:19},
-  {n:"Severná Terasa", t:["bar","restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:17, close:23},
-  {n:"Domáca Terasa", t:["bar"], p:3, r:4.0, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:16, close:23},
-  {n:"Zlatá Bistro", t:["restaurant"], p:3, r:4.2, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:12, close:22},
-  {n:"Slnečná Vinotéka", t:["bar"], p:3, r:4.0, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:17, close:22},
-  {n:"Tichá Terasa", t:["bar"], p:4, r:4.2, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:17, close:23},
-  {n:"Nová Grill", t:["restaurant"], p:4, r:4.2, veg:false, vegOnly:false, district:"II", area:"Ružinov", open:12, close:23},
-  {n:"Elegantná Cukráreň", t:["cafe"], p:2, r:3.9, veg:true, vegOnly:false, district:"II", area:"Vrakuňa", open:8.5, close:20},
-  {n:"Cesta Lounge", t:["bar"], p:3, r:4.2, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:17, close:24},
-  {n:"Veselá Čajovňa", t:["cafe"], p:3, r:3.9, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:7.5, close:18},
-  {n:"Slnečná Kaviareň", t:["cafe"], p:3, r:4.5, veg:false, vegOnly:false, district:"II", area:"Vrakuňa", open:7.5, close:20},
-  {n:"Elegantná Jedáleň", t:["restaurant"], p:4, r:3.9, veg:true, vegOnly:false, district:"II", area:"Ružinov", open:11.5, close:21},
-  {n:"Slnečná Kantína", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:11.5, close:23},
-  {n:"Rustikálna Halušky", t:["restaurant"], p:3, r:4.4, veg:false, vegOnly:false, district:"II", area:"Podunajské Biskupice", open:11.5, close:21},
-  {n:"Elegantná Kantína", t:["restaurant"], p:4, r:4.9, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:11, close:22},
-  {n:"Elegantná Bageteria", t:["cafe"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Rača", open:8, close:19},
-  {n:"Mestská Trattoria", t:["restaurant","cafe"], p:4, r:4.0, veg:false, vegOnly:false, district:"III", area:"Vajnory", open:8, close:22},
-  {n:"Stará Jedáleň", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11.5, close:23},
-  {n:"Slnečná Halušky", t:["restaurant","bar"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:12, close:22},
-  {n:"Veselá Halušky", t:["restaurant","bar"], p:4, r:4.4, veg:true, vegOnly:false, district:"III", area:"Rača", open:12, close:23},
-  {n:"Letná Taverna", t:["restaurant"], p:2, r:3.8, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:11, close:22},
-  {n:"Mestská Whisky Bar", t:["bar"], p:3, r:4.7, veg:true, vegOnly:false, district:"III", area:"Rača", open:18, close:22},
-  {n:"Rustikálna Trattoria", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11.5, close:21},
-  {n:"Mestská Terasa", t:["bar"], p:3, r:4.8, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:16, close:23},
-  {n:"Elegantná Pivnica", t:["bar"], p:4, r:4.7, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:18, close:22},
-  {n:"Tichá Kaviareň", t:["cafe"], p:3, r:4.9, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:8, close:20},
-  {n:"Mestská Jedáleň", t:["restaurant"], p:4, r:4.6, veg:true, vegOnly:true, district:"III", area:"Nové Mesto", open:11, close:23},
-  {n:"Malá Bageteria", t:["cafe"], p:4, r:4.6, veg:false, vegOnly:false, district:"III", area:"Nové Mesto", open:8, close:18},
-  {n:"Nová Cukráreň", t:["cafe"], p:4, r:4.0, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:7.5, close:20},
-  {n:"Zlatá Reštaurácia", t:["restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"III", area:"Rača", open:12, close:21},
-  {n:"Letná Grill", t:["restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11, close:21},
-  {n:"Elegantná Grill", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:11.5, close:22},
-  {n:"Slnečná Chata", t:["restaurant"], p:3, r:4.9, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:12, close:23},
-  {n:"Jarná Whisky Bar", t:["bar"], p:4, r:4.0, veg:false, vegOnly:false, district:"III", area:"Vajnory", open:17, close:22},
-  {n:"Tichá Espresso", t:["cafe"], p:2, r:4.4, veg:true, vegOnly:false, district:"III", area:"Rača", open:7.5, close:20},
-  {n:"Slnečná Pizzeria", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"III", area:"Rača", open:12, close:23},
-  {n:"Drevená Whisky Bar", t:["bar"], p:4, r:4.9, veg:true, vegOnly:false, district:"III", area:"Rača", open:15, close:23},
-  {n:"Zelená Whisky Bar", t:["bar"], p:4, r:4.5, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:17, close:22},
-  {n:"Letná Pivnica", t:["bar","restaurant"], p:4, r:4.5, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:17, close:22},
-  {n:"Rýchla Pekáreň", t:["cafe"], p:3, r:4.4, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:8, close:20},
-  {n:"Tichá Kuchyňa", t:["restaurant"], p:4, r:4.0, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11, close:22},
-  {n:"Elegantná Chata", t:["restaurant"], p:4, r:4.8, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11.5, close:22},
-  {n:"Letná Halušky", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:12, close:22},
-  {n:"Veselá Stodola", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:11, close:22},
-  {n:"Elegantná Bistro", t:["restaurant"], p:2, r:4.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:11.5, close:21},
-  {n:"Tichá Vinotéka", t:["bar"], p:3, r:4.6, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:16, close:22},
-  {n:"Elegantná Pizzeria", t:["restaurant"], p:2, r:3.9, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:12, close:21},
-  {n:"Cesta Bistro", t:["restaurant"], p:4, r:3.7, veg:false, vegOnly:false, district:"III", area:"Vajnory", open:11.5, close:22},
-  {n:"Severná Bageteria", t:["cafe","bar"], p:4, r:4.2, veg:false, vegOnly:false, district:"III", area:"Nové Mesto", open:7.5, close:22},
-  {n:"Rýchla Espresso", t:["cafe","bar"], p:3, r:4.5, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:8, close:22},
-  {n:"Rustikálna Chata", t:["restaurant"], p:4, r:4.2, veg:false, vegOnly:false, district:"III", area:"Rača", open:11.5, close:22},
-  {n:"Mestská Espresso", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"III", area:"Rača", open:7.5, close:18},
-  {n:"Domáca Whisky Bar", t:["bar","restaurant"], p:2, r:3.7, veg:false, vegOnly:false, district:"III", area:"Vajnory", open:17, close:24},
-  {n:"Južná Stodola", t:["restaurant"], p:4, r:3.7, veg:true, vegOnly:false, district:"III", area:"Nové Mesto", open:12, close:23},
-  {n:"Zelená Stodola", t:["restaurant"], p:2, r:4.7, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11, close:22},
-  {n:"Rýchla Klub", t:["bar"], p:4, r:4.3, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:17, close:22},
-  {n:"Domáca Kuchyňa", t:["restaurant"], p:3, r:3.8, veg:true, vegOnly:true, district:"III", area:"Vajnory", open:12, close:21},
-  {n:"Severná Trattoria", t:["restaurant"], p:3, r:3.8, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:12, close:21},
-  {n:"Rýchla Bar", t:["bar"], p:4, r:4.0, veg:true, vegOnly:false, district:"III", area:"Rača", open:18, close:23},
-  {n:"Veselá Pizzeria", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:false, district:"III", area:"Vajnory", open:11.5, close:21},
-  {n:"Nová Kuchyňa", t:["restaurant"], p:3, r:4.8, veg:false, vegOnly:false, district:"III", area:"Rača", open:11.5, close:21},
-  {n:"Severná Taverna", t:["restaurant"], p:4, r:4.3, veg:false, vegOnly:false, district:"III", area:"Nové Mesto", open:11.5, close:23},
-  {n:"Mestská Kantína", t:["restaurant","cafe"], p:3, r:4.1, veg:true, vegOnly:false, district:"III", area:"Rača", open:8, close:22},
-  {n:"Letná Stodola", t:["restaurant"], p:4, r:4.1, veg:true, vegOnly:false, district:"III", area:"Rača", open:12, close:22},
-  {n:"Slnečná Espresso", t:["cafe"], p:3, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:8.5, close:20},
-  {n:"Domáca Chata", t:["restaurant"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:11, close:21},
-  {n:"Malá Pražiareň", t:["cafe"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Devín", open:8.5, close:20},
-  {n:"Mestská Čajovňa", t:["cafe"], p:4, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Devín", open:8, close:20},
-  {n:"Nová Pizzeria", t:["restaurant"], p:3, r:4.0, veg:true, vegOnly:true, district:"IV", area:"Lamač", open:11, close:23},
-  {n:"Rustikálna Whisky Bar", t:["bar"], p:4, r:3.7, veg:false, vegOnly:false, district:"IV", area:"Dúbravka", open:17, close:24},
-  {n:"Nová Halušky", t:["restaurant"], p:2, r:4.8, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:11, close:21},
-  {n:"Rýchla Pražiareň", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:8.5, close:20},
-  {n:"Mestská Krčma", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:11.5, close:21},
-  {n:"Domáca Cukráreň", t:["cafe"], p:4, r:4.5, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:8, close:20},
-  {n:"Tichá Jedáleň", t:["restaurant"], p:4, r:4.8, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves", open:12, close:23},
-  {n:"Domáca Grill", t:["restaurant"], p:3, r:3.9, veg:false, vegOnly:false, district:"IV", area:"Dúbravka", open:11, close:21},
-  {n:"Veselá Taverna", t:["restaurant"], p:4, r:4.7, veg:true, vegOnly:true, district:"IV", area:"Lamač", open:12, close:21},
-  {n:"Zlatá Čajovňa", t:["cafe"], p:4, r:4.4, veg:false, vegOnly:false, district:"IV", area:"Devín", open:7.5, close:19},
-  {n:"Letná Kantína", t:["restaurant"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:11.5, close:21},
-  {n:"Slnečná Búda", t:["restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"IV", area:"Dúbravka", open:11.5, close:21},
-  {n:"Rustikálna Kaviareň", t:["cafe"], p:4, r:4.3, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:7.5, close:19},
-  {n:"Južná Krčma", t:["restaurant"], p:4, r:3.9, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:11.5, close:21},
-  {n:"Severná Krčma", t:["restaurant"], p:3, r:3.6, veg:false, vegOnly:false, district:"IV", area:"Lamač", open:11, close:21},
-  {n:"Jarná Chata", t:["restaurant"], p:4, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:11, close:22},
-  {n:"Rýchla Taverna", t:["restaurant"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:11.5, close:23},
-  {n:"Veselá Whisky Bar", t:["bar"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:16, close:23},
-  {n:"Zelená Kantína", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:12, close:23},
-  {n:"Severná Čajovňa", t:["cafe"], p:3, r:4.4, veg:false, vegOnly:false, district:"IV", area:"Lamač", open:8.5, close:18},
-  {n:"Mestská Reštaurácia", t:["restaurant","cafe"], p:2, r:4.3, veg:false, vegOnly:false, district:"IV", area:"Devín", open:8, close:22},
-  {n:"Malá Espresso", t:["cafe"], p:4, r:4.2, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:7.5, close:18},
-  {n:"Drevená Kuchyňa", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:11.5, close:21},
-  {n:"Letná Lounge", t:["bar"], p:3, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:17, close:22},
-  {n:"Rustikálna Cukráreň", t:["cafe","restaurant"], p:3, r:3.7, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:8, close:20},
-  {n:"Letná Cukráreň", t:["cafe"], p:3, r:4.5, veg:false, vegOnly:false, district:"IV", area:"Devín", open:8, close:20},
-  {n:"Malá Terasa", t:["bar"], p:4, r:4.1, veg:false, vegOnly:false, district:"IV", area:"Dúbravka", open:15, close:22},
-  {n:"Letná Bar", t:["bar"], p:2, r:3.9, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:18, close:24},
-  {n:"Letná Pizzeria", t:["restaurant"], p:3, r:4.6, veg:true, vegOnly:false, district:"IV", area:"Devín", open:11.5, close:23},
-  {n:"Stará Chata", t:["restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"IV", area:"Lamač", open:12, close:22},
-  {n:"Veselá Reštaurácia", t:["restaurant"], p:4, r:4.2, veg:false, vegOnly:false, district:"IV", area:"Karlova Ves", open:12, close:22},
-  {n:"Rustikálna Pekáreň", t:["cafe"], p:3, r:4.0, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:8, close:20},
-  {n:"Tichá Bistro", t:["restaurant"], p:4, r:3.6, veg:true, vegOnly:false, district:"IV", area:"Dúbravka", open:12, close:21},
-  {n:"Jarná Taverna", t:["restaurant"], p:3, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:12, close:21},
-  {n:"Elegantná Reštaurácia", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:12, close:21},
-  {n:"Zelená Pizzeria", t:["restaurant"], p:4, r:4.3, veg:true, vegOnly:true, district:"IV", area:"Dúbravka", open:12, close:23},
-  {n:"Malá Taverna", t:["restaurant"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:12, close:21},
-  {n:"Modrá Whisky Bar", t:["bar","restaurant"], p:3, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:17, close:23},
-  {n:"Severná Grill", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"IV", area:"Devín", open:11, close:22},
-  {n:"Domáca Bageteria", t:["cafe"], p:2, r:4.1, veg:true, vegOnly:false, district:"IV", area:"Lamač", open:7.5, close:19},
-  {n:"Tichá Krčma", t:["restaurant"], p:2, r:4.8, veg:false, vegOnly:false, district:"IV", area:"Dúbravka", open:11.5, close:23},
-  {n:"Zlatá Bageteria", t:["cafe"], p:4, r:4.2, veg:false, vegOnly:false, district:"IV", area:"Devín", open:7.5, close:18},
-  {n:"Nová Bar", t:["bar"], p:3, r:4.4, veg:false, vegOnly:false, district:"IV", area:"Devín", open:17, close:24},
-  {n:"Drevená Chata", t:["restaurant","cafe"], p:3, r:4.1, veg:true, vegOnly:true, district:"IV", area:"Dúbravka", open:8, close:23},
-  {n:"Rustikálna Grill", t:["restaurant"], p:4, r:4.4, veg:true, vegOnly:false, district:"IV", area:"Karlova Ves", open:11.5, close:22},
-  {n:"Severná Klub", t:["bar"], p:2, r:3.7, veg:false, vegOnly:false, district:"IV", area:"Devín", open:18, close:22},
-  {n:"Mestská Pekáreň", t:["cafe"], p:3, r:4.1, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8.5, close:19},
-  {n:"Jarná Espresso", t:["cafe"], p:3, r:4.2, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8.5, close:18},
-  {n:"Stará Klub", t:["bar"], p:3, r:4.9, veg:false, vegOnly:false, district:"V", area:"Jarovce", open:15, close:24},
-  {n:"Rýchla Búda", t:["restaurant"], p:4, r:3.8, veg:true, vegOnly:true, district:"V", area:"Petržalka", open:11, close:21},
-  {n:"Južná Chata", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:12, close:21},
-  {n:"Jarná Pekáreň", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8.5, close:19},
-  {n:"Jarná Pražiareň", t:["cafe"], p:4, r:4.0, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8, close:20},
-  {n:"Mestská Halušky", t:["restaurant"], p:3, r:4.8, veg:false, vegOnly:false, district:"V", area:"Petržalka", open:12, close:23},
-  {n:"Tichá Cukráreň", t:["cafe"], p:2, r:4.8, veg:true, vegOnly:false, district:"V", area:"Čunovo", open:8.5, close:19},
-  {n:"Rustikálna Espresso", t:["cafe"], p:3, r:3.7, veg:false, vegOnly:false, district:"V", area:"Jarovce", open:7.5, close:18},
-  {n:"Zelená Kaviareň", t:["cafe"], p:2, r:4.0, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:7.5, close:20},
-  {n:"Jarná Lounge", t:["bar"], p:4, r:4.6, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:15, close:22},
-  {n:"Nová Pražiareň", t:["cafe"], p:3, r:4.7, veg:false, vegOnly:false, district:"V", area:"Petržalka", open:8, close:19},
-  {n:"Slnečná Kuchyňa", t:["restaurant"], p:2, r:4.3, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:11.5, close:23},
-  {n:"Tichá Čajovňa", t:["cafe"], p:3, r:4.0, veg:false, vegOnly:false, district:"V", area:"Rusovce", open:7.5, close:20},
-  {n:"Zlatá Kuchyňa", t:["restaurant"], p:4, r:4.6, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:12, close:23},
-  {n:"Cesta Pivnica", t:["bar"], p:2, r:4.5, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:18, close:23},
-  {n:"Zelená Lounge", t:["bar","cafe"], p:4, r:4.8, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:8, close:24},
-  {n:"Slnečná Reštaurácia", t:["restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"V", area:"Rusovce", open:12, close:21},
-  {n:"Domáca Pekáreň", t:["cafe"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Čunovo", open:8.5, close:20},
-  {n:"Jarná Búda", t:["restaurant"], p:3, r:4.5, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:12, close:22},
-  {n:"Elegantná Kaviareň", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:7.5, close:19},
-  {n:"Modrá Terasa", t:["bar"], p:3, r:3.7, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:18, close:22},
-  {n:"Nová Pekáreň", t:["cafe"], p:3, r:4.6, veg:false, vegOnly:false, district:"V", area:"Čunovo", open:8, close:18},
-  {n:"Nová Bageteria", t:["cafe"], p:3, r:3.7, veg:false, vegOnly:false, district:"V", area:"Petržalka", open:8, close:18},
-  {n:"Tichá Búda", t:["restaurant"], p:4, r:4.5, veg:false, vegOnly:false, district:"V", area:"Čunovo", open:11.5, close:22},
-  {n:"Domáca Krčma", t:["restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:11, close:21},
-  {n:"Rustikálna Lounge", t:["bar"], p:3, r:4.7, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:16, close:23},
-  {n:"Veselá Kuchyňa", t:["restaurant"], p:4, r:4.1, veg:false, vegOnly:false, district:"V", area:"Petržalka", open:11, close:21},
-  {n:"Nová Bistro", t:["restaurant"], p:4, r:4.1, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:11, close:23},
-  {n:"Elegantná Klub", t:["bar"], p:4, r:4.7, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:16, close:23},
-  {n:"Južná Taverna", t:["restaurant","cafe"], p:3, r:4.9, veg:false, vegOnly:false, district:"V", area:"Rusovce", open:8, close:22},
-  {n:"Zlatá Búda", t:["restaurant"], p:3, r:3.9, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:11.5, close:21},
-  {n:"Tichá Bageteria", t:["cafe"], p:3, r:3.9, veg:true, vegOnly:false, district:"V", area:"Čunovo", open:8, close:18},
-  {n:"Severná Espresso", t:["cafe"], p:4, r:3.7, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:8, close:18},
-  {n:"Stará Vinotéka", t:["bar"], p:4, r:4.9, veg:true, vegOnly:false, district:"V", area:"Čunovo", open:16, close:24},
-  {n:"Zelená Pekáreň", t:["cafe"], p:3, r:4.0, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8, close:19},
-  {n:"Letná Krčma", t:["restaurant"], p:4, r:4.5, veg:false, vegOnly:false, district:"V", area:"Jarovce", open:11.5, close:22},
-  {n:"Zelená Chata", t:["restaurant"], p:2, r:3.9, veg:false, vegOnly:false, district:"V", area:"Čunovo", open:11.5, close:21},
-  {n:"Elegantná Stodola", t:["restaurant"], p:3, r:4.3, veg:false, vegOnly:false, district:"V", area:"Čunovo", open:12, close:23},
-  {n:"Domáca Pražiareň", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:8.5, close:18},
-  {n:"Stará Lounge", t:["bar","restaurant"], p:2, r:4.4, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:15, close:22},
-  {n:"Jarná Kaviareň", t:["cafe"], p:2, r:4.3, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8.5, close:19},
-  {n:"Južná Búda", t:["restaurant"], p:4, r:3.8, veg:false, vegOnly:false, district:"V", area:"Jarovce", open:11, close:23},
-  {n:"Severná Kaviareň", t:["cafe"], p:3, r:4.1, veg:true, vegOnly:false, district:"V", area:"Jarovce", open:8, close:20},
-  {n:"Malá Lounge", t:["bar","restaurant"], p:3, r:4.3, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:16, close:22},
-  {n:"Elegantná Halušky", t:["restaurant"], p:3, r:4.8, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:11, close:22},
-  {n:"Severná Jedáleň", t:["restaurant"], p:4, r:4.0, veg:false, vegOnly:false, district:"V", area:"Petržalka", open:12, close:23},
-  {n:"Malá Pivnica", t:["bar","cafe"], p:4, r:4.4, veg:true, vegOnly:false, district:"V", area:"Rusovce", open:8, close:24},
-  {n:"Domáca Taverna", t:["restaurant"], p:4, r:4.2, veg:true, vegOnly:false, district:"V", area:"Petržalka", open:12, close:22}
-];
 
 let state = { code:null, name:null };
 let currentView = 'home';
@@ -672,6 +455,99 @@ function randCode(){
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let c=''; for(let i=0;i<5;i++) c+=chars[Math.floor(Math.random()*chars.length)];
   return c;
+}
+
+function pickDatePreset(el, preset){
+  document.querySelectorAll('#dateChips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const d = new Date();
+  if(preset === 'tomorrow'){
+    d.setDate(d.getDate()+1);
+  } else if(preset === 'weekend'){
+    const day = d.getDay(); // 0=Sun..6=Sat
+    if(day !== 6) d.setDate(d.getDate() + ((6 - day + 7) % 7));
+  }
+  const iso = d.toISOString().slice(0,10);
+  document.getElementById('dateInput').value = iso;
+  document.getElementById('dateSelect').value = iso;
+}
+
+function pickTimePreset(el, hours){
+  document.querySelectorAll('#timeChips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const hh = Math.floor(hours);
+  const mm = Math.round((hours - hh) * 60);
+  const val = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+  document.getElementById('timeInput').value = val;
+  document.getElementById('timeSelect').value = val;
+}
+
+// Manually picking a date/time from the dropdown clears the quick-pick
+// highlight (it may no longer match) and syncs the hidden input submitPrefs reads.
+function onDateSelectChange(val){
+  document.getElementById('dateInput').value = val;
+  document.querySelectorAll('#dateChips .chip').forEach(c=>c.classList.remove('on'));
+}
+function onTimeSelectChange(val){
+  document.getElementById('timeInput').value = val;
+  document.querySelectorAll('#timeChips .chip').forEach(c=>c.classList.remove('on'));
+}
+
+function populateDateOptions(){
+  const sel = document.getElementById('dateSelect');
+  const current = sel.value;
+  const locale = {en:'en-GB', sk:'sk-SK', hu:'hu-HU', fr:'fr-FR'}[currentLang] || 'en-GB';
+  let html = `<option value="">${t('selectPlaceholder')}</option>`;
+  for(let i=0;i<14;i++){
+    const d = new Date();
+    d.setDate(d.getDate()+i);
+    const iso = d.toISOString().slice(0,10);
+    const label = d.toLocaleDateString(locale, {weekday:'short', day:'numeric', month:'short'});
+    html += `<option value="${iso}">${label}</option>`;
+  }
+  sel.innerHTML = html;
+  if(current) sel.value = current;
+}
+
+function populateTimeOptions(){
+  const sel = document.getElementById('timeSelect');
+  const current = sel.value;
+  let html = `<option value="">${t('selectPlaceholder')}</option>`;
+  for(let h=7; h<=25; h++){ // covers up to 1am, for late dinners/bars
+    for(const m of [0,30]){
+      const hh = h % 24;
+      const label = String(hh).padStart(2,'0')+':'+String(m).padStart(2,'0');
+      html += `<option value="${label}">${label}</option>`;
+    }
+  }
+  sel.innerHTML = html;
+  if(current) sel.value = current;
+}
+
+async function shareCode(){
+  const code = state.code;
+  const shareText = t('shareMessage').replace('{code}', code);
+  const shareUrl = location.href.split('?')[0];
+
+  // Native share sheet (lets the person pick WhatsApp or any other app they
+  // have installed) — this is what most phones support best.
+  if(navigator.share){
+    try{
+      await navigator.share({ title: 'OnTable', text: shareText, url: shareUrl });
+      return;
+    }catch(e){ return; } // person cancelled the share sheet — do nothing further
+  }
+
+  // Fallback for browsers without navigator.share: open WhatsApp directly.
+  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl);
+  const opened = window.open(waUrl, '_blank');
+  if(opened) return;
+
+  // Last resort: copy to clipboard.
+  try{
+    await navigator.clipboard.writeText(shareText + ' ' + shareUrl);
+    showToast(t('shareCopied'));
+  }catch(e){ showToast(shareText + ' ' + shareUrl); }
 }
 function startPolling(fn){ pollTimer = setInterval(fn, 3000); }
 function stopPolling(){ if(pollTimer) clearInterval(pollTimer); }
@@ -736,13 +612,18 @@ function submitPrefs(){
     const [hh, mm] = timeRaw.split(':').map(Number);
     time = hh + (mm/60);
   }
+  const dateRaw = document.getElementById('dateInput').value; // "YYYY-MM-DD" or ""
+  let dayOfWeek = null;
+  if(dateRaw){
+    dayOfWeek = new Date(dateRaw+'T00:00:00').getDay(); // 0=Sunday..6=Saturday, matches Google's period.open.day
+  }
 
   if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
 
   // Optimistic: we already know what was chosen, so move to "waiting" right
   // away — the write happens in the background.
   showView('waiting');
-  const data = { types, districts, restrictions, budget, time, at: Date.now() };
+  const data = { types, districts, restrictions, budget, time, dayOfWeek, at: Date.now() };
   storageSet(keyPrefs(state.code, state.name), JSON.stringify(data))
     .catch(()=> showToast(t('prefsStatusError')));
 }
@@ -820,12 +701,14 @@ function typesFromGoogle(types){
   return out;
 }
 
-function hoursFromGoogle(place){
+function hoursFromGoogle(place, dayOfWeek){
   const periods = place.regularOpeningHours && place.regularOpeningHours.periods;
   if(!periods || periods.length===0) return { open: 0, close: 24 }; // unknown -> don't filter it out
-  // Simplification: uses the first listed period as a representative range —
-  // doesn't handle split lunch/dinner hours or day-specific schedules.
-  const p = periods[0];
+  let p = periods[0];
+  if(dayOfWeek !== null && dayOfWeek !== undefined){
+    const match = periods.find(per => per.open && per.open.day === dayOfWeek);
+    if(match) p = match; // else silently falls back to the first period
+  }
   const open = p.open ? (p.open.hour + (p.open.minute||0)/60) : 0;
   let close = p.close ? (p.close.hour + (p.close.minute||0)/60) : 24;
   if(close < open) close = 24; // rough fallback for overnight venues
@@ -840,7 +723,7 @@ const DISTRICT_QUERIES = {
   V:   'restaurants cafes bars in Petržalka, Bratislava V, Slovakia'
 };
 
-async function fetchLiveVenues(districts){
+async function fetchLiveVenues(districts, dayOfWeek){
   const targets = districts.length ? districts : ['I','II','III','IV','V'];
   const batches = await Promise.all(targets.map(d =>
     fetchPlacesForQuery(DISTRICT_QUERIES[d]).then(places => ({d, places})).catch(()=>({d, places:[]}))
@@ -852,7 +735,7 @@ async function fetchLiveVenues(districts){
       const name = p.displayName ? p.displayName.text : null;
       if(!name || seen.has(name)) return;
       seen.add(name);
-      const hrs = hoursFromGoogle(p);
+      const hrs = hoursFromGoogle(p, dayOfWeek);
       venues.push({
         n: name,
         t: typesFromGoogle(p.types),
@@ -863,7 +746,8 @@ async function fetchLiveVenues(districts){
         district: d,
         area: p.formattedAddress || '',
         open: hrs.open,
-        close: hrs.close
+        close: hrs.close,
+        phone: p.nationalPhoneNumber || null
       });
     });
   });
@@ -881,12 +765,14 @@ async function generateSuggestions(){
       return;
     }
     const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
+    const dayCandidate = Object.values(participants).map(p=>p.dayOfWeek).find(d => d !== null && d !== undefined);
+    const referenceDayOfWeek = dayCandidate !== undefined ? dayCandidate : null;
 
-    let pool = VENUES; // safe fallback: the built-in 250-venue test dataset
-    try{
-      const live = await fetchLiveVenues(districtUnion);
-      if(live.length > 0) pool = live; // real data available -> use it instead
-    }catch(e){ /* Places API not configured yet or failed — silently keep the fallback */ }
+    const pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek);
+    if(pool.length === 0){
+      document.getElementById('waitingStatus').textContent = t('waitingStatusNoPlaces');
+      return;
+    }
 
     const scored = pool.map(v=>scoreVenue(v, participants)).filter(Boolean);
     scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
@@ -990,52 +876,85 @@ async function renderVoteList(){
   }
 }
 
-// ---------- Mock reservation (test only — no real booking happens) ----------
-// latestBooking is shared across everyone in the session (one key per
-// session, not per person) so when someone clicks "Reserve", every phone
-// polling the vote screen sees who's doing it and its status update live.
-let latestBooking = null; // { venue, by, status: 'pending'|'confirmed', ref, at }
+// ---------- Reservation by phone call — shared across the whole group ----------
+// latestBooking lives under one key per session (not per person), so
+// everyone polling the vote screen sees the same status live:
+//   'calling'   — someone is on the phone with the venue right now
+//   'confirmed' — they got the reservation
+//   'failed'    — the call didn't result in a booking; the leading venues
+//                 reappear so the group can retry (same venue or another)
+let latestBooking = null;
 
 function renderBookSection(counts){
   const section = document.getElementById('bookSection');
+  let noteHtml = '';
 
-  if(latestBooking){
-    const isPending = latestBooking.status === 'pending';
+  if(latestBooking && latestBooking.status === 'calling'){
+    const mine = latestBooking.by === state.name;
     section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>
-      <div class="book-card ${isPending?'':'booked'}">
+      <div class="book-card">
         <div class="book-name">${latestBooking.venue}</div>
-        <div class="book-confirm">${latestBooking.by} ${t(isPending?'bookPendingBy':'bookConfirmedBy')}${isPending?'…':' — #'+latestBooking.ref}</div>
+        <div class="book-confirm">${latestBooking.by} ${t('bookCallingBy')}…</div>
+        ${mine ? renderCallActions(latestBooking) : ''}
+      </div>`;
+    return; // block other reserve buttons while a call is in progress
+  }
+
+  if(latestBooking && latestBooking.status === 'confirmed'){
+    section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>
+      <div class="book-card booked">
+        <div class="book-name">${latestBooking.venue}</div>
+        <div class="book-confirm">${latestBooking.by} ${t('bookConfirmedBy')}</div>
       </div>`;
     return;
   }
 
+  if(latestBooking && latestBooking.status === 'failed'){
+    noteHtml = `<div class="note" style="border-color:var(--tomato); background:rgba(196,71,46,0.08); color:#7a2e1c;">${latestBooking.by} ${t('bookFailedBy')} ${latestBooking.venue}. ${t('bookRetryHint')}</div>`;
+  }
+
   const maxCount = Math.max(0, ...Object.values(counts));
-  if(maxCount === 0){ section.innerHTML = ''; return; }
+  if(maxCount === 0){ section.innerHTML = noteHtml; return; }
   const winners = lastResults.filter(r => counts[r.v.n] === maxCount);
 
-  section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>` + winners.map(r => `
+  section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>` + noteHtml + winners.map(r => `
     <div class="book-card">
       <div class="book-name">${r.v.n}</div>
-      <button class="btn btn-primary" style="margin-top:8px;" onclick="mockBook('${r.v.n.replace(/'/g,"\\'")}', this)">${t('bookBtn')}</button>
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="startReservation('${r.v.n.replace(/'/g,"\\'")}', '${(r.v.phone||'').replace(/'/g,"\\'")}')">${t('bookBtn')}</button>
     </div>`
   ).join('');
 }
 
-async function mockBook(name, btnEl){
-  btnEl.disabled = true;
-  btnEl.textContent = '…';
+function renderCallActions(booking){
+  const callBlock = booking.phone
+    ? `<a class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:8px;" href="tel:${booking.phone}">${t('bookCallBtn')} ${booking.phone}</a>`
+    : `<div class="note" style="margin-top:8px;">${t('bookNoPhone')}</div>`;
+  return `
+    ${callBlock}
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button class="btn btn-primary" style="background:var(--basil);" onclick="resolveReservation(true)">${t('bookYes')}</button>
+      <button class="btn btn-ghost" onclick="resolveReservation(false)">${t('bookNo')}</button>
+    </div>`;
+}
 
-  // Broadcast "pending" immediately so other phones see it on their next poll.
-  latestBooking = { venue: name, by: state.name, status: 'pending', ref: null, at: Date.now() };
-  renderBookSection({}); // repaint own screen right away (counts unused when latestBooking is set)
-  await storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
-
-  await new Promise(r => setTimeout(r, 700)); // fake booking delay
-
-  const ref = 'OT-' + Math.random().toString(36).slice(2,7).toUpperCase();
-  latestBooking = { venue: name, by: state.name, status: 'confirmed', ref, at: Date.now() };
+function startReservation(name, phone){
+  // Broadcast immediately: everyone else sees "X is calling Y…" on their
+  // next poll, and their own reserve buttons disappear until this resolves.
+  latestBooking = { venue: name, by: state.name, status: 'calling', phone: phone || null, at: Date.now() };
   renderBookSection({});
-  await storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
+  storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
+}
+
+function resolveReservation(success){
+  latestBooking = {
+    venue: latestBooking.venue,
+    by: state.name,
+    status: success ? 'confirmed' : 'failed',
+    phone: latestBooking.phone,
+    at: Date.now()
+  };
+  renderBookSection({});
+  storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
 }
 
 renderLangRow();
