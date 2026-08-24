@@ -178,24 +178,28 @@
             <div class="chip" data-val="V" onclick="toggleChip(this)">Bratislava V</div>
           </div>
 
-          <div class="section-label" data-i18n="whenLabel"></div>
-          <div class="chip-grid" id="dateChips">
-            <div class="chip" onclick="pickDatePreset(this,'today')" data-i18n="dateToday"></div>
-            <div class="chip" onclick="pickDatePreset(this,'tomorrow')" data-i18n="dateTomorrow"></div>
-            <div class="chip" onclick="pickDatePreset(this,'weekend')" data-i18n="dateWeekend"></div>
-          </div>
-          <input type="hidden" id="dateInput">
-          <select id="dateSelect" onchange="onDateSelectChange(this.value)" style="margin-top:8px;"></select>
+          <div id="whenEditable">
+            <div class="section-label" data-i18n="whenLabel"></div>
+            <div class="chip-grid" id="dateChips">
+              <div class="chip" onclick="pickDatePreset(this,'today')" data-i18n="dateToday"></div>
+              <div class="chip" onclick="pickDatePreset(this,'tomorrow')" data-i18n="dateTomorrow"></div>
+              <div class="chip" onclick="pickDatePreset(this,'weekend')" data-i18n="dateWeekend"></div>
+            </div>
+            <input type="hidden" id="dateInput">
+            <select id="dateSelect" onchange="onDateSelectChange(this.value)" style="margin-top:8px;"></select>
 
-          <div class="chip-grid" style="margin-top:14px;" id="timeChips">
-            <div class="chip" onclick="pickTimePreset(this,12.5)" data-i18n="timeLunch"></div>
-            <div class="chip" onclick="pickTimePreset(this,18)" data-i18n="timeAperitif"></div>
-            <div class="chip" onclick="pickTimePreset(this,20)" data-i18n="timeDinner"></div>
-          </div>
-          <input type="hidden" id="timeInput">
-          <select id="timeSelect" onchange="onTimeSelectChange(this.value)" style="margin-top:8px;"></select>
+            <div class="chip-grid" style="margin-top:14px;" id="timeChips">
+              <div class="chip" onclick="pickTimePreset(this,12.5)" data-i18n="timeLunch"></div>
+              <div class="chip" onclick="pickTimePreset(this,18)" data-i18n="timeAperitif"></div>
+              <div class="chip" onclick="pickTimePreset(this,20)" data-i18n="timeDinner"></div>
+            </div>
+            <input type="hidden" id="timeInput">
+            <select id="timeSelect" onchange="onTimeSelectChange(this.value)" style="margin-top:8px;"></select>
 
-          <div class="note" data-i18n="timeNote" style="margin-top:8px;"></div>
+            <div class="note" data-i18n="timeNote" style="margin-top:8px;"></div>
+          </div>
+
+          <div id="whenReadonly" class="note" style="display:none;"></div>
 
           <div class="section-label" data-i18n="restrictionsLabel"></div>
           <div class="chip-grid">
@@ -264,7 +268,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
   waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.",
   leadingLabel:"Leading", bookBtn:"Reserve (test)", bookConfirmed:"Reservation requested",
-  whenLabel:"When?", selectPlaceholder:"Select…", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
+  whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
   bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again."},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Fab", createBtn:"Vytvoriť nový kód",
@@ -290,7 +294,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
   waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať (test)", bookConfirmed:"Rezervácia odoslaná",
-  whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
+  whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
   bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova."},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Fab", createBtn:"Új kód létrehozása",
@@ -316,7 +320,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
   waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.",
   leadingLabel:"Vezet", bookBtn:"Foglalás (teszt)", bookConfirmed:"Foglalás elküldve",
-  whenLabel:"Mikor?", selectPlaceholder:"Válassz…", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
+  whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
   bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra."},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Fab", createBtn:"Créer un nouveau code",
@@ -342,7 +346,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
   waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.",
   leadingLabel:"En tête", bookBtn:"Réserver (test)", bookConfirmed:"Réservation demandée",
-  whenLabel:"Quand ?", selectPlaceholder:"Choisir…", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
+  whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
   bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer."}
 };
 let currentLang = 'en';
@@ -416,13 +420,15 @@ function applyLang(){
   document.getElementById('launchVoteBtn').textContent = t('launchVoteBtn');
   populateDateOptions();
   populateTimeOptions();
+  if(!state.isCreator && currentView==='prefs') renderWhenReadonly();
   refreshTitles(currentView);
   if(currentView==='suggestions' && lastResults.length) renderResults();
   if(currentView==='vote') renderVoteList();
 }
 
 
-let state = { code:null, name:null };
+let state = { code:null, name:null, isCreator:false };
+let sessionMeta = null; // { by, dateRaw, dayOfWeek, time, timeRaw } — creator-set, read-only for everyone else
 let currentView = 'home';
 let lastResults = [];
 let pollTimer = null;
@@ -576,10 +582,11 @@ function createSession(){
   // Optimistic: the code is generated locally, so there's nothing to wait
   // for before showing the next screen — the write to the backend happens
   // in the background.
-  state.code = code; state.name = name;
+  state.code = code; state.name = name; state.isCreator = true;
   document.getElementById('codeDisplay').textContent = code;
+  applyWhenVisibility();
   showView('prefs');
-  storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now() }))
+  storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now(), by: name, dateRaw:null, dayOfWeek:null, time:null, timeRaw:null }))
     .catch(()=> showToast(t('homeStatusError')));
 }
 
@@ -593,11 +600,44 @@ async function joinSession(){
   try{
     const res = await storageGet(keyMeta(code));
     if(!res){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); return; }
-    state.code = code; state.name = name;
+    state.code = code; state.name = name; state.isCreator = false;
+    try{ sessionMeta = JSON.parse(res.value); }catch(e){ sessionMeta = null; }
     document.getElementById('codeDisplay').textContent = code;
+    applyWhenVisibility();
     showView('prefs');
   }catch(e){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); }
   finally{ btn.textContent = original; btn.disabled = false; }
+}
+
+// Only the person who created the code plans the day/time — everyone else
+// just sees what was chosen, read-only, once it's set.
+function applyWhenVisibility(){
+  const editable = document.getElementById('whenEditable');
+  const readonly = document.getElementById('whenReadonly');
+  if(state.isCreator){
+    editable.style.display = '';
+    readonly.style.display = 'none';
+  }else{
+    editable.style.display = 'none';
+    readonly.style.display = '';
+    renderWhenReadonly();
+  }
+}
+
+function renderWhenReadonly(){
+  const readonly = document.getElementById('whenReadonly');
+  if(!sessionMeta || (!sessionMeta.dateRaw && !sessionMeta.timeRaw)){
+    readonly.textContent = t('whenPendingNote').replace('{by}', sessionMeta ? sessionMeta.by : '');
+    return;
+  }
+  const locale = {en:'en-GB', sk:'sk-SK', hu:'hu-HU', fr:'fr-FR'}[currentLang] || 'en-GB';
+  let dateLabel = '';
+  if(sessionMeta.dateRaw){
+    const d = new Date(sessionMeta.dateRaw+'T00:00:00');
+    dateLabel = d.toLocaleDateString(locale, {weekday:'short', day:'numeric', month:'short'});
+  }
+  const parts = [dateLabel, sessionMeta.timeRaw].filter(Boolean).join(' — ');
+  readonly.textContent = t('whenSetNote').replace('{by}', sessionMeta.by).replace('{when}', parts);
 }
 
 function submitPrefs(){
@@ -606,26 +646,33 @@ function submitPrefs(){
   const restrictions = [...document.querySelectorAll('#view-prefs .chip.warn.on')].map(c=>c.dataset.val);
   const budgetEl = document.querySelector('#view-prefs .budget-opt.on');
   const budget = budgetEl ? parseInt(budgetEl.dataset.val) : 4;
-  const timeRaw = document.getElementById('timeInput').value; // "HH:MM" or ""
-  let time = null;
-  if(timeRaw){
-    const [hh, mm] = timeRaw.split(':').map(Number);
-    time = hh + (mm/60);
-  }
-  const dateRaw = document.getElementById('dateInput').value; // "YYYY-MM-DD" or ""
-  let dayOfWeek = null;
-  if(dateRaw){
-    dayOfWeek = new Date(dateRaw+'T00:00:00').getDay(); // 0=Sunday..6=Saturday, matches Google's period.open.day
-  }
 
   if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
 
   // Optimistic: we already know what was chosen, so move to "waiting" right
-  // away — the write happens in the background.
+  // away — the writes happen in the background.
   showView('waiting');
-  const data = { types, districts, restrictions, budget, time, dayOfWeek, at: Date.now() };
+  const data = { types, districts, restrictions, budget, at: Date.now() };
   storageSet(keyPrefs(state.code, state.name), JSON.stringify(data))
     .catch(()=> showToast(t('prefsStatusError')));
+
+  // Only the creator's day/time selection is saved — it's session-wide,
+  // not a per-person preference.
+  if(state.isCreator){
+    const timeRaw = document.getElementById('timeInput').value; // "HH:MM" or ""
+    let time = null;
+    if(timeRaw){
+      const [hh, mm] = timeRaw.split(':').map(Number);
+      time = hh + (mm/60);
+    }
+    const dateRaw = document.getElementById('dateInput').value; // "YYYY-MM-DD" or ""
+    let dayOfWeek = null;
+    if(dateRaw){
+      dayOfWeek = new Date(dateRaw+'T00:00:00').getDay(); // matches Google's period.open.day
+    }
+    storageSet(keyMeta(state.code), JSON.stringify({ code: state.code, createdAt: Date.now(), by: state.name, dateRaw, dayOfWeek, time, timeRaw }))
+      .catch(()=> showToast(t('prefsStatusError')));
+  }
 }
 
 async function fetchAllParticipants(){
@@ -652,7 +699,7 @@ async function refreshWaiting(){
   }
 }
 
-function scoreVenue(v, participants){
+function scoreVenue(v, participants, sessionTime){
   const needsVeg = Object.values(participants).some(p=>p.restrictions.includes('vegetarien'));
   if(needsVeg && !v.veg) return null;
   const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
@@ -660,10 +707,8 @@ function scoreVenue(v, participants){
   for(const p of Object.values(participants)){
     if(p.districts && p.districts.length>0 && !p.districts.includes(v.district)) return null;
   }
-  for(const p of Object.values(participants)){
-    if(p.time !== null && p.time !== undefined){
-      if(p.time < v.open || p.time > v.close) return null;
-    }
+  if(sessionTime !== null && sessionTime !== undefined){
+    if(sessionTime < v.open || sessionTime > v.close) return null;
   }
   const total = Object.keys(participants).length;
   let matchCount = 0; const likedBy = [];
@@ -765,8 +810,17 @@ async function generateSuggestions(){
       return;
     }
     const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
-    const dayCandidate = Object.values(participants).map(p=>p.dayOfWeek).find(d => d !== null && d !== undefined);
-    const referenceDayOfWeek = dayCandidate !== undefined ? dayCandidate : null;
+
+    // Day/time is set once by the creator, session-wide — not per participant.
+    let referenceDayOfWeek = null, sessionTime = null;
+    try{
+      const metaRes = await storageGet(keyMeta(state.code));
+      if(metaRes && metaRes.value){
+        const meta = JSON.parse(metaRes.value);
+        referenceDayOfWeek = meta.dayOfWeek ?? null;
+        sessionTime = meta.time ?? null;
+      }
+    }catch(e){}
 
     const pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek);
     if(pool.length === 0){
@@ -774,7 +828,7 @@ async function generateSuggestions(){
       return;
     }
 
-    const scored = pool.map(v=>scoreVenue(v, participants)).filter(Boolean);
+    const scored = pool.map(v=>scoreVenue(v, participants, sessionTime)).filter(Boolean);
     scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
     lastResults = scored.slice(0,3);
     latestBooking = null;
