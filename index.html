@@ -123,7 +123,7 @@
 <div class="screen">
       <div class="topbar">
         <div class="topbar-row">
-          <div class="brand">ONTABLE</div>
+          <div class="brand" onclick="goHome()" style="cursor:pointer;">ONTABLE</div>
           <div class="lang-row" id="langRow"></div>
         </div>
         <div class="screen-title" id="title"></div>
@@ -164,9 +164,9 @@
 
           <div class="section-label" data-i18n="budgetLabel"></div>
           <div class="budget-row">
-            <div class="budget-opt" data-val="2" onclick="budgetSelect(this)">€</div>
-            <div class="budget-opt" data-val="3" onclick="budgetSelect(this)">€€</div>
-            <div class="budget-opt" data-val="4" onclick="budgetSelect(this)">€€€</div>
+            <div class="budget-opt" data-val="2" onclick="budgetSelect(this)" data-i18n="budgetLow"></div>
+            <div class="budget-opt" data-val="3" onclick="budgetSelect(this)" data-i18n="budgetMid"></div>
+            <div class="budget-opt" data-val="4" onclick="budgetSelect(this)" data-i18n="budgetHigh"></div>
           </div>
 
           <div class="section-label" data-i18n="districtLabel"></div>
@@ -203,9 +203,13 @@
 
           <div class="section-label" data-i18n="restrictionsLabel"></div>
           <div class="chip-grid">
-            <div class="chip warn" data-val="vegetarien" onclick="toggleChip(this)" data-i18n="vegChip"></div>
+            <div class="chip warn" data-val="vegetarien" onclick="toggleChip(this)" data-i18n="vegetarianChip"></div>
+            <div class="chip warn" data-val="vegan" onclick="toggleChip(this)" data-i18n="veganChip"></div>
+            <div class="chip warn" data-val="sans_gluten" onclick="toggleChip(this)" data-i18n="glutenChip"></div>
+            <div class="chip warn" data-val="sans_lactose" onclick="toggleChip(this)" data-i18n="lactoseChip"></div>
           </div>
           <div class="note" data-i18n="vegNote"></div>
+          <div class="note" data-i18n="glutenNote" style="margin-top:8px; border-color:rgba(122,100,89,0.3); background:rgba(122,100,89,0.06); color:var(--ink-soft);"></div>
 
           <button class="btn btn-primary" id="submitPrefsBtn" onclick="submitPrefs()"></button>
           <div class="status-line" id="prefsStatus"></div>
@@ -251,15 +255,16 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
   shareBtn:"Share the code", shareMessage:"Join me on OnTable — code {code}:", shareCopied:"Copied to clipboard",
   typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
-  budgetLabel:"Max budget", districtLabel:"District (Bratislava I–V)",
-  restrictionsLabel:"Dietary restrictions", vegChip:"Vegetarian / vegan",
-  vegNote:"Check this if anyone in the group needs a veg option — we then keep any place offering at least one vegetarian dish, not only 100% veg/vegan restaurants (those get a separate badge). Only this restriction is checked in this test.",
+  budgetLabel:"Max budget", budgetLow:"Affordable", budgetMid:"Mid-range", budgetHigh:"Upscale", districtLabel:"District (Bratislava I–V)",
+  restrictionsLabel:"Dietary restrictions", vegetarianChip:"Vegetarian", veganChip:"Vegan", glutenChip:"Gluten-free", lactoseChip:"Lactose-free",
+  vegNote:"Vegetarian/vegan is a real filter, based on Google's data — we keep any place offering at least one vegetarian dish (100% veg/vegan restaurants get a separate badge). Google doesn't distinguish vegan specifically, so \"vegan\" uses the same signal as a safe approximation.",
+  glutenNote:"Gluten-free and lactose-free aren't filtered yet — Google has no reliable data for these. They're shown to the group as a heads-up; always confirm with the venue.",
   submitPrefsBtn:"Submit my preferences", waitingTitle:"Waiting", waitingSub:"Others are answering live.",
   participantsLabel:"Participants", waitingNote:"Waiting for at least one answer. You can generate ideas any time, even if not everyone has answered yet.",
   seeIdeasBtn:"See ideas", waitingStatus:"waiting for the others…",
   suggestionsTitle:"Ideas for the group", suggestionsSub:"Ranked by what fits the most people.",
   launchVoteBtn:"Start the vote", noMatchNote:"No place matches every restriction/budget/district combined — try widening a criterion.",
-  likedByPrefix:"Liked by", vegOnlyBadge:"100% veg/vegan", vegOptionBadge:"Veg option available",
+  likedByPrefix:"Liked by", vegOnlyBadge:"100% veg/vegan", vegOptionBadge:"Veg option available", viewOnMaps:"View on Maps",
   voteTitle:"Vote in progress", voteSub:"The group decides, live.",
   voteHint:"Pick up to 2 — that way, two people can still land on a common choice.",
   votesWord:"votes", homeStatusNoName:"Enter your name first.", homeStatusNoCode:"Enter your name and a code.",
@@ -277,15 +282,16 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
   shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na OnTable — kód {code}:", shareCopied:"Skopírované do schránky",
   typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
-  budgetLabel:"Maximálny rozpočet", districtLabel:"Mestská časť (Bratislava I–V)",
-  restrictionsLabel:"Stravovacie obmedzenia", vegChip:"Vegetariánske / vegánske",
-  vegNote:"Zaškrtni, ak niekto v skupine potrebuje vegetariánsku možnosť — ponecháme podniky ponúkajúce aspoň jedno vegetariánske jedlo, nielen 100% vege/vegánske reštaurácie (tie majú vlastný odznak). V tomto teste sa kontroluje iba toto obmedzenie.",
+  budgetLabel:"Maximálny rozpočet", budgetLow:"Lacné", budgetMid:"Stredné", budgetHigh:"Luxusné", districtLabel:"Mestská časť (Bratislava I–V)",
+  restrictionsLabel:"Stravovacie obmedzenia", vegetarianChip:"Vegetariánske", veganChip:"Vegánske", glutenChip:"Bezlepkové", lactoseChip:"Bez laktózy",
+  vegNote:"Vegetariánske/vegánske je skutočný filter založený na dátach Google — ponecháme podniky s aspoň jedným vegetariánskym jedlom (100% vege/vegánske majú vlastný odznak). Google nerozlišuje vegánske osobitne, takže sa použije rovnaký signál ako priblíženie.",
+  glutenNote:"Bezlepkové a bez laktózy sa zatiaľ nefiltrujú — Google na to nemá spoľahlivé dáta. Skupina to len uvidí ako upozornenie — vždy si to over priamo v podniku.",
   submitPrefsBtn:"Potvrdiť moje preferencie", waitingTitle:"Čakanie", waitingSub:"Ostatní práve odpovedajú.",
   participantsLabel:"Účastníci", waitingNote:"Čaká sa aspoň na jednu odpoveď. Nápady môžeš zobraziť kedykoľvek, aj keď ešte neodpovedali všetci.",
   seeIdeasBtn:"Zobraziť nápady", waitingStatus:"čaká sa na ostatných…",
   suggestionsTitle:"Nápady pre skupinu", suggestionsSub:"Zoradené podľa toho, čo vyhovuje najviac ľuďom.",
   launchVoteBtn:"Spustiť hlasovanie", noMatchNote:"Žiadny podnik nevyhovuje všetkým obmedzeniam/rozpočtu/mestskej časti súčasne — skús rozšíriť niektoré kritérium.",
-  likedByPrefix:"Páči sa", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Vegetariánska možnosť",
+  likedByPrefix:"Páči sa", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Vegetariánska možnosť", viewOnMaps:"Zobraziť na Mape",
   voteTitle:"Prebieha hlasovanie", voteSub:"Skupina rozhoduje naživo.",
   voteHint:"Vyber max. 2 — tak môžu dvaja ľudia stále nájsť spoločnú voľbu.",
   votesWord:"hlasov", homeStatusNoName:"Najprv zadaj svoje meno.", homeStatusNoCode:"Zadaj meno a kód.",
@@ -303,15 +309,16 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
   shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az OnTable-ön — kód {code}:", shareCopied:"Vágólapra másolva",
   typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
-  budgetLabel:"Maximális költségkeret", districtLabel:"Kerület (Pozsony I–V)",
-  restrictionsLabel:"Étkezési korlátozások", vegChip:"Vegetáriánus / vegán",
-  vegNote:"Jelöld be, ha valakinek a csoportból vegetáriánus opcióra van szüksége — ekkor minden olyan helyet megtartunk, ahol van legalább egy vegetáriánus fogás, nemcsak a 100%-ban vegetáriánus/vegán éttermeket (azok külön jelvényt kapnak). Ebben a tesztben csak ezt a korlátozást ellenőrizzük.",
+  budgetLabel:"Maximális költségkeret", budgetLow:"Olcsó", budgetMid:"Közepes", budgetHigh:"Elegáns", districtLabel:"Kerület (Pozsony I–V)",
+  restrictionsLabel:"Étkezési korlátozások", vegetarianChip:"Vegetáriánus", veganChip:"Vegán", glutenChip:"Gluténmentes", lactoseChip:"Laktózmentes",
+  vegNote:"A vegetáriánus/vegán valódi szűrő, Google adatai alapján — megtartunk minden helyet, ahol van legalább egy vegetáriánus fogás (a 100%-ban vegetáriánus/vegán helyek külön jelvényt kapnak). A Google nem különbözteti meg külön a vegánt, ezért ugyanazt a jelzést használjuk közelítésként.",
+  glutenNote:"A gluténmentes és laktózmentes még nincs szűrve — ehhez a Google-nak nincs megbízható adata. A csoport csak tájékoztatásul látja — mindig érdemes rákérdezni a helyszínen.",
   submitPrefsBtn:"Preferenciák elküldése", waitingTitle:"Várakozás", waitingSub:"A többiek élőben válaszolnak.",
   participantsLabel:"Résztvevők", waitingNote:"Várakozás legalább egy válaszra. Bármikor megnézheted az ötleteket, még ha nem is válaszolt még mindenki.",
   seeIdeasBtn:"Ötletek megtekintése", waitingStatus:"várakozás a többiekre…",
   suggestionsTitle:"Ötletek a csoportnak", suggestionsSub:"A legtöbb embernek megfelelő sorrendben.",
   launchVoteBtn:"Szavazás indítása", noMatchNote:"Egyetlen hely sem felel meg az összes korlátozásnak/költségkeretnek/kerületnek együtt — próbálj tágítani egy szempontot.",
-  likedByPrefix:"Kedveli", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Van vegetáriánus opció",
+  likedByPrefix:"Kedveli", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Van vegetáriánus opció", viewOnMaps:"Megnyitás a Térképen",
   voteTitle:"Folyamatban a szavazás", voteSub:"A csoport dönt, élőben.",
   voteHint:"Válassz max. 2-t — így két embernek is lehet közös választása.",
   votesWord:"szavazat", homeStatusNoName:"Először add meg a neved.", homeStatusNoCode:"Add meg a neved és egy kódot.",
@@ -329,15 +336,16 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
   shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur OnTable — code {code} :", shareCopied:"Copié dans le presse-papiers",
   typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
-  budgetLabel:"Budget max", districtLabel:"Quartier (Bratislava I–V)",
-  restrictionsLabel:"Restrictions alimentaires", vegChip:"Végétarien / végan",
-  vegNote:"Coche-la si quelqu'un du groupe a besoin d'une option végé — on garde alors tout lieu proposant au moins un plat végétarien, pas seulement les restaurants 100% végé/vegan (ceux-là ont un badge à part). Seule cette restriction est vérifiée dans ce test.",
+  budgetLabel:"Budget max", budgetLow:"Abordable", budgetMid:"Modéré", budgetHigh:"Chic", districtLabel:"Quartier (Bratislava I–V)",
+  restrictionsLabel:"Restrictions alimentaires", vegetarianChip:"Végétarien", veganChip:"Végan", glutenChip:"Sans gluten", lactoseChip:"Sans lactose",
+  vegNote:"Végétarien/végan est un vrai filtre, basé sur les données Google — on garde tout lieu proposant au moins un plat végétarien (les restaurants 100% végé/vegan ont un badge à part). Google ne distingue pas le vegan spécifiquement, donc \"végan\" utilise le même signal en approximation.",
+  glutenNote:"Sans gluten et sans lactose ne sont pas encore filtrés — Google n'a pas de donnée fiable là-dessus. Le groupe le voit juste comme information — à reconfirmer directement auprès de l'établissement.",
   submitPrefsBtn:"Valider mes préférences", waitingTitle:"En attente", waitingSub:"Les autres répondent en direct.",
   participantsLabel:"Participants", waitingNote:"En attente d'au moins une réponse. Tu peux générer les idées à tout moment, même si tout le monde n'a pas encore répondu.",
   seeIdeasBtn:"Voir les idées", waitingStatus:"en attente des autres…",
   suggestionsTitle:"Idées pour le groupe", suggestionsSub:"Classées selon ce qui convient au plus de monde.",
   launchVoteBtn:"Lancer le vote", noMatchNote:"Aucun lieu ne correspond à toutes les restrictions/budget/quartier combinés — élargis un critère.",
-  likedByPrefix:"Aimé par", vegOnlyBadge:"100% végé/vegan", vegOptionBadge:"Option végé dispo",
+  likedByPrefix:"Aimé par", vegOnlyBadge:"100% végé/vegan", vegOptionBadge:"Option végé dispo", viewOnMaps:"Voir sur Maps",
   voteTitle:"Vote en cours", voteSub:"Le groupe tranche, en direct.",
   voteHint:"Choisis jusqu'à 2 options — comme ça, à deux, vous aurez toujours au moins un choix commun.",
   votesWord:"votes", homeStatusNoName:"Entre ton prénom d'abord.", homeStatusNoCode:"Entre ton prénom et un code.",
@@ -450,6 +458,57 @@ function showView(name){
   stopPolling();
   if(name==='waiting'){ refreshWaiting(); startPolling(refreshWaiting); }
   if(name==='vote'){ renderVoteList(); startPolling(renderVoteList); }
+  saveAppState();
+}
+
+// ---------- Survive a page refresh: stay on the current screen instead of
+// bouncing back to the home screen. Explicit "start over" is the ONTABLE
+// title (goHome), not an accidental reload. ----------
+const APP_STATE_KEY = 'ontable-app-state';
+
+function saveAppState(){
+  if(currentView === 'home'){
+    localStorage.removeItem(APP_STATE_KEY);
+    return;
+  }
+  localStorage.setItem(APP_STATE_KEY, JSON.stringify({
+    code: state.code, name: state.name, isCreator: state.isCreator, view: currentView
+  }));
+}
+
+function goHome(){
+  stopPolling();
+  localStorage.removeItem(APP_STATE_KEY);
+  state = { code:null, name:null, isCreator:false };
+  sessionMeta = null; lastResults = []; latestBooking = null; latestVoteData = {};
+  showView('home');
+}
+
+async function restoreAppState(){
+  let saved;
+  try{ saved = JSON.parse(localStorage.getItem(APP_STATE_KEY)); }catch(e){ saved = null; }
+  if(!saved || !saved.code || !saved.name) return;
+
+  state.code = saved.code; state.name = saved.name; state.isCreator = !!saved.isCreator;
+  document.getElementById('codeDisplay').textContent = saved.code;
+
+  try{
+    if(!state.isCreator){
+      const res = await storageGet(keyMeta(state.code));
+      if(res && res.value){ try{ sessionMeta = JSON.parse(res.value); }catch(e){} }
+    }
+    if(saved.view === 'prefs'){
+      applyWhenVisibility();
+      showView('prefs');
+    }else if(saved.view === 'waiting'){
+      showView('waiting');
+    }else if(saved.view === 'suggestions' || saved.view === 'vote'){
+      await generateSuggestions(); // re-fetches live venues fresh, shows 'suggestions'
+      if(saved.view === 'vote') showView('vote');
+    }
+  }catch(e){
+    goHome(); // the saved session is no longer reachable — start clean rather than get stuck
+  }
 }
 
 function toggleChip(el){ el.classList.toggle('on'); }
@@ -700,8 +759,11 @@ async function refreshWaiting(){
 }
 
 function scoreVenue(v, participants, sessionTime){
-  const needsVeg = Object.values(participants).some(p=>p.restrictions.includes('vegetarien'));
+  const needsVeg = Object.values(participants).some(p=>p.restrictions.includes('vegetarien') || p.restrictions.includes('vegan'));
   if(needsVeg && !v.veg) return null;
+  // Note: gluten-free / lactose-free are recorded in each participant's prefs
+  // but not filtered here — Google Places has no reliable field for either,
+  // so a "hard filter" would just be guessing. Shown as informational only.
   const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
   if(v.p > maxBudget) return null;
   for(const p of Object.values(participants)){
@@ -792,7 +854,8 @@ async function fetchLiveVenues(districts, dayOfWeek){
         area: p.formattedAddress || '',
         open: hrs.open,
         close: hrs.close,
-        phone: p.nationalPhoneNumber || null
+        phone: p.nationalPhoneNumber || null,
+        mapsUri: p.googleMapsUri || null
       });
     });
   });
@@ -838,6 +901,11 @@ async function generateSuggestions(){
   finally{ btn.textContent = original; btn.disabled = false; }
 }
 
+function openVenueMaps(name){
+  const r = lastResults.find(r => r.v.n === name);
+  if(r && r.v.mapsUri) window.open(r.v.mapsUri, '_blank', 'noopener');
+}
+
 function renderResults(){
   const list = document.getElementById('resultsList');
   if(lastResults.length===0){
@@ -845,7 +913,7 @@ function renderResults(){
     return;
   }
   list.innerHTML = lastResults.map(r=>`
-    <div class="result-card">
+    <div class="result-card" ${r.v.mapsUri ? `onclick="openVenueMaps('${r.v.n.replace(/'/g,"\\'")}')" style="cursor:pointer;"` : ''}>
       <div class="result-top">
         <div>
           <div class="result-name">${r.v.n}</div>
@@ -856,6 +924,7 @@ function renderResults(){
       <div class="match-row">
         ${r.v.vegOnly?`<span class="match-tag">${t('vegOnlyBadge')}</span>`:(r.v.veg?`<span class="match-tag">${t('vegOptionBadge')}</span>`:'')}
         <span class="match-tag" style="background:rgba(43,22,32,0.06); color:var(--ink-soft); font-weight:400;">${t('likedByPrefix')} ${r.likedBy.join(', ')||'—'}</span>
+        ${r.v.mapsUri ? `<span class="match-tag" style="background:rgba(122,46,61,0.08); color:var(--wine);">${t('viewOnMaps')} →</span>` : ''}
       </div>
     </div>
   `).join('');
@@ -1013,6 +1082,7 @@ function resolveReservation(success){
 
 renderLangRow();
 applyLang();
+restoreAppState();
 
 // ---------- PWA: version display + service worker + manual update check ----------
 document.getElementById('verLabel').textContent = 'v' + (window.APP_VERSION || '?');
