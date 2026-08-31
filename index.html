@@ -115,6 +115,22 @@
   .book-card.booked{border-color:var(--basil); background:rgba(75,122,81,0.08);}
   .book-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:16px;}
   .book-confirm{font-size:11.5px; color:var(--basil); font-weight:600; margin-top:4px;}
+  .map-modal{
+    display:none; position:fixed; inset:0; background:rgba(28,14,21,0.72);
+    z-index:200; align-items:center; justify-content:center; padding:18px;
+  }
+  .map-modal.show{display:flex;}
+  .map-modal-inner{
+    background:var(--card); border-radius:20px; padding:16px;
+    width:100%; max-width:440px; max-height:85vh; display:flex; flex-direction:column;
+  }
+  .map-modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .map-modal-head span{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:17px;}
+  .map-modal-close{
+    background:var(--card-soft); border:none; width:30px; height:30px; border-radius:50%;
+    font-size:14px; color:var(--ink-soft); cursor:pointer; flex-shrink:0;
+  }
+  #mapFrame{width:100%; height:340px; border:0; border-radius:14px; background:var(--card-soft);}
   ::-webkit-scrollbar{display:none;}
 </style>
 </head>
@@ -228,6 +244,16 @@
         <div class="view" id="view-suggestions">
           <div class="section-label" data-i18n="suggestionsSub"></div>
           <div id="resultsList"></div>
+          <div id="mapModal" class="map-modal" onclick="if(event.target===this) closeMapModal()">
+            <div class="map-modal-inner">
+              <div class="map-modal-head">
+                <span id="mapModalTitle"></span>
+                <button class="map-modal-close" onclick="closeMapModal()">✕</button>
+              </div>
+              <iframe id="mapFrame" src="" loading="lazy"></iframe>
+              <a id="mapModalOpenLink" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:10px;" data-i18n="openInMaps"></a>
+            </div>
+          </div>
           <button class="btn btn-primary" id="launchVoteBtn" onclick="showView('vote')"></button>
         </div>
 
@@ -264,7 +290,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   seeIdeasBtn:"See ideas", waitingStatus:"waiting for the others…",
   suggestionsTitle:"Ideas for the group", suggestionsSub:"Ranked by what fits the most people.",
   launchVoteBtn:"Start the vote", noMatchNote:"No place matches every restriction/budget/district combined — try widening a criterion.",
-  likedByPrefix:"Liked by", vegOnlyBadge:"100% veg/vegan", vegOptionBadge:"Veg option available", viewOnMaps:"View on Maps",
+  likedByPrefix:"Liked by", vegOnlyBadge:"100% veg/vegan", vegOptionBadge:"Veg option available", viewOnMaps:"View on Maps", openInMaps:"Open in Google Maps",
   voteTitle:"Vote in progress", voteSub:"The group decides, live.",
   voteHint:"Pick up to 2 — that way, two people can still land on a common choice.",
   votesWord:"votes", homeStatusNoName:"Enter your name first.", homeStatusNoCode:"Enter your name and a code.",
@@ -291,7 +317,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   seeIdeasBtn:"Zobraziť nápady", waitingStatus:"čaká sa na ostatných…",
   suggestionsTitle:"Nápady pre skupinu", suggestionsSub:"Zoradené podľa toho, čo vyhovuje najviac ľuďom.",
   launchVoteBtn:"Spustiť hlasovanie", noMatchNote:"Žiadny podnik nevyhovuje všetkým obmedzeniam/rozpočtu/mestskej časti súčasne — skús rozšíriť niektoré kritérium.",
-  likedByPrefix:"Páči sa", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Vegetariánska možnosť", viewOnMaps:"Zobraziť na Mape",
+  likedByPrefix:"Páči sa", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Vegetariánska možnosť", viewOnMaps:"Zobraziť na Mape", openInMaps:"Otvoriť v Google Maps",
   voteTitle:"Prebieha hlasovanie", voteSub:"Skupina rozhoduje naživo.",
   voteHint:"Vyber max. 2 — tak môžu dvaja ľudia stále nájsť spoločnú voľbu.",
   votesWord:"hlasov", homeStatusNoName:"Najprv zadaj svoje meno.", homeStatusNoCode:"Zadaj meno a kód.",
@@ -318,7 +344,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   seeIdeasBtn:"Ötletek megtekintése", waitingStatus:"várakozás a többiekre…",
   suggestionsTitle:"Ötletek a csoportnak", suggestionsSub:"A legtöbb embernek megfelelő sorrendben.",
   launchVoteBtn:"Szavazás indítása", noMatchNote:"Egyetlen hely sem felel meg az összes korlátozásnak/költségkeretnek/kerületnek együtt — próbálj tágítani egy szempontot.",
-  likedByPrefix:"Kedveli", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Van vegetáriánus opció", viewOnMaps:"Megnyitás a Térképen",
+  likedByPrefix:"Kedveli", vegOnlyBadge:"100% vege/vegán", vegOptionBadge:"Van vegetáriánus opció", viewOnMaps:"Megnyitás a Térképen", openInMaps:"Megnyitás a Google Térképen",
   voteTitle:"Folyamatban a szavazás", voteSub:"A csoport dönt, élőben.",
   voteHint:"Válassz max. 2-t — így két embernek is lehet közös választása.",
   votesWord:"szavazat", homeStatusNoName:"Először add meg a neved.", homeStatusNoCode:"Add meg a neved és egy kódot.",
@@ -345,7 +371,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   seeIdeasBtn:"Voir les idées", waitingStatus:"en attente des autres…",
   suggestionsTitle:"Idées pour le groupe", suggestionsSub:"Classées selon ce qui convient au plus de monde.",
   launchVoteBtn:"Lancer le vote", noMatchNote:"Aucun lieu ne correspond à toutes les restrictions/budget/quartier combinés — élargis un critère.",
-  likedByPrefix:"Aimé par", vegOnlyBadge:"100% végé/vegan", vegOptionBadge:"Option végé dispo", viewOnMaps:"Voir sur Maps",
+  likedByPrefix:"Aimé par", vegOnlyBadge:"100% végé/vegan", vegOptionBadge:"Option végé dispo", viewOnMaps:"Voir sur Maps", openInMaps:"Ouvrir dans Google Maps",
   voteTitle:"Vote en cours", voteSub:"Le groupe tranche, en direct.",
   voteHint:"Choisis jusqu'à 2 options — comme ça, à deux, vous aurez toujours au moins un choix commun.",
   votesWord:"votes", homeStatusNoName:"Entre ton prénom d'abord.", homeStatusNoCode:"Entre ton prénom et un code.",
@@ -903,7 +929,17 @@ async function generateSuggestions(){
 
 function openVenueMaps(name){
   const r = lastResults.find(r => r.v.n === name);
-  if(r && r.v.mapsUri) window.open(r.v.mapsUri, '_blank', 'noopener');
+  if(!r) return;
+  const query = encodeURIComponent(r.v.n + ' Bratislava ' + (r.v.area||''));
+  document.getElementById('mapFrame').src = 'https://maps.google.com/maps?q=' + query + '&output=embed';
+  document.getElementById('mapModalTitle').textContent = r.v.n;
+  document.getElementById('mapModalOpenLink').href = r.v.mapsUri || ('https://maps.google.com/?q=' + query);
+  document.getElementById('mapModal').classList.add('show');
+}
+
+function closeMapModal(){
+  document.getElementById('mapModal').classList.remove('show');
+  document.getElementById('mapFrame').src = ''; // stop the embed from loading in the background
 }
 
 function renderResults(){
@@ -913,7 +949,7 @@ function renderResults(){
     return;
   }
   list.innerHTML = lastResults.map(r=>`
-    <div class="result-card" ${r.v.mapsUri ? `onclick="openVenueMaps('${r.v.n.replace(/'/g,"\\'")}')" style="cursor:pointer;"` : ''}>
+    <div class="result-card" onclick="openVenueMaps('${r.v.n.replace(/'/g,"\\'")}')" style="cursor:pointer;">
       <div class="result-top">
         <div>
           <div class="result-name">${r.v.n}</div>
@@ -924,7 +960,7 @@ function renderResults(){
       <div class="match-row">
         ${r.v.vegOnly?`<span class="match-tag">${t('vegOnlyBadge')}</span>`:(r.v.veg?`<span class="match-tag">${t('vegOptionBadge')}</span>`:'')}
         <span class="match-tag" style="background:rgba(43,22,32,0.06); color:var(--ink-soft); font-weight:400;">${t('likedByPrefix')} ${r.likedBy.join(', ')||'—'}</span>
-        ${r.v.mapsUri ? `<span class="match-tag" style="background:rgba(122,46,61,0.08); color:var(--wine);">${t('viewOnMaps')} →</span>` : ''}
+        <span class="match-tag" style="background:rgba(122,46,61,0.08); color:var(--wine);">${t('viewOnMaps')} →</span>
       </div>
     </div>
   `).join('');
