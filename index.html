@@ -125,6 +125,25 @@
   .spinner{width:16px; height:16px; border:2px solid rgba(122,46,61,0.2); border-top-color:var(--wine); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .status-line{font-size:11px; color:var(--ink-soft); margin-top:8px; text-align:center;}
+  .prefstep{display:none;}
+  .prefstep.active{display:block; animation:fade .2s ease;}
+  .pref-dots{display:flex; justify-content:center; gap:6px; margin:18px 0 20px;}
+  .pref-dots .dot{width:7px; height:7px; border-radius:50%; background:rgba(43,22,32,0.15); transition:all .15s ease;}
+  .pref-dots .dot.on{background:var(--wine); width:20px; border-radius:4px;}
+  .pref-nav{
+    display:flex; gap:8px; margin-top:24px;
+    position:sticky; bottom:0; padding:12px 0 6px;
+    background:linear-gradient(to top, var(--card) 70%, rgba(243,237,227,0));
+  }
+  .pref-nav .btn{margin-top:0;}
+  #prefBackBtn{flex:0 0 auto; padding-left:18px; padding-right:18px;}
+  #prefBackBtn.hidden{visibility:hidden;}
+  #prefNextBtn{flex:1;}
+  .when-banner{
+    margin:0 20px 4px; padding:9px 14px; border-radius:12px;
+    background:rgba(122,46,61,0.08); border:1px solid rgba(122,46,61,0.2);
+    font-size:12px; color:var(--wine); font-weight:600; text-align:center;
+  }
   .book-card{background:var(--card-soft); border:1.4px solid var(--basil); border-radius:14px; padding:13px 14px; margin-bottom:9px;}
   .book-card.booked{border-color:var(--basil); background:rgba(75,122,81,0.08);}
   .book-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:16px;}
@@ -168,6 +187,7 @@
         <div class="screen-title" id="title"></div>
         <p class="screen-sub" id="sub"></p>
       </div>
+      <div id="whenBanner" class="when-banner" style="display:none;"></div>
       <div class="content">
 
         <!-- HOME -->
@@ -194,39 +214,9 @@
             <span data-i18n="shareBtn"></span>
           </button>
 
-          <div class="section-label" data-i18n="typeLabel"></div>
-          <div class="chip-grid">
-            <div class="chip" data-val="restaurant" onclick="toggleChip(this)" data-i18n="restaurantChip"></div>
-            <div class="chip" data-val="cafe" onclick="toggleChip(this)" data-i18n="cafeChip"></div>
-            <div class="chip" data-val="bar" onclick="toggleChip(this)" data-i18n="barChip"></div>
-          </div>
+          <div class="pref-dots" id="prefDots"></div>
 
-          <div class="section-label" data-i18n="budgetLabel"></div>
-          <div class="budget-row">
-            <div class="budget-opt" data-val="2" onclick="budgetSelect(this)">
-              <div class="budget-symbol">€</div>
-              <div data-i18n="budgetLow"></div>
-            </div>
-            <div class="budget-opt" data-val="3" onclick="budgetSelect(this)">
-              <div class="budget-symbol">€€</div>
-              <div data-i18n="budgetMid"></div>
-            </div>
-            <div class="budget-opt" data-val="4" onclick="budgetSelect(this)">
-              <div class="budget-symbol">€€€</div>
-              <div data-i18n="budgetHigh"></div>
-            </div>
-          </div>
-
-          <div class="section-label" data-i18n="districtLabel"></div>
-          <div class="chip-grid">
-            <div class="chip" data-val="I" onclick="toggleChip(this)">Bratislava I</div>
-            <div class="chip" data-val="II" onclick="toggleChip(this)">Bratislava II</div>
-            <div class="chip" data-val="III" onclick="toggleChip(this)">Bratislava III</div>
-            <div class="chip" data-val="IV" onclick="toggleChip(this)">Bratislava IV</div>
-            <div class="chip" data-val="V" onclick="toggleChip(this)">Bratislava V</div>
-          </div>
-
-          <div id="whenEditable">
+          <div class="prefstep" id="step-when">
             <div class="section-label" data-i18n="whenLabel"></div>
             <div class="chip-grid" id="dateChips">
               <div class="chip" onclick="pickDatePreset(this,'today')" data-i18n="dateToday"></div>
@@ -247,19 +237,61 @@
             <div class="note" data-i18n="timeNote" style="margin-top:8px;"></div>
           </div>
 
-          <div id="whenReadonly" class="note" style="display:none;"></div>
-
-          <div class="section-label" data-i18n="restrictionsLabel"></div>
-          <div class="chip-grid">
-            <div class="chip warn" data-val="vegetarien" onclick="toggleChip(this)" data-i18n="vegetarianChip"></div>
-            <div class="chip warn" data-val="vegan" onclick="toggleChip(this)" data-i18n="veganChip"></div>
-            <div class="chip warn" data-val="sans_gluten" onclick="toggleChip(this)" data-i18n="glutenChip"></div>
-            <div class="chip warn" data-val="sans_lactose" onclick="toggleChip(this)" data-i18n="lactoseChip"></div>
+          <div class="prefstep" id="step-type">
+            <div class="section-label" data-i18n="typeLabel"></div>
+            <div class="chip-grid">
+              <div class="chip" data-val="restaurant" onclick="toggleChip(this)" data-i18n="restaurantChip"></div>
+              <div class="chip" data-val="cafe" onclick="toggleChip(this)" data-i18n="cafeChip"></div>
+              <div class="chip" data-val="bar" onclick="toggleChip(this)" data-i18n="barChip"></div>
+            </div>
           </div>
-          <div class="note" data-i18n="vegNote"></div>
-          <div class="note" data-i18n="glutenNote" style="margin-top:8px; border-color:rgba(122,100,89,0.3); background:rgba(122,100,89,0.06); color:var(--ink-soft);"></div>
 
-          <button class="btn btn-primary" id="submitPrefsBtn" onclick="submitPrefs()"></button>
+          <div class="prefstep" id="step-budget">
+            <div class="section-label" data-i18n="budgetLabel"></div>
+            <div class="budget-row">
+              <div class="budget-opt" data-val="2" onclick="budgetSelect(this)">
+                <div class="budget-symbol">€</div>
+                <div data-i18n="budgetLow"></div>
+              </div>
+              <div class="budget-opt" data-val="3" onclick="budgetSelect(this)">
+                <div class="budget-symbol">€€</div>
+                <div data-i18n="budgetMid"></div>
+              </div>
+              <div class="budget-opt" data-val="4" onclick="budgetSelect(this)">
+                <div class="budget-symbol">€€€</div>
+                <div data-i18n="budgetHigh"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prefstep" id="step-district">
+            <div class="section-label" data-i18n="districtLabel"></div>
+            <div class="chip-grid">
+              <div class="chip" data-val="I" onclick="toggleChip(this)">Bratislava I</div>
+              <div class="chip" data-val="II" onclick="toggleChip(this)">Bratislava II</div>
+              <div class="chip" data-val="III" onclick="toggleChip(this)">Bratislava III</div>
+              <div class="chip" data-val="IV" onclick="toggleChip(this)">Bratislava IV</div>
+              <div class="chip" data-val="V" onclick="toggleChip(this)">Bratislava V</div>
+            </div>
+          </div>
+
+          <div class="prefstep" id="step-restrictions">
+            <div class="section-label" data-i18n="restrictionsLabel"></div>
+            <div class="chip-grid">
+              <div class="chip" data-val="none" onclick="toggleNoneRestriction(this)" data-i18n="noneChip"></div>
+              <div class="chip warn" data-val="vegetarien" onclick="toggleRestriction(this)" data-i18n="vegetarianChip"></div>
+              <div class="chip warn" data-val="vegan" onclick="toggleRestriction(this)" data-i18n="veganChip"></div>
+              <div class="chip warn" data-val="sans_gluten" onclick="toggleRestriction(this)" data-i18n="glutenChip"></div>
+              <div class="chip warn" data-val="sans_lactose" onclick="toggleRestriction(this)" data-i18n="lactoseChip"></div>
+            </div>
+            <div class="note" data-i18n="vegNote"></div>
+            <div class="note" data-i18n="glutenNote" style="margin-top:8px; border-color:rgba(122,100,89,0.3); background:rgba(122,100,89,0.06); color:var(--ink-soft);"></div>
+          </div>
+
+          <div class="pref-nav">
+            <button class="btn btn-ghost" id="prefBackBtn" onclick="prefBack()" data-i18n="backBtn"></button>
+            <button class="btn btn-primary" id="prefNextBtn" onclick="prefNext()"></button>
+          </div>
           <div class="status-line" id="prefsStatus"></div>
         </div>
 
@@ -314,7 +346,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   shareBtn:"Share the code", shareMessage:"Join me on OnTable — code {code}:", shareCopied:"Copied to clipboard",
   typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Max budget", budgetLow:"Affordable", budgetMid:"Mid-range", budgetHigh:"Upscale", districtLabel:"District (Bratislava I–V)",
-  restrictionsLabel:"Dietary restrictions", vegetarianChip:"Vegetarian", veganChip:"Vegan", glutenChip:"Gluten-free", lactoseChip:"Lactose-free",
+  restrictionsLabel:"Dietary restrictions", vegetarianChip:"Vegetarian", veganChip:"Vegan", glutenChip:"Gluten-free", lactoseChip:"Lactose-free", noneChip:"None", backBtn:"Back", nextBtn:"Next",
   vegNote:"Vegetarian/vegan is a real filter, based on Google's data — we keep any place offering at least one vegetarian dish (100% veg/vegan restaurants get a separate badge). Google doesn't distinguish vegan specifically, so \"vegan\" uses the same signal as a safe approximation.",
   glutenNote:"Gluten-free and lactose-free aren't filtered yet — Google has no reliable data for these. They're shown to the group as a heads-up; always confirm with the venue.",
   submitPrefsBtn:"Submit my preferences", waitingTitle:"Waiting", waitingSub:"Others are answering live.",
@@ -341,7 +373,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na OnTable — kód {code}:", shareCopied:"Skopírované do schránky",
   typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
   budgetLabel:"Maximálny rozpočet", budgetLow:"Lacné", budgetMid:"Stredné", budgetHigh:"Luxusné", districtLabel:"Mestská časť (Bratislava I–V)",
-  restrictionsLabel:"Stravovacie obmedzenia", vegetarianChip:"Vegetariánske", veganChip:"Vegánske", glutenChip:"Bezlepkové", lactoseChip:"Bez laktózy",
+  restrictionsLabel:"Stravovacie obmedzenia", vegetarianChip:"Vegetariánske", veganChip:"Vegánske", glutenChip:"Bezlepkové", lactoseChip:"Bez laktózy", noneChip:"Žiadne", backBtn:"Späť", nextBtn:"Ďalej",
   vegNote:"Vegetariánske/vegánske je skutočný filter založený na dátach Google — ponecháme podniky s aspoň jedným vegetariánskym jedlom (100% vege/vegánske majú vlastný odznak). Google nerozlišuje vegánske osobitne, takže sa použije rovnaký signál ako priblíženie.",
   glutenNote:"Bezlepkové a bez laktózy sa zatiaľ nefiltrujú — Google na to nemá spoľahlivé dáta. Skupina to len uvidí ako upozornenie — vždy si to over priamo v podniku.",
   submitPrefsBtn:"Potvrdiť moje preferencie", waitingTitle:"Čakanie", waitingSub:"Ostatní práve odpovedajú.",
@@ -368,7 +400,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az OnTable-ön — kód {code}:", shareCopied:"Vágólapra másolva",
   typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
   budgetLabel:"Maximális költségkeret", budgetLow:"Olcsó", budgetMid:"Közepes", budgetHigh:"Elegáns", districtLabel:"Kerület (Pozsony I–V)",
-  restrictionsLabel:"Étkezési korlátozások", vegetarianChip:"Vegetáriánus", veganChip:"Vegán", glutenChip:"Gluténmentes", lactoseChip:"Laktózmentes",
+  restrictionsLabel:"Étkezési korlátozások", vegetarianChip:"Vegetáriánus", veganChip:"Vegán", glutenChip:"Gluténmentes", lactoseChip:"Laktózmentes", noneChip:"Nincs", backBtn:"Vissza", nextBtn:"Tovább",
   vegNote:"A vegetáriánus/vegán valódi szűrő, Google adatai alapján — megtartunk minden helyet, ahol van legalább egy vegetáriánus fogás (a 100%-ban vegetáriánus/vegán helyek külön jelvényt kapnak). A Google nem különbözteti meg külön a vegánt, ezért ugyanazt a jelzést használjuk közelítésként.",
   glutenNote:"A gluténmentes és laktózmentes még nincs szűrve — ehhez a Google-nak nincs megbízható adata. A csoport csak tájékoztatásul látja — mindig érdemes rákérdezni a helyszínen.",
   submitPrefsBtn:"Preferenciák elküldése", waitingTitle:"Várakozás", waitingSub:"A többiek élőben válaszolnak.",
@@ -395,7 +427,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur OnTable — code {code} :", shareCopied:"Copié dans le presse-papiers",
   typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Budget max", budgetLow:"Abordable", budgetMid:"Modéré", budgetHigh:"Chic", districtLabel:"Quartier (Bratislava I–V)",
-  restrictionsLabel:"Restrictions alimentaires", vegetarianChip:"Végétarien", veganChip:"Végan", glutenChip:"Sans gluten", lactoseChip:"Sans lactose",
+  restrictionsLabel:"Restrictions alimentaires", vegetarianChip:"Végétarien", veganChip:"Végan", glutenChip:"Sans gluten", lactoseChip:"Sans lactose", noneChip:"Aucune", backBtn:"Retour", nextBtn:"Suivant",
   vegNote:"Végétarien/végan est un vrai filtre, basé sur les données Google — on garde tout lieu proposant au moins un plat végétarien (les restaurants 100% végé/vegan ont un badge à part). Google ne distingue pas le vegan spécifiquement, donc \"végan\" utilise le même signal en approximation.",
   glutenNote:"Sans gluten et sans lactose ne sont pas encore filtrés — Google n'a pas de donnée fiable là-dessus. Le groupe le voit juste comme information — à reconfirmer directement auprès de l'établissement.",
   submitPrefsBtn:"Valider mes préférences", waitingTitle:"En attente", waitingSub:"Les autres répondent en direct.",
@@ -480,24 +512,109 @@ function applyLang(){
   document.getElementById('joinCode').placeholder = t('joinPlaceholder');
   document.getElementById('createBtn').textContent = t('createBtn');
   document.getElementById('joinBtn').textContent = t('joinBtn');
-  document.getElementById('submitPrefsBtn').textContent = t('submitPrefsBtn');
   document.getElementById('seeIdeasBtn').textContent = t('seeIdeasBtn');
   document.getElementById('waitingStatus').textContent = t('waitingStatus');
   document.getElementById('launchVoteBtn').textContent = t('launchVoteBtn');
   populateDateOptions();
   populateTimeOptions();
-  if(!state.isCreator && currentView==='prefs') renderWhenReadonly();
+  if(currentView==='prefs' && prefSteps.length) renderPrefStep();
+  updateWhenBanner();
   refreshTitles(currentView);
   if(currentView==='suggestions' && lastResults.length) renderResults();
   if(currentView==='vote') renderVoteList();
 }
 
+// ---------- Day/time: set once by the creator, shown to everyone from the
+// Waiting screen onward via a persistent banner. ----------
+function formatWhenText(){
+  if(!sessionMeta || (!sessionMeta.dateRaw && !sessionMeta.timeRaw)) return null;
+  const locale = {en:'en-GB', sk:'sk-SK', hu:'hu-HU', fr:'fr-FR'}[currentLang] || 'en-GB';
+  let dateLabel = '';
+  if(sessionMeta.dateRaw){
+    const d = new Date(sessionMeta.dateRaw+'T00:00:00');
+    dateLabel = d.toLocaleDateString(locale, {weekday:'short', day:'numeric', month:'short'});
+  }
+  return [dateLabel, sessionMeta.timeRaw].filter(Boolean).join(' — ');
+}
+
+function updateWhenBanner(){
+  const el = document.getElementById('whenBanner');
+  if(!['waiting','suggestions','vote'].includes(currentView)){ el.style.display = 'none'; return; }
+  const text = formatWhenText();
+  if(text){ el.textContent = '🗓 ' + text; el.style.display = ''; }
+  else{ el.style.display = 'none'; }
+}
+
+// ---------- Preferences wizard: one question per screen ----------
+// Creator plans the day/time first (it needs to exist before anyone else's
+// answers matter) — everyone else skips straight to Type of place.
+function initPrefsWizard(){
+  prefSteps = state.isCreator
+    ? ['when','type','budget','district','restrictions']
+    : ['type','budget','district','restrictions'];
+  prefStepIndex = 0;
+  renderPrefStep();
+}
+
+function renderPrefStep(){
+  document.querySelectorAll('.prefstep').forEach(el=>el.classList.remove('active'));
+  const stepName = prefSteps[prefStepIndex];
+  document.getElementById('step-'+stepName).classList.add('active');
+
+  document.getElementById('prefDots').innerHTML = prefSteps.map((s,i)=>
+    `<span class="dot ${i===prefStepIndex?'on':''}"></span>`
+  ).join('');
+
+  document.getElementById('prefBackBtn').classList.toggle('hidden', prefStepIndex===0);
+  document.getElementById('prefBackBtn').textContent = t('backBtn');
+  const isLast = prefStepIndex === prefSteps.length-1;
+  document.getElementById('prefNextBtn').textContent = isLast ? t('submitPrefsBtn') : t('nextBtn');
+  document.getElementById('prefsStatus').textContent = '';
+}
+
+function prefBack(){
+  if(prefStepIndex>0){ prefStepIndex--; renderPrefStep(); }
+}
+
+function prefNext(){
+  const stepName = prefSteps[prefStepIndex];
+
+  if(stepName === 'type'){
+    const chosen = document.querySelectorAll('#step-type .chip.on[data-val]');
+    if(chosen.length===0){ document.getElementById('prefsStatus').textContent = t('prefsStatusNoType'); return; }
+  }
+
+  if(stepName === 'when'){
+    // Day/time is session-wide, set once here — broadcast immediately so
+    // the banner can show up for everyone else as soon as possible, rather
+    // than waiting for the whole wizard to finish.
+    const timeRaw = document.getElementById('timeInput').value;
+    let time = null;
+    if(timeRaw){ const [hh, mm] = timeRaw.split(':').map(Number); time = hh + mm/60; }
+    const dateRaw = document.getElementById('dateInput').value;
+    let dayOfWeek = null;
+    if(dateRaw){ dayOfWeek = new Date(dateRaw+'T00:00:00').getDay(); }
+    sessionMeta = { by: state.name, dateRaw, dayOfWeek, time, timeRaw };
+    storageSet(keyMeta(state.code), JSON.stringify({ code: state.code, createdAt: Date.now(), ...sessionMeta }))
+      .catch(()=> showToast(t('prefsStatusError')));
+  }
+
+  if(prefStepIndex < prefSteps.length-1){
+    prefStepIndex++;
+    renderPrefStep();
+  }else{
+    submitPrefs();
+  }
+}
+
 
 let state = { code:null, name:null, isCreator:false };
-let sessionMeta = null; // { by, dateRaw, dayOfWeek, time, timeRaw } — creator-set, read-only for everyone else
+let sessionMeta = null; // { by, dateRaw, dayOfWeek, time, timeRaw } — creator-set, shown to everyone via the banner
 let currentView = 'home';
 let lastResults = [];
 let pollTimer = null;
+let prefSteps = [];
+let prefStepIndex = 0;
 
 function refreshTitles(name){
   const titles = {
@@ -516,6 +633,7 @@ function showView(name){
   stopPolling();
   if(name==='waiting'){ refreshWaiting(); startPolling(refreshWaiting); }
   if(name==='vote'){ renderVoteList(); startPolling(renderVoteList); }
+  updateWhenBanner();
   saveAppState();
 }
 
@@ -555,12 +673,11 @@ async function restoreAppState(){
   document.getElementById('codeDisplay').textContent = saved.code;
 
   try{
-    if(!state.isCreator){
-      const res = await storageGet(keyMeta(state.code));
-      if(res && res.value){ try{ sessionMeta = JSON.parse(res.value); }catch(e){} }
-    }
+    const res = await storageGet(keyMeta(state.code));
+    if(res && res.value){ try{ sessionMeta = JSON.parse(res.value); }catch(e){} }
+
     if(saved.view === 'prefs'){
-      applyWhenVisibility();
+      initPrefsWizard();
       showView('prefs');
     }else if(saved.view === 'waiting'){
       showView('waiting');
@@ -706,7 +823,7 @@ function createSession(){
   // in the background.
   state.code = code; state.name = name; state.isCreator = true;
   document.getElementById('codeDisplay').textContent = code;
-  applyWhenVisibility();
+  initPrefsWizard();
   showView('prefs');
   storageSet(keyMeta(code), JSON.stringify({ code, createdAt: Date.now(), by: name, dateRaw:null, dayOfWeek:null, time:null, timeRaw:null }))
     .catch(()=> showToast(t('homeStatusError')));
@@ -725,76 +842,35 @@ async function joinSession(){
     state.code = code; state.name = name; state.isCreator = false;
     try{ sessionMeta = JSON.parse(res.value); }catch(e){ sessionMeta = null; }
     document.getElementById('codeDisplay').textContent = code;
-    applyWhenVisibility();
+    initPrefsWizard();
     showView('prefs');
   }catch(e){ document.getElementById('homeStatus').textContent=t('homeStatusNotFound'); }
   finally{ btn.textContent = original; btn.disabled = false; }
 }
 
-// Only the person who created the code plans the day/time — everyone else
-// just sees what was chosen, read-only, once it's set.
-function applyWhenVisibility(){
-  const editable = document.getElementById('whenEditable');
-  const readonly = document.getElementById('whenReadonly');
-  if(state.isCreator){
-    editable.style.display = '';
-    readonly.style.display = 'none';
-  }else{
-    editable.style.display = 'none';
-    readonly.style.display = '';
-    renderWhenReadonly();
-  }
+function toggleRestriction(el){
+  el.parentElement.querySelector('[data-val="none"]')?.classList.remove('on');
+  el.classList.toggle('on');
 }
-
-function renderWhenReadonly(){
-  const readonly = document.getElementById('whenReadonly');
-  if(!sessionMeta || (!sessionMeta.dateRaw && !sessionMeta.timeRaw)){
-    readonly.textContent = t('whenPendingNote').replace('{by}', sessionMeta ? sessionMeta.by : '');
-    return;
-  }
-  const locale = {en:'en-GB', sk:'sk-SK', hu:'hu-HU', fr:'fr-FR'}[currentLang] || 'en-GB';
-  let dateLabel = '';
-  if(sessionMeta.dateRaw){
-    const d = new Date(sessionMeta.dateRaw+'T00:00:00');
-    dateLabel = d.toLocaleDateString(locale, {weekday:'short', day:'numeric', month:'short'});
-  }
-  const parts = [dateLabel, sessionMeta.timeRaw].filter(Boolean).join(' — ');
-  readonly.textContent = t('whenSetNote').replace('{by}', sessionMeta.by).replace('{when}', parts);
+function toggleNoneRestriction(el){
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
 }
 
 function submitPrefs(){
-  const types = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['restaurant','cafe','bar'].includes(v));
-  const districts = [...document.querySelectorAll('#view-prefs .chip.on[data-val]')].map(c=>c.dataset.val).filter(v=>['I','II','III','IV','V'].includes(v));
-  const restrictions = [...document.querySelectorAll('#view-prefs .chip.warn.on')].map(c=>c.dataset.val);
-  const budgetEl = document.querySelector('#view-prefs .budget-opt.on');
+  const types = [...document.querySelectorAll('#step-type .chip.on[data-val]')].map(c=>c.dataset.val);
+  const districts = [...document.querySelectorAll('#step-district .chip.on[data-val]')].map(c=>c.dataset.val);
+  const restrictions = [...document.querySelectorAll('#step-restrictions .chip.warn.on')].map(c=>c.dataset.val);
+  const budgetEl = document.querySelector('#step-budget .budget-opt.on');
   const budget = budgetEl ? parseInt(budgetEl.dataset.val) : 4;
 
-  if(types.length===0){ document.getElementById('prefsStatus').textContent=t('prefsStatusNoType'); return; }
-
   // Optimistic: we already know what was chosen, so move to "waiting" right
-  // away — the writes happen in the background.
+  // away — the write happens in the background. Day/time was already saved
+  // when the creator finished that step, earlier in the wizard.
   showView('waiting');
   const data = { types, districts, restrictions, budget, at: Date.now() };
   storageSet(keyPrefs(state.code, state.name), JSON.stringify(data))
     .catch(()=> showToast(t('prefsStatusError')));
-
-  // Only the creator's day/time selection is saved — it's session-wide,
-  // not a per-person preference.
-  if(state.isCreator){
-    const timeRaw = document.getElementById('timeInput').value; // "HH:MM" or ""
-    let time = null;
-    if(timeRaw){
-      const [hh, mm] = timeRaw.split(':').map(Number);
-      time = hh + (mm/60);
-    }
-    const dateRaw = document.getElementById('dateInput').value; // "YYYY-MM-DD" or ""
-    let dayOfWeek = null;
-    if(dateRaw){
-      dayOfWeek = new Date(dateRaw+'T00:00:00').getDay(); // matches Google's period.open.day
-    }
-    storageSet(keyMeta(state.code), JSON.stringify({ code: state.code, createdAt: Date.now(), by: state.name, dateRaw, dayOfWeek, time, timeRaw }))
-      .catch(()=> showToast(t('prefsStatusError')));
-  }
 }
 
 async function fetchAllParticipants(){
@@ -811,10 +887,16 @@ async function refreshWaiting(){
   if(waitingBusy) return;
   waitingBusy = true;
   try{
-    const participants = await fetchAllParticipants();
+    const [participants, metaRes] = await Promise.all([
+      fetchAllParticipants(),
+      state.isCreator ? Promise.resolve(null) : storageGet(keyMeta(state.code)).catch(()=>null)
+    ]);
     document.getElementById('whoStrip').innerHTML = Object.keys(participants).map(n=>
       `<div class="who-pill">${n} ✓</div>`
     ).join('');
+    if(metaRes && metaRes.value){
+      try{ sessionMeta = JSON.parse(metaRes.value); updateWhenBanner(); }catch(e){}
+    }
   }catch(e){
   }finally{
     waitingBusy = false;
