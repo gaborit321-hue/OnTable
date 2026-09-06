@@ -1,72 +1,229 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OnTable — Politique de confidentialité</title>
+<title>OnTable — Privacy Policy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Karla:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{ --bg:#2B1620; --card:#F3EDE3; --ink:#2B1620; --ink-soft:#7A6459; --wine:#7A2E3D; --line:rgba(43,22,32,0.12); }
   *{box-sizing:border-box;}
   body{margin:0; background:var(--bg); font-family:'Karla',sans-serif; color:var(--ink);}
   .wrap{max-width:720px; margin:0 auto; padding:40px 20px 80px;}
   .card{background:var(--card); border-radius:20px; padding:36px 32px;}
+  .top-row{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
   .brand{font-family:'IBM Plex Mono',monospace; color:var(--wine); letter-spacing:.14em; font-size:11px; text-transform:uppercase; margin-bottom:8px;}
+  .lang-row{display:flex; gap:5px;}
+  .lang-btn{padding:5px 9px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.04em; cursor:pointer;}
+  .lang-btn.on{background:var(--wine); color:var(--card); border-color:var(--wine);}
   h1{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:30px; margin:0 0 4px;}
   .updated{font-size:12px; color:var(--ink-soft); margin-bottom:28px;}
   h2{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:19px; margin:28px 0 10px; color:var(--wine);}
   p, li{font-size:14px; line-height:1.65; color:var(--ink);}
   ul{padding-left:20px; margin:8px 0;}
   a{color:var(--wine);}
-  .placeholder{background:rgba(196,71,46,0.1); padding:1px 6px; border-radius:4px; color:#C4472E; font-weight:600;}
+  .lang-block{display:none;}
+  .lang-block.active{display:block;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="card">
-    <div class="brand">ONTABLE</div>
-    <h1>Politique de confidentialité</h1>
-    <div class="updated">Dernière mise à jour : 6 septembre 2026</div>
+    <div class="top-row">
+      <div class="brand">ONTABLE</div>
+      <div class="lang-row" id="langRow"></div>
+    </div>
 
-    <p>OnTable ("l'application", "nous") aide un groupe de personnes à choisir ensemble un restaurant, café ou bar, via un code de session partagé. Cette page explique quelles données sont collectées, pourquoi, et comment elles sont traitées.</p>
+    <div class="lang-block" data-lang="en">
+      <h1>Privacy Policy</h1>
+      <div class="updated">Last updated: September 6, 2026</div>
+      <p>OnTable ("the app", "we") helps a group of people jointly choose a restaurant, café, or bar, via a shared session code. This page explains what data is collected, why, and how it's handled.</p>
 
-    <h2>Données collectées</h2>
-    <p>Lorsque tu utilises OnTable, nous collectons :</p>
-    <ul>
-      <li>Le <strong>prénom</strong> que tu saisis toi-même (aucune vérification, aucun compte n'est créé)</li>
-      <li>Tes <strong>préférences</strong> pour la sortie : type de lieu, budget, quartier, restrictions alimentaires</li>
-      <li>Le <strong>jour et l'heure</strong> choisis pour la sortie (renseignés par la personne qui crée le code)</li>
-      <li>Tes <strong>votes</strong> sur les lieux proposés</li>
-      <li>Si une réservation est confirmée : le <strong>nom du restaurant</strong>, le <strong>nombre de personnes</strong>, et qui a fait la réservation</li>
-    </ul>
-    <p>Nous ne demandons ni email, ni numéro de téléphone, ni aucune autre donnée d'identification. Aucun compte utilisateur n'existe dans l'application.</p>
+      <h2>Data we collect</h2>
+      <ul>
+        <li>The <strong>first name</strong> you enter yourself (no verification, no account is created)</li>
+        <li>Your <strong>preferences</strong> for the outing: type of place, budget, district, dietary restrictions</li>
+        <li>The <strong>day and time</strong> chosen for the outing (set by the person who creates the code)</li>
+        <li>Your <strong>votes</strong> on the suggested places</li>
+        <li>If a reservation is confirmed: the <strong>restaurant name</strong>, the <strong>number of people</strong>, and who made the reservation</li>
+      </ul>
+      <p>We don't ask for an email, phone number, or any other identifying information. No user account exists in the app.</p>
 
-    <h2>Pourquoi ces données</h2>
-    <p>Ces informations servent uniquement à faire fonctionner une session de groupe : proposer des lieux compatibles avec les préférences de tous les participants, et permettre au groupe de suivre la décision et la réservation.</p>
+      <h2>Why we collect it</h2>
+      <p>This information is used solely to run a group session: suggesting places that match everyone's preferences, and letting the group track the decision and the reservation.</p>
 
-    <h2>Où sont stockées les données</h2>
-    <p>Les données de session sont stockées chez <a href="https://upstash.com" target="_blank" rel="noopener">Upstash</a> (base de données Redis, hébergée en Union européenne), via un serveur intermédiaire chez <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>. Elles sont automatiquement supprimées <strong>7 jours</strong> après la dernière activité d'une session — aucune conservation indéfinie des sessions de test ou terminées.</p>
-    <p>Les réservations confirmées sont conservées plus longtemps dans un journal séparé, à des fins de facturation entre OnTable et les établissements partenaires — sans lien avec l'identité réelle des personnes (seul le prénom saisi est associé).</p>
+      <h2>Where data is stored</h2>
+      <p>Session data is stored with <a href="https://upstash.com" target="_blank" rel="noopener">Upstash</a> (Redis database, hosted in the European Union), via an intermediary server at <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>. It is automatically deleted 7 days after a session's last activity — no indefinite retention of test or finished sessions.</p>
+      <p>Confirmed reservations are kept longer in a separate log, for billing purposes between OnTable and partner venues — without any link to a person's real identity (only the entered first name is associated).</p>
 
-    <h2>Services tiers utilisés</h2>
-    <p>Pour proposer des lieux, l'application interroge l'<a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">API Google Places</a>. Cette requête transmet uniquement les critères de recherche (type de lieu, quartier) — jamais ton prénom ni tes préférences personnelles. Consulte la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">politique de confidentialité de Google</a> pour plus de détails sur le traitement de cette requête par Google.</p>
+      <h2>Third-party services</h2>
+      <p>To suggest places, the app queries the <a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">Google Places API</a>. This request only sends the search criteria (place type, district) — never your first name or personal preferences. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a> for details on how Google processes this request.</p>
 
-    <h2>Partage des données</h2>
-    <p>Nous ne vendons ni ne partageons tes données avec des tiers à des fins publicitaires ou commerciales. Les informations de réservation confirmée peuvent être communiquées à l'établissement concerné, dans le cadre du fonctionnement normal de la réservation.</p>
+      <h2>Data sharing</h2>
+      <p>We don't sell or share your data with third parties for advertising or commercial purposes. Confirmed reservation details may be shared with the venue concerned, as part of the normal operation of the reservation.</p>
 
-    <h2>Tes droits</h2>
-    <p>Comme OnTable ne crée pas de compte et supprime automatiquement les données de session après 7 jours, il y a peu de données à faire supprimer manuellement. Si tu souhaites néanmoins la suppression d'une donnée spécifique (par exemple une réservation enregistrée), contacte-nous à l'adresse ci-dessous.</p>
+      <h2>Your rights</h2>
+      <p>Since OnTable doesn't create accounts and automatically deletes session data after 7 days, there is little data to manually request deletion of. If you'd still like a specific piece of data deleted (for example a recorded reservation), contact us at the address below.</p>
 
-    <h2>Utilisation par des mineurs</h2>
-    <p>OnTable ne s'adresse pas aux enfants et ne collecte pas sciemment de données concernant des personnes de moins de 16 ans.</p>
+      <h2>Use by minors</h2>
+      <p>OnTable is not directed at children and does not knowingly collect data about people under 16.</p>
 
-    <h2>Contact</h2>
-    <p>Pour toute question concernant cette politique ou tes données : <span class="placeholder">[gaborit321@gmail.com]</span></p>
+      <h2>Contact</h2>
+      <p>gaborit321@gmail.com</p>
 
-    <h2>Modifications</h2>
-    <p>Cette politique peut être mise à jour. La date en haut de page indique la dernière version.</p>
+      <h2>Changes</h2>
+      <p>This policy may be updated. The date at the top shows the latest version.</p>
+    </div>
+
+    <div class="lang-block" data-lang="sk">
+      <h1>Zásady ochrany osobných údajov</h1>
+      <div class="updated">Posledná aktualizácia: 6. septembra 2026</div>
+      <p>OnTable ("aplikácia", "my") pomáha skupine ľudí spoločne vybrať reštauráciu, kaviareň alebo bar prostredníctvom zdieľaného kódu relácie. Táto stránka vysvetľuje, aké údaje zbierame, prečo a ako s nimi zaobchádzame.</p>
+
+      <h2>Aké údaje zbierame</h2>
+      <ul>
+        <li><strong>Meno</strong>, ktoré si sám/sama zadáš (bez overenia, nevytvára sa žiadny účet)</li>
+        <li>Tvoje <strong>preferencie</strong> pre výlet: typ podniku, rozpočet, mestská časť, stravovacie obmedzenia</li>
+        <li><strong>Deň a čas</strong> zvolený pre výlet (nastavuje osoba, ktorá vytvorila kód)</li>
+        <li>Tvoje <strong>hlasy</strong> za navrhnuté miesta</li>
+        <li>Ak je rezervácia potvrdená: <strong>názov reštaurácie</strong>, <strong>počet osôb</strong> a kto rezerváciu vykonal</li>
+      </ul>
+      <p>Nepýtame si email, telefónne číslo ani žiadny iný identifikačný údaj. V aplikácii neexistuje žiadny používateľský účet.</p>
+
+      <h2>Prečo tieto údaje zbierame</h2>
+      <p>Tieto informácie slúžia výlučne na fungovanie skupinovej relácie: navrhovanie miest zodpovedajúcich preferenciám všetkých účastníkov a umožnenie skupine sledovať rozhodnutie a rezerváciu.</p>
+
+      <h2>Kde sú údaje uložené</h2>
+      <p>Údaje relácie sú uložené u <a href="https://upstash.com" target="_blank" rel="noopener">Upstash</a> (databáza Redis, hostovaná v Európskej únii), cez sprostredkovateľský server <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>. Automaticky sa vymažú 7 dní po poslednej aktivite relácie — žiadne trvalé uchovávanie testovacích alebo ukončených relácií.</p>
+      <p>Potvrdené rezervácie sa uchovávajú dlhšie v samostatnom zázname na účely fakturácie medzi OnTable a partnerskými podnikmi — bez prepojenia na skutočnú identitu osôb (priradené je iba zadané meno).</p>
+
+      <h2>Použité služby tretích strán</h2>
+      <p>Na navrhovanie miest aplikácia využíva <a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">Google Places API</a>. Táto požiadavka posiela iba kritériá vyhľadávania (typ miesta, mestská časť) — nikdy tvoje meno ani osobné preferencie. Podrobnosti o tom, ako Google spracúva túto požiadavku, nájdeš v <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">zásadách ochrany osobných údajov spoločnosti Google</a>.</p>
+
+      <h2>Zdieľanie údajov</h2>
+      <p>Tvoje údaje nepredávame ani nezdieľame s tretími stranami na reklamné alebo komerčné účely. Údaje o potvrdenej rezervácii môžu byť poskytnuté dotknutému podniku, v rámci bežného fungovania rezervácie.</p>
+
+      <h2>Tvoje práva</h2>
+      <p>Keďže OnTable nevytvára účty a automaticky vymazáva údaje relácie po 7 dňoch, je len málo údajov, o ktorých vymazanie by bolo treba žiadať manuálne. Ak by si napriek tomu chcel/a vymazať konkrétny údaj (napríklad zaznamenanú rezerváciu), kontaktuj nás na adrese nižšie.</p>
+
+      <h2>Používanie maloletými</h2>
+      <p>OnTable nie je určené deťom a vedome nezbiera údaje o osobách mladších ako 16 rokov.</p>
+
+      <h2>Kontakt</h2>
+      <p>gaborit321@gmail.com</p>
+
+      <h2>Zmeny</h2>
+      <p>Tieto zásady môžu byť aktualizované. Dátum hore zobrazuje poslednú verziu.</p>
+    </div>
+
+    <div class="lang-block" data-lang="hu">
+      <h1>Adatvédelmi irányelvek</h1>
+      <div class="updated">Utolsó frissítés: 2026. szeptember 6.</div>
+      <p>Az OnTable ("az alkalmazás", "mi") segít egy csoportnak közösen kiválasztani egy éttermet, kávézót vagy bárt, egy megosztott munkamenet-kód segítségével. Ez az oldal elmagyarázza, milyen adatokat gyűjtünk, miért, és hogyan kezeljük őket.</p>
+
+      <h2>Az általunk gyűjtött adatok</h2>
+      <ul>
+        <li>Az általad megadott <strong>keresztnév</strong> (nincs ellenőrzés, nem jön létre fiók)</li>
+        <li>A programra vonatkozó <strong>preferenciáid</strong>: hely típusa, költségkeret, kerület, étkezési korlátozások</li>
+        <li>A programhoz választott <strong>nap és időpont</strong> (a kódot létrehozó személy állítja be)</li>
+        <li>A javasolt helyekre leadott <strong>szavazataid</strong></li>
+        <li>Ha egy foglalás megerősítésre kerül: az <strong>étterem neve</strong>, a <strong>létszám</strong>, és hogy ki foglalt</li>
+      </ul>
+      <p>Nem kérünk e-mail címet, telefonszámot vagy egyéb azonosító adatot. Az alkalmazásban nem létezik felhasználói fiók.</p>
+
+      <h2>Miért gyűjtjük ezeket az adatokat</h2>
+      <p>Ezek az információk kizárólag a csoportos munkamenet működtetésére szolgálnak: olyan helyek javaslására, amelyek megfelelnek mindenki preferenciáinak, és lehetővé teszik a csoport számára a döntés és a foglalás nyomon követését.</p>
+
+      <h2>Hol tároljuk az adatokat</h2>
+      <p>A munkamenet adatait az <a href="https://upstash.com" target="_blank" rel="noopener">Upstash</a> tárolja (Redis adatbázis, az Európai Unióban), a <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a> közvetítő szerverén keresztül. Az adatok automatikusan törlődnek a munkamenet utolsó aktivitása után 7 nappal — a teszt- vagy befejezett munkamenetek nem kerülnek tartósan tárolásra.</p>
+      <p>A megerősített foglalásokat egy külön naplóban tovább őrizzük, az OnTable és a partner-létesítmények közötti számlázás céljából — a személyek valódi kilétéhez fűződő kapcsolat nélkül (csak a megadott keresztnév kerül hozzárendelésre).</p>
+
+      <h2>Használt harmadik féltől származó szolgáltatások</h2>
+      <p>A helyek javasolásához az alkalmazás a <a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">Google Places API-t</a> hívja meg. Ez a kérés csak a keresési feltételeket küldi el (hely típusa, kerület) — soha nem a keresztnevedet vagy személyes preferenciáidat. A kérés Google általi kezelésének részleteiért lásd a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google adatvédelmi irányelveit</a>.</p>
+
+      <h2>Adatmegosztás</h2>
+      <p>Nem adjuk el, és nem osztjuk meg adataidat harmadik felekkel reklám- vagy kereskedelmi célból. A megerősített foglalás adatai megoszthatók az érintett létesítménnyel, a foglalás szokásos működése keretében.</p>
+
+      <h2>Jogaid</h2>
+      <p>Mivel az OnTable nem hoz létre fiókokat, és a munkamenet adatait automatikusan törli 7 nap után, kevés olyan adat van, amelynek törlését manuálisan kellene kérni. Ha mégis szeretnéd egy konkrét adat törlését kérni (például egy rögzített foglalást), lépj kapcsolatba velünk az alábbi címen.</p>
+
+      <h2>Kiskorúak általi használat</h2>
+      <p>Az OnTable nem gyerekeknek szól, és tudatosan nem gyűjt adatokat 16 év alatti személyekről.</p>
+
+      <h2>Kapcsolat</h2>
+      <p>gaborit321@gmail.com</p>
+
+      <h2>Módosítások</h2>
+      <p>Ezek az irányelvek frissülhetnek. A tetején lévő dátum mutatja a legfrissebb verziót.</p>
+    </div>
+
+    <div class="lang-block" data-lang="fr">
+      <h1>Politique de confidentialité</h1>
+      <div class="updated">Dernière mise à jour : 6 septembre 2026</div>
+      <p>OnTable ("l'application", "nous") aide un groupe de personnes à choisir ensemble un restaurant, café ou bar, via un code de session partagé. Cette page explique quelles données sont collectées, pourquoi, et comment elles sont traitées.</p>
+
+      <h2>Données collectées</h2>
+      <ul>
+        <li>Le <strong>prénom</strong> que tu saisis toi-même (aucune vérification, aucun compte n'est créé)</li>
+        <li>Tes <strong>préférences</strong> pour la sortie : type de lieu, budget, quartier, restrictions alimentaires</li>
+        <li>Le <strong>jour et l'heure</strong> choisis pour la sortie (renseignés par la personne qui crée le code)</li>
+        <li>Tes <strong>votes</strong> sur les lieux proposés</li>
+        <li>Si une réservation est confirmée : le <strong>nom du restaurant</strong>, le <strong>nombre de personnes</strong>, et qui a fait la réservation</li>
+      </ul>
+      <p>Nous ne demandons ni email, ni numéro de téléphone, ni aucune autre donnée d'identification. Aucun compte utilisateur n'existe dans l'application.</p>
+
+      <h2>Pourquoi ces données</h2>
+      <p>Ces informations servent uniquement à faire fonctionner une session de groupe : proposer des lieux compatibles avec les préférences de tous les participants, et permettre au groupe de suivre la décision et la réservation.</p>
+
+      <h2>Où sont stockées les données</h2>
+      <p>Les données de session sont stockées chez <a href="https://upstash.com" target="_blank" rel="noopener">Upstash</a> (base de données Redis, hébergée en Union européenne), via un serveur intermédiaire chez <a href="https://www.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>. Elles sont automatiquement supprimées 7 jours après la dernière activité d'une session — aucune conservation indéfinie des sessions de test ou terminées.</p>
+      <p>Les réservations confirmées sont conservées plus longtemps dans un journal séparé, à des fins de facturation entre OnTable et les établissements partenaires — sans lien avec l'identité réelle des personnes (seul le prénom saisi est associé).</p>
+
+      <h2>Services tiers utilisés</h2>
+      <p>Pour proposer des lieux, l'application interroge l'<a href="https://developers.google.com/maps/documentation/places/web-service" target="_blank" rel="noopener">API Google Places</a>. Cette requête transmet uniquement les critères de recherche (type de lieu, quartier) — jamais ton prénom ni tes préférences personnelles. Consulte la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">politique de confidentialité de Google</a> pour plus de détails sur le traitement de cette requête par Google.</p>
+
+      <h2>Partage des données</h2>
+      <p>Nous ne vendons ni ne partageons tes données avec des tiers à des fins publicitaires ou commerciales. Les informations de réservation confirmée peuvent être communiquées à l'établissement concerné, dans le cadre du fonctionnement normal de la réservation.</p>
+
+      <h2>Tes droits</h2>
+      <p>Comme OnTable ne crée pas de compte et supprime automatiquement les données de session après 7 jours, il y a peu de données à faire supprimer manuellement. Si tu souhaites néanmoins la suppression d'une donnée spécifique (par exemple une réservation enregistrée), contacte-nous à l'adresse ci-dessous.</p>
+
+      <h2>Utilisation par des mineurs</h2>
+      <p>OnTable ne s'adresse pas aux enfants et ne collecte pas sciemment de données concernant des personnes de moins de 16 ans.</p>
+
+      <h2>Contact</h2>
+      <p>gaborit321@gmail.com</p>
+
+      <h2>Modifications</h2>
+      <p>Cette politique peut être mise à jour. La date en haut de page indique la dernière version.</p>
+    </div>
+
   </div>
 </div>
+
+<script>
+const LANGS = ['en','sk','hu','fr'];
+const LABELS = {en:'EN', sk:'SK', hu:'HU', fr:'FR'};
+
+function pickInitialLang(){
+  const params = new URLSearchParams(location.search);
+  const fromUrl = params.get('lang');
+  if(fromUrl && LANGS.includes(fromUrl)) return fromUrl;
+  return 'en';
+}
+
+function setLang(lang){
+  document.querySelectorAll('.lang-block').forEach(el => el.classList.toggle('active', el.dataset.lang === lang));
+  document.querySelectorAll('.lang-btn').forEach(el => el.classList.toggle('on', el.dataset.lang === lang));
+  document.documentElement.lang = lang;
+}
+
+const langRow = document.getElementById('langRow');
+langRow.innerHTML = LANGS.map(l => `<button class="lang-btn" data-lang="${l}" onclick="setLang('${l}')">${LABELS[l]}</button>`).join('');
+
+setLang(pickInitialLang());
+</script>
+
 </body>
 </html>
