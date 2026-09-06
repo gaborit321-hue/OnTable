@@ -34,6 +34,13 @@
   .venue{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;}
   .amount{font-family:'IBM Plex Mono',monospace; color:var(--basil); font-weight:600;}
   .empty{color:rgba(243,237,227,0.6); text-align:center; padding:40px 0;}
+  .links-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
+  .link-chip{
+    display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px;
+    background:rgba(243,237,227,0.1); border:1px solid rgba(243,237,227,0.25);
+    color:var(--card); text-decoration:none; font-size:12.5px; font-family:'Karla',sans-serif;
+  }
+  .link-chip:hover{background:rgba(243,237,227,0.18);}
   .refresh{background:transparent; border:1px solid rgba(243,237,227,0.3); color:var(--card); padding:8px 16px; border-radius:999px; font-size:12px; cursor:pointer; margin-bottom:16px;}
 </style>
 </head>
@@ -51,6 +58,12 @@
   </div>
 
   <div id="dashboard" style="display:none;">
+    <div class="links-row">
+      <a class="link-chip" href="https://console.cloud.google.com/google/maps-apis/quotas?project=ontable-506512&api=places.googleapis.com" target="_blank" rel="noopener">📍 Google Places — Quotas</a>
+      <a class="link-chip" href="https://dash.cloudflare.com/fc0d3ebc1680e0674c62a0807860b1ad/workers/services/view/ontable-api/production" target="_blank" rel="noopener">⚡ Cloudflare Worker</a>
+      <a class="link-chip" href="https://console.upstash.com/redis/eefcac47-c06c-4fad-af37-8b0d686c7339/details?teamid=0" target="_blank" rel="noopener">🗄️ Upstash Redis</a>
+      <a class="link-chip" href="https://github.com/gaborit321-hue/OnTable/tree/main" target="_blank" rel="noopener">💻 GitHub — OnTable</a>
+    </div>
     <button class="refresh" onclick="loadBookings()">↻ Actualiser</button>
     <div class="summary">
       <div class="stat"><div class="num" id="statCount">0</div><div class="lbl">Réservations</div></div>
