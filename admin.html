@@ -138,7 +138,7 @@ function render(rawEntries){
             <td class="venue">${escapeHtml(e.venue||'—')}</td>
             <td>${e.partySize ?? '—'}</td>
             <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
-            <td>${e.dateRaw||'—'}</td>
+            <td>${formatDateRaw(e.dateRaw)}</td>
             <td>${e.timeRaw||'—'}</td>
             <td>${e.confirmedAt ? new Date(e.confirmedAt).toLocaleString('fr-FR') : '—'}</td>
             <td>${escapeHtml(e.confirmedBy||'—')}</td>
@@ -170,6 +170,12 @@ async function deleteBooking(id){
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function formatDateRaw(dateRaw){
+  if(!dateRaw) return '—';
+  const [y, m, d] = dateRaw.split('-');
+  return (d && m && y) ? `${d}/${m}/${y}` : dateRaw;
 }
 
 // Convenience: if a key was already entered this browser session, skip the gate.
