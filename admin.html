@@ -14,7 +14,11 @@
   *{box-sizing:border-box;}
   body{margin:0; background:var(--bg); font-family:'Karla',sans-serif; color:var(--ink); min-height:100vh;}
   .wrap{max-width:900px; margin:0 auto; padding:32px 20px 60px;}
+  .top-row{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
   .brand{font-family:'IBM Plex Mono',monospace; color:#EAD9DE; letter-spacing:.14em; font-size:12px; text-transform:uppercase; margin-bottom:6px;}
+  .lang-row{display:flex; gap:5px;}
+  .lang-btn{padding:5px 9px; border-radius:999px; border:1px solid rgba(243,237,227,0.25); background:transparent; color:rgba(243,237,227,0.7); font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.04em; cursor:pointer;}
+  .lang-btn.on{background:var(--card); color:var(--wine); border-color:var(--card);}
   h1{font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--card); font-size:30px; margin:0 0 24px;}
 
   .gate{background:var(--card); border-radius:20px; padding:28px 24px; max-width:380px; margin:60px auto;}
@@ -51,13 +55,16 @@
 <body>
 
 <div class="wrap">
-  <div class="brand">ONTABLE — ADMIN</div>
-  <h1>Réservations confirmées</h1>
+  <div class="top-row">
+    <div class="brand">ONTABLE — ADMIN</div>
+    <div class="lang-row" id="langRow"></div>
+  </div>
+  <h1 id="pageTitle"></h1>
 
   <div id="gate" class="gate">
-    <div style="font-size:13px; color:var(--ink-soft);">Mot de passe admin</div>
+    <div style="font-size:13px; color:var(--ink-soft);" id="gateLabel"></div>
     <input type="password" id="adminKeyInput" placeholder="•••••••••">
-    <button onclick="loadBookings()">Voir les réservations</button>
+    <button onclick="loadBookings()" id="loginBtn"></button>
     <div class="err" id="gateErr"></div>
   </div>
 
@@ -68,11 +75,11 @@
       <a class="link-chip" href="https://console.upstash.com/redis/eefcac47-c06c-4fad-af37-8b0d686c7339/details?teamid=0" target="_blank" rel="noopener">🗄️ Upstash Redis</a>
       <a class="link-chip" href="https://github.com/gaborit321-hue/OnTable/tree/main" target="_blank" rel="noopener">💻 GitHub — OnTable</a>
     </div>
-    <button class="refresh" onclick="loadBookings()">↻ Actualiser</button>
+    <button class="refresh" onclick="loadBookings()" id="refreshBtn"></button>
     <div class="summary">
-      <div class="stat"><div class="num" id="statCount">0</div><div class="lbl">Réservations</div></div>
-      <div class="stat"><div class="num" id="statPeople">0</div><div class="lbl">Personnes au total</div></div>
-      <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl">Restant à facturer (2€/pers.)</div></div>
+      <div class="stat"><div class="num" id="statCount">0</div><div class="lbl" id="statReservationsLbl"></div></div>
+      <div class="stat"><div class="num" id="statPeople">0</div><div class="lbl" id="statPeopleLbl"></div></div>
+      <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl" id="statAmountLbl"></div></div>
     </div>
     <div id="tableWrap"></div>
   </div>
@@ -82,11 +89,65 @@
 const WORKER_URL = 'https://ontable-api.gaborit321.workers.dev';
 const PRICE_PER_PERSON = 2;
 let currentKey = '';
-let entriesById = {}; // id -> parsed entry, kept in memory for quick toggle/delete
+let entriesById = {};
+
+const LANGS = {
+en:{ code:"EN", locale:"en-GB", pageTitle:"Confirmed reservations", gateLabel:"Admin password", loginBtn:"View reservations",
+  errEmpty:"Enter the password.", errWrong:"Incorrect password.", errConn:"Connection error, try again.",
+  refresh:"↻ Refresh", statReservations:"Reservations", statPeople:"Total people", statAmount:"Remaining to bill (€2/person)",
+  thBilled:"Billed", thRestaurant:"Restaurant", thPeople:"People", thAmount:"Amount", thDay:"Planned day", thTime:"Time",
+  thConfirmed:"Confirmed on", thBy:"By", thCode:"Code", deleteBtn:"Delete",
+  confirmDelete:"Delete this reservation? This action is permanent.", empty:"No confirmed reservations yet." },
+sk:{ code:"SK", locale:"sk-SK", pageTitle:"Potvrdené rezervácie", gateLabel:"Admin heslo", loginBtn:"Zobraziť rezervácie",
+  errEmpty:"Zadaj heslo.", errWrong:"Nesprávne heslo.", errConn:"Chyba pripojenia, skús znova.",
+  refresh:"↻ Obnoviť", statReservations:"Rezervácie", statPeople:"Ľudí spolu", statAmount:"Zostáva vyfakturovať (2€/osoba)",
+  thBilled:"Vyfakturované", thRestaurant:"Reštaurácia", thPeople:"Osoby", thAmount:"Suma", thDay:"Plánovaný deň", thTime:"Čas",
+  thConfirmed:"Potvrdené dňa", thBy:"Kým", thCode:"Kód", deleteBtn:"Vymazať",
+  confirmDelete:"Vymazať túto rezerváciu? Táto akcia je nezvratná.", empty:"Zatiaľ žiadne potvrdené rezervácie." },
+hu:{ code:"HU", locale:"hu-HU", pageTitle:"Megerősített foglalások", gateLabel:"Admin jelszó", loginBtn:"Foglalások megtekintése",
+  errEmpty:"Add meg a jelszót.", errWrong:"Hibás jelszó.", errConn:"Kapcsolódási hiba, próbáld újra.",
+  refresh:"↻ Frissítés", statReservations:"Foglalások", statPeople:"Összes létszám", statAmount:"Kiszámlázandó (2€/fő)",
+  thBilled:"Számlázva", thRestaurant:"Étterem", thPeople:"Létszám", thAmount:"Összeg", thDay:"Tervezett nap", thTime:"Időpont",
+  thConfirmed:"Megerősítve", thBy:"Ki", thCode:"Kód", deleteBtn:"Törlés",
+  confirmDelete:"Törlöd ezt a foglalást? Ez a művelet végleges.", empty:"Még nincs megerősített foglalás." },
+fr:{ code:"FR", locale:"fr-FR", pageTitle:"Réservations confirmées", gateLabel:"Mot de passe admin", loginBtn:"Voir les réservations",
+  errEmpty:"Entre le mot de passe.", errWrong:"Mot de passe incorrect.", errConn:"Erreur de connexion, réessaie.",
+  refresh:"↻ Actualiser", statReservations:"Réservations", statPeople:"Personnes au total", statAmount:"Restant à facturer (2€/pers.)",
+  thBilled:"Facturé", thRestaurant:"Restaurant", thPeople:"Personnes", thAmount:"Montant", thDay:"Jour prévu", thTime:"Heure",
+  thConfirmed:"Confirmé le", thBy:"Par", thCode:"Code", deleteBtn:"Supprimer",
+  confirmDelete:"Supprimer cette réservation ? Cette action est définitive.", empty:"Aucune réservation confirmée pour le moment." }
+};
+let currentLang = localStorage.getItem('ontable-admin-lang') || 'fr';
+function t(k){ return LANGS[currentLang][k] || LANGS.fr[k] || k; }
+
+function renderLangRow(){
+  document.getElementById('langRow').innerHTML = Object.keys(LANGS).map(l =>
+    `<button class="lang-btn ${l===currentLang?'on':''}" onclick="setLang('${l}')">${LANGS[l].code}</button>`
+  ).join('');
+}
+function setLang(l){
+  currentLang = l;
+  localStorage.setItem('ontable-admin-lang', l);
+  renderLangRow();
+  applyLang();
+}
+function applyLang(){
+  document.documentElement.lang = currentLang;
+  document.getElementById('pageTitle').textContent = t('pageTitle');
+  document.getElementById('gateLabel').textContent = t('gateLabel');
+  document.getElementById('loginBtn').textContent = t('loginBtn');
+  document.getElementById('refreshBtn').textContent = t('refresh');
+  document.getElementById('statReservationsLbl').textContent = t('statReservations');
+  document.getElementById('statPeopleLbl').textContent = t('statPeople');
+  document.getElementById('statAmountLbl').textContent = t('statAmount');
+  if(Object.keys(entriesById).length || document.getElementById('dashboard').style.display !== 'none'){
+    render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
+  }
+}
 
 async function loadBookings(){
   const key = document.getElementById('adminKeyInput').value.trim();
-  if(!key){ document.getElementById('gateErr').textContent = 'Entre le mot de passe.'; return; }
+  if(!key){ document.getElementById('gateErr').textContent = t('errEmpty'); return; }
   currentKey = key;
   sessionStorage.setItem('ontable-admin-key', key);
 
@@ -94,14 +155,14 @@ async function loadBookings(){
     const res = await fetch(WORKER_URL + '?action=get_bookings_log', { headers: { 'X-Admin-Key': key } });
     const data = await res.json();
     if(data.error){
-      document.getElementById('gateErr').textContent = 'Mot de passe incorrect.';
+      document.getElementById('gateErr').textContent = t('errWrong');
       return;
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     render(data.entries || {});
   }catch(e){
-    document.getElementById('gateErr').textContent = 'Erreur de connexion, réessaie.';
+    document.getElementById('gateErr').textContent = t('errConn');
   }
 }
 
@@ -120,14 +181,15 @@ function render(rawEntries){
 
   const wrap = document.getElementById('tableWrap');
   if(ids.length === 0){
-    wrap.innerHTML = '<div class="empty">Aucune réservation confirmée pour le moment.</div>';
+    wrap.innerHTML = `<div class="empty">${t('empty')}</div>`;
     return;
   }
 
   wrap.innerHTML = `
     <table>
       <thead><tr>
-        <th>Facturé</th><th>Restaurant</th><th>Personnes</th><th>Montant</th><th>Jour prévu</th><th>Heure</th><th>Confirmé le</th><th>Par</th><th>Code</th><th></th>
+        <th>${t('thBilled')}</th><th>${t('thRestaurant')}</th><th>${t('thPeople')}</th><th>${t('thAmount')}</th>
+        <th>${t('thDay')}</th><th>${t('thTime')}</th><th>${t('thConfirmed')}</th><th>${t('thBy')}</th><th>${t('thCode')}</th><th></th>
       </tr></thead>
       <tbody>
         ${ids.map(id => {
@@ -140,10 +202,10 @@ function render(rawEntries){
             <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
             <td>${formatDateRaw(e.dateRaw)}</td>
             <td>${e.timeRaw||'—'}</td>
-            <td>${e.confirmedAt ? new Date(e.confirmedAt).toLocaleString('fr-FR') : '—'}</td>
+            <td>${e.confirmedAt ? new Date(e.confirmedAt).toLocaleString(LANGS[currentLang].locale) : '—'}</td>
             <td>${escapeHtml(e.confirmedBy||'—')}</td>
             <td style="font-family:'IBM Plex Mono',monospace; font-size:11px;">${escapeHtml(e.code||'—')}</td>
-            <td><button class="del-btn" onclick="deleteBooking('${id}')">Supprimer</button></td>
+            <td><button class="del-btn" onclick="deleteBooking('${id}')">${t('deleteBtn')}</button></td>
           </tr>`;
         }).join('')}
       </tbody>
@@ -160,7 +222,7 @@ async function toggleBilled(id, checked){
 }
 
 async function deleteBooking(id){
-  if(!confirm('Supprimer cette réservation ? Cette action est définitive.')) return;
+  if(!confirm(t('confirmDelete'))) return;
   const url = WORKER_URL + '?action=delete_booking&id=' + encodeURIComponent(id);
   await fetch(url, { headers: { 'X-Admin-Key': currentKey } }).catch(()=>{});
   delete entriesById[id];
@@ -177,7 +239,9 @@ function formatDateRaw(dateRaw){
   return (d && m && y) ? `${d}/${m}/${y}` : dateRaw;
 }
 
-// Convenience: if a key was already entered this browser session, skip the gate.
+renderLangRow();
+applyLang();
+
 const savedKey = sessionStorage.getItem('ontable-admin-key');
 if(savedKey){
   document.getElementById('adminKeyInput').value = savedKey;
