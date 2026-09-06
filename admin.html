@@ -42,6 +42,10 @@
   }
   .link-chip:hover{background:rgba(243,237,227,0.18);}
   .refresh{background:transparent; border:1px solid rgba(243,237,227,0.3); color:var(--card); padding:8px 16px; border-radius:999px; font-size:12px; cursor:pointer; margin-bottom:16px;}
+  tr.billed td{opacity:.5;}
+  tr.billed .venue{text-decoration:line-through;}
+  .del-btn{background:none; border:1px solid rgba(196,71,46,0.4); color:#C4472E; border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer;}
+  .del-btn:hover{background:rgba(196,71,46,0.08);}
 </style>
 </head>
 <body>
@@ -68,7 +72,7 @@
     <div class="summary">
       <div class="stat"><div class="num" id="statCount">0</div><div class="lbl">Réservations</div></div>
       <div class="stat"><div class="num" id="statPeople">0</div><div class="lbl">Personnes au total</div></div>
-      <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl">À facturer (2€/pers.)</div></div>
+      <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl">Restant à facturer (2€/pers.)</div></div>
     </div>
     <div id="tableWrap"></div>
   </div>
@@ -77,10 +81,13 @@
 <script>
 const WORKER_URL = 'https://ontable-api.gaborit321.workers.dev';
 const PRICE_PER_PERSON = 2;
+let currentKey = '';
+let entriesById = {}; // id -> parsed entry, kept in memory for quick toggle/delete
 
 async function loadBookings(){
   const key = document.getElementById('adminKeyInput').value.trim();
   if(!key){ document.getElementById('gateErr').textContent = 'Entre le mot de passe.'; return; }
+  currentKey = key;
   sessionStorage.setItem('ontable-admin-key', key);
 
   try{
@@ -92,23 +99,27 @@ async function loadBookings(){
     }
     document.getElementById('gate').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    render(data.entries || []);
+    render(data.entries || {});
   }catch(e){
     document.getElementById('gateErr').textContent = 'Erreur de connexion, réessaie.';
   }
 }
 
 function render(rawEntries){
-  const entries = rawEntries.map(s => { try{ return JSON.parse(s); }catch(e){ return null; } }).filter(Boolean);
-  entries.sort((a,b) => (b.confirmedAt||0) - (a.confirmedAt||0)); // most recent first
+  entriesById = {};
+  for(const id in rawEntries){
+    try{ entriesById[id] = JSON.parse(rawEntries[id]); }catch(e){}
+  }
+  const ids = Object.keys(entriesById).sort((a,b) => (entriesById[b].confirmedAt||0) - (entriesById[a].confirmedAt||0));
 
-  const totalPeople = entries.reduce((sum,e) => sum + (e.partySize||0), 0);
-  document.getElementById('statCount').textContent = entries.length;
-  document.getElementById('statPeople').textContent = totalPeople;
-  document.getElementById('statAmount').textContent = (totalPeople * PRICE_PER_PERSON) + ' €';
+  const totalPeopleAll = ids.reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
+  const totalPeopleUnbilled = ids.filter(id => !entriesById[id].billed).reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
+  document.getElementById('statCount').textContent = ids.length;
+  document.getElementById('statPeople').textContent = totalPeopleAll;
+  document.getElementById('statAmount').textContent = (totalPeopleUnbilled * PRICE_PER_PERSON) + ' €';
 
   const wrap = document.getElementById('tableWrap');
-  if(entries.length === 0){
+  if(ids.length === 0){
     wrap.innerHTML = '<div class="empty">Aucune réservation confirmée pour le moment.</div>';
     return;
   }
@@ -116,11 +127,14 @@ function render(rawEntries){
   wrap.innerHTML = `
     <table>
       <thead><tr>
-        <th>Restaurant</th><th>Personnes</th><th>À facturer</th><th>Jour prévu</th><th>Heure</th><th>Confirmé le</th><th>Par</th><th>Code</th>
+        <th>Facturé</th><th>Restaurant</th><th>Personnes</th><th>Montant</th><th>Jour prévu</th><th>Heure</th><th>Confirmé le</th><th>Par</th><th>Code</th><th></th>
       </tr></thead>
       <tbody>
-        ${entries.map(e => `
-          <tr>
+        ${ids.map(id => {
+          const e = entriesById[id];
+          return `
+          <tr class="${e.billed ? 'billed' : ''}" id="row-${id}">
+            <td><input type="checkbox" ${e.billed ? 'checked' : ''} onchange="toggleBilled('${id}', this.checked)"></td>
             <td class="venue">${escapeHtml(e.venue||'—')}</td>
             <td>${e.partySize ?? '—'}</td>
             <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
@@ -129,10 +143,29 @@ function render(rawEntries){
             <td>${e.confirmedAt ? new Date(e.confirmedAt).toLocaleString('fr-FR') : '—'}</td>
             <td>${escapeHtml(e.confirmedBy||'—')}</td>
             <td style="font-family:'IBM Plex Mono',monospace; font-size:11px;">${escapeHtml(e.code||'—')}</td>
-          </tr>
-        `).join('')}
+            <td><button class="del-btn" onclick="deleteBooking('${id}')">Supprimer</button></td>
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
+}
+
+async function toggleBilled(id, checked){
+  const entry = entriesById[id];
+  if(!entry) return;
+  entry.billed = checked;
+  const url = WORKER_URL + '?action=update_booking&adminKey=' + encodeURIComponent(currentKey)
+    + '&id=' + encodeURIComponent(id) + '&entry=' + encodeURIComponent(JSON.stringify(entry));
+  await fetch(url).catch(()=>{});
+  render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
+}
+
+async function deleteBooking(id){
+  if(!confirm('Supprimer cette réservation ? Cette action est définitive.')) return;
+  const url = WORKER_URL + '?action=delete_booking&adminKey=' + encodeURIComponent(currentKey) + '&id=' + encodeURIComponent(id);
+  await fetch(url).catch(()=>{});
+  delete entriesById[id];
+  render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
 }
 
 function escapeHtml(s){
