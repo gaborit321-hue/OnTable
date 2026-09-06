@@ -1173,12 +1173,18 @@ async function renderVoteList(){
 //                 reappear so the group can retry (same venue or another)
 let latestBooking = null;
 
+let partySizeStepOpen = false;
+let partySizeValue = null;
+
 function renderBookSection(counts){
   const section = document.getElementById('bookSection');
   let noteHtml = '';
 
   if(latestBooking && latestBooking.status === 'calling'){
     const mine = latestBooking.by === state.name;
+    if(mine && partySizeStepOpen){
+      return; // don't wipe out the input while the person is entering their count
+    }
     section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>
       <div class="book-card">
         <div class="book-name">${latestBooking.venue}</div>
@@ -1221,40 +1227,46 @@ function renderCallActions(booking){
   const callBlock = booking.phone
     ? `<a class="btn btn-primary" style="display:block;text-align:center;text-decoration:none;margin-top:8px;" href="tel:${booking.phone}">${t('bookCallBtn')} ${booking.phone}</a>`
     : `<div class="note" style="margin-top:8px;">${t('bookNoPhone')}</div>`;
-  const defaultCount = Object.keys(latestVoteData).length || 2;
+  if(partySizeValue === null) partySizeValue = Object.keys(latestVoteData).length || 2;
   return `
     ${callBlock}
-    <div id="partySizeStep" style="display:none; margin-top:10px;">
+    <div id="partySizeStep" style="${partySizeStepOpen ? '' : 'display:none;'} margin-top:10px;">
       <div class="section-label" style="margin:0 0 6px;">${t('partySizeLabel')}</div>
-      <input type="number" id="partySizeInput" min="1" value="${defaultCount}"
+      <input type="number" id="partySizeInput" min="1" value="${partySizeValue}" oninput="partySizeValue=this.value;"
         style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card-soft); font-size:14px; font-family:'Karla',sans-serif; color:var(--ink);">
       <button class="btn btn-primary" style="background:var(--basil); margin-top:8px;" onclick="confirmReservationWithCount()">${t('confirmBtn')}</button>
     </div>
-    <div id="callActionsBtns" style="display:flex; gap:8px; margin-top:8px;">
+    <div id="callActionsBtns" style="${partySizeStepOpen ? 'display:none;' : 'display:flex;'} gap:8px; margin-top:8px;">
       <button class="btn btn-primary" style="background:var(--basil);" onclick="showPartySizeStep()">${t('bookYes')}</button>
       <button class="btn btn-ghost" onclick="resolveReservation(false)">${t('bookNo')}</button>
     </div>`;
 }
 
 function showPartySizeStep(){
+  partySizeStepOpen = true;
   document.getElementById('partySizeStep').style.display = 'block';
   document.getElementById('callActionsBtns').style.display = 'none';
 }
 
 function confirmReservationWithCount(){
   const count = parseInt(document.getElementById('partySizeInput').value) || 1;
+  partySizeStepOpen = false;
+  partySizeValue = null;
   resolveReservation(true, count);
 }
 
 function startReservation(name, phone){
   // Broadcast immediately: everyone else sees "X is calling Y…" on their
   // next poll, and their own reserve buttons disappear until this resolves.
+  partySizeStepOpen = false;
+  partySizeValue = null;
   latestBooking = { venue: name, by: state.name, status: 'calling', phone: phone || null, at: Date.now() };
   renderBookSection({});
   storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
 }
 
 function resolveReservation(success, partySize){
+  partySizeStepOpen = false;
   latestBooking = {
     venue: latestBooking.venue,
     by: state.name,
