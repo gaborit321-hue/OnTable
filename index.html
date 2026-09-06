@@ -209,7 +209,7 @@
           <input type="text" id="joinCode" maxlength="6" style="text-transform:uppercase">
           <button class="btn btn-ghost" id="joinBtn" onclick="joinSession()"></button>
           <div class="status-line" id="homeStatus"></div>
-          <a href="privacy.html" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:22px; font-size:11px; color:var(--ink-soft);" data-i18n="privacyLink"></a>
+          <a href="privacy.html" id="privacyLinkEl" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:22px; font-size:11px; color:var(--ink-soft);" data-i18n="privacyLink"></a>
         </div>
 
         <!-- PREFS -->
@@ -526,6 +526,7 @@ function applyLang(){
   document.getElementById('seeIdeasBtn').textContent = t('seeIdeasBtn');
   document.getElementById('waitingStatus').textContent = t('waitingStatus');
   document.getElementById('launchVoteBtn').textContent = t('launchVoteBtn');
+  document.getElementById('privacyLinkEl').href = 'privacy.html?lang=' + currentLang;
   populateDateOptions();
   populateTimeOptions();
   if(currentView==='prefs' && prefSteps.length) renderPrefStep();
