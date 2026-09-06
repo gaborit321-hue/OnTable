@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OnTable — Réservations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#2B1620; --card:#F3EDE3; --card-soft:#EAE1D2; --ink:#2B1620; --ink-soft:#7A6459;
+    --wine:#7A2E3D; --basil:#4B7A51; --line: rgba(43,22,32,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); font-family:'Karla',sans-serif; color:var(--ink); min-height:100vh;}
+  .wrap{max-width:900px; margin:0 auto; padding:32px 20px 60px;}
+  .brand{font-family:'IBM Plex Mono',monospace; color:#EAD9DE; letter-spacing:.14em; font-size:12px; text-transform:uppercase; margin-bottom:6px;}
+  h1{font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--card); font-size:30px; margin:0 0 24px;}
+
+  .gate{background:var(--card); border-radius:20px; padding:28px 24px; max-width:380px; margin:60px auto;}
+  .gate input{width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--line); font-size:14px; margin-top:10px; font-family:'Karla',sans-serif;}
+  .gate button{width:100%; margin-top:14px; padding:13px; border-radius:12px; border:none; background:var(--wine); color:var(--card); font-weight:700; cursor:pointer;}
+  .gate .err{color:#C4472E; font-size:12px; margin-top:8px; text-align:center;}
+
+  .summary{display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
+  .stat{background:var(--card); border-radius:16px; padding:16px 20px; flex:1; min-width:140px;}
+  .stat .num{font-family:'IBM Plex Mono',monospace; font-size:22px; color:var(--wine);}
+  .stat .lbl{font-size:11px; color:var(--ink-soft); margin-top:4px; text-transform:uppercase; letter-spacing:.05em;}
+
+  table{width:100%; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden;}
+  th{background:var(--card-soft); text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+  td{padding:11px 14px; border-top:1px solid var(--line); font-size:13.5px;}
+  tr:hover td{background:rgba(122,46,61,0.04);}
+  .venue{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px;}
+  .amount{font-family:'IBM Plex Mono',monospace; color:var(--basil); font-weight:600;}
+  .empty{color:rgba(243,237,227,0.6); text-align:center; padding:40px 0;}
+  .refresh{background:transparent; border:1px solid rgba(243,237,227,0.3); color:var(--card); padding:8px 16px; border-radius:999px; font-size:12px; cursor:pointer; margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">ONTABLE — ADMIN</div>
+  <h1>Réservations confirmées</h1>
+
+  <div id="gate" class="gate">
+    <div style="font-size:13px; color:var(--ink-soft);">Mot de passe admin</div>
+    <input type="password" id="adminKeyInput" placeholder="•••••••••">
+    <button onclick="loadBookings()">Voir les réservations</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+
+  <div id="dashboard" style="display:none;">
+    <button class="refresh" onclick="loadBookings()">↻ Actualiser</button>
+    <div class="summary">
+      <div class="stat"><div class="num" id="statCount">0</div><div class="lbl">Réservations</div></div>
+      <div class="stat"><div class="num" id="statPeople">0</div><div class="lbl">Personnes au total</div></div>
+      <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl">À facturer (2€/pers.)</div></div>
+    </div>
+    <div id="tableWrap"></div>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'https://ontable-api.gaborit321.workers.dev';
+const PRICE_PER_PERSON = 2;
+
+async function loadBookings(){
+  const key = document.getElementById('adminKeyInput').value.trim();
+  if(!key){ document.getElementById('gateErr').textContent = 'Entre le mot de passe.'; return; }
+  sessionStorage.setItem('ontable-admin-key', key);
+
+  try{
+    const res = await fetch(WORKER_URL + '?action=get_bookings_log&adminKey=' + encodeURIComponent(key));
+    const data = await res.json();
+    if(data.error){
+      document.getElementById('gateErr').textContent = 'Mot de passe incorrect.';
+      return;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    render(data.entries || []);
+  }catch(e){
+    document.getElementById('gateErr').textContent = 'Erreur de connexion, réessaie.';
+  }
+}
+
+function render(rawEntries){
+  const entries = rawEntries.map(s => { try{ return JSON.parse(s); }catch(e){ return null; } }).filter(Boolean);
+  entries.sort((a,b) => (b.confirmedAt||0) - (a.confirmedAt||0)); // most recent first
+
+  const totalPeople = entries.reduce((sum,e) => sum + (e.partySize||0), 0);
+  document.getElementById('statCount').textContent = entries.length;
+  document.getElementById('statPeople').textContent = totalPeople;
+  document.getElementById('statAmount').textContent = (totalPeople * PRICE_PER_PERSON) + ' €';
+
+  const wrap = document.getElementById('tableWrap');
+  if(entries.length === 0){
+    wrap.innerHTML = '<div class="empty">Aucune réservation confirmée pour le moment.</div>';
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Restaurant</th><th>Personnes</th><th>À facturer</th><th>Jour prévu</th><th>Heure</th><th>Confirmé le</th><th>Par</th><th>Code</th>
+      </tr></thead>
+      <tbody>
+        ${entries.map(e => `
+          <tr>
+            <td class="venue">${escapeHtml(e.venue||'—')}</td>
+            <td>${e.partySize ?? '—'}</td>
+            <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
+            <td>${e.dateRaw||'—'}</td>
+            <td>${e.timeRaw||'—'}</td>
+            <td>${e.confirmedAt ? new Date(e.confirmedAt).toLocaleString('fr-FR') : '—'}</td>
+            <td>${escapeHtml(e.confirmedBy||'—')}</td>
+            <td style="font-family:'IBM Plex Mono',monospace; font-size:11px;">${escapeHtml(e.code||'—')}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// Convenience: if a key was already entered this browser session, skip the gate.
+const savedKey = sessionStorage.getItem('ontable-admin-key');
+if(savedKey){
+  document.getElementById('adminKeyInput').value = savedKey;
+  loadBookings();
+}
+</script>
+
+</body>
+</html>
