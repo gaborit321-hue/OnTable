@@ -451,49 +451,50 @@ let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
 
 // ---------- Backend: Apps Script (replaces window.storage) ----------
-// Paste your deployed Apps Script Web App URL here (ends with /exec).
-// See Code.gs for the backend code and deployment steps.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHq_QnpPlgI0rK5ywV032zY0w3uG-oW5fzoZEXcjabfoYa3cSf_8tdImfny2f2Wu7X/exec';
+// Paste your deployed Cloudflare Worker URL here (ends with .workers.dev, or
+// your custom domain). It's just a public endpoint, not a secret — the real
+// secrets (Upstash token, Google API key) live only inside the Worker itself.
+const WORKER_URL = 'https://ontable-api.gaborit321.workers.dev';
 
 async function storageGet(key){
-  const url = APPS_SCRIPT_URL + '?action=get&key=' + encodeURIComponent(key);
+  const url = WORKER_URL + '?action=get&key=' + encodeURIComponent(key);
   const res = await fetch(url);
   const data = await res.json();
   return data.value ? { value: data.value } : null;
 }
 
 async function storageSet(key, value){
-  const url = APPS_SCRIPT_URL + '?action=set&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value);
+  const url = WORKER_URL + '?action=set&key=' + encodeURIComponent(key) + '&value=' + encodeURIComponent(value);
   const res = await fetch(url);
   const data = await res.json();
   if(!data.ok) throw new Error('storage set failed');
   return true;
 }
 
-async function storageList(prefix){
-  const url = APPS_SCRIPT_URL + '?action=list&prefix=' + encodeURIComponent(prefix);
+// Redis HASH operations — one hash per session for prefs, one for votes.
+// hashSet writes just one participant's field (never touches anyone else's),
+// hashGetAll reads everyone's answers in a single call. This replaces the
+// per-key-with-prefix workaround Apps Script needed (Redis does this natively).
+async function hashSet(hashKey, field, value){
+  const url = WORKER_URL + '?action=hset&key=' + encodeURIComponent(hashKey) + '&field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(value);
   const res = await fetch(url);
   const data = await res.json();
-  return data.keys || [];
+  if(!data.ok) throw new Error('hash set failed');
+  return true;
 }
 
-async function storageGetByPrefix(prefix){
-  const url = APPS_SCRIPT_URL + '?action=getbyprefix&prefix=' + encodeURIComponent(prefix);
+async function hashGetAll(hashKey){
+  const url = WORKER_URL + '?action=hgetall&key=' + encodeURIComponent(hashKey);
   const res = await fetch(url);
   const data = await res.json();
-  return data.data || {}; // { name: rawValueString, ... } — already stripped of the prefix
+  return data.data || {}; // { name: rawValueString, ... }
 }
 
-// Each participant only ever reads/writes THEIR OWN key below — never a
-// shared blob everyone rewrites. That's what avoids the lost-update race
-// where two people voting/answering at the same moment could erase each
-// other's entry.
-function keyMeta(code){ return 'ontable-session-'+code+'-meta'; }
-function keyPrefs(code, name){ return 'ontable-session-'+code+'-prefs-'+name; }
-function keyVote(code, name){ return 'ontable-session-'+code+'-vote-'+name; }
-function keyBooking(code){ return 'ontable-session-'+code+'-booking'; }
-function prefsPrefix(code){ return 'ontable-session-'+code+'-prefs-'; }
-function votePrefix(code){ return 'ontable-session-'+code+'-vote-'; }
+function keyMeta(code){ return 'ontable:'+code+':meta'; }
+function prefsHashKey(code){ return 'ontable:'+code+':prefs'; }
+function voteHashKey(code){ return 'ontable:'+code+':votes'; }
+function keyBooking(code){ return 'ontable:'+code+':booking'; }
+
 
 function renderLangRow(){
   const row = document.getElementById('langRow');
@@ -869,12 +870,12 @@ function submitPrefs(){
   // when the creator finished that step, earlier in the wizard.
   showView('waiting');
   const data = { types, districts, restrictions, budget, at: Date.now() };
-  storageSet(keyPrefs(state.code, state.name), JSON.stringify(data))
+  hashSet(prefsHashKey(state.code), state.name, JSON.stringify(data))
     .catch(()=> showToast(t('prefsStatusError')));
 }
 
 async function fetchAllParticipants(){
-  const raw = await storageGetByPrefix(prefsPrefix(state.code));
+  const raw = await hashGetAll(prefsHashKey(state.code));
   const participants = {};
   for(const name in raw){
     try{ participants[name] = JSON.parse(raw[name]); }catch(e){}
@@ -926,9 +927,9 @@ function scoreVenue(v, participants, sessionTime){
   return { v, score, likedBy };
 }
 
-// ---------- Live venues via Google Places API (New), proxied through Apps Script ----------
+// ---------- Live venues via Google Places API (New), proxied through the Cloudflare Worker ----------
 async function fetchPlacesForQuery(query){
-  const url = APPS_SCRIPT_URL + '?action=places&query=' + encodeURIComponent(query);
+  const url = WORKER_URL + '?action=places&query=' + encodeURIComponent(query);
   const res = await fetch(url);
   const data = await res.json();
   return data.places || [];
@@ -1101,7 +1102,7 @@ function castVote(venueName){
   else { if(arr.length>=2) return; arr.push(venueName); }
   latestVoteData[state.name] = arr;
   paintVoteList(); // instant, from local state
-  storageSet(keyVote(state.code, state.name), JSON.stringify(arr)).catch(()=>{});
+  hashSet(voteHashKey(state.code), state.name, JSON.stringify(arr)).catch(()=>{});
 }
 
 function paintVoteList(){
@@ -1138,7 +1139,7 @@ async function renderVoteList(){
   voteListBusy = true;
   try{
     const [raw, bookingRes] = await Promise.all([
-      storageGetByPrefix(votePrefix(state.code)),
+      hashGetAll(voteHashKey(state.code)),
       storageGet(keyBooking(state.code))
     ]);
     const parsed = {};
