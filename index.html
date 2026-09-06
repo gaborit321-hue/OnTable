@@ -1011,11 +1011,25 @@ function priceLevelToNum(pl){
   }
 }
 
-function typesFromGoogle(types){
+const BAR_TYPES = ['bar','wine_bar','night_club','pub'];
+const CAFE_TYPES = ['cafe','coffee_shop','bakery'];
+const RESTAURANT_TYPES = ['restaurant','meal_takeaway','meal_delivery','fast_food_restaurant','sandwich_shop','hot_dog_stand'];
+
+function typesFromGoogle(primaryType, types){
+  // primaryType is Google's single authoritative category — trust it first.
+  // A restaurant that also serves cocktails often has "bar" as one of many
+  // secondary tags in `types`, which used to make it wrongly match someone
+  // who only wanted an actual bar. Falling back to the loose `types` array
+  // only when primaryType is missing avoids that false positive.
+  if(primaryType){
+    if(BAR_TYPES.includes(primaryType)) return ['bar'];
+    if(CAFE_TYPES.includes(primaryType)) return ['cafe'];
+    if(RESTAURANT_TYPES.includes(primaryType)) return ['restaurant'];
+  }
   const out = [];
-  if((types||[]).some(x=>['restaurant','meal_takeaway','meal_delivery','fast_food_restaurant','sandwich_shop','hot_dog_stand'].includes(x))) out.push('restaurant');
-  if((types||[]).some(x=>['cafe','bakery'].includes(x))) out.push('cafe');
-  if((types||[]).some(x=>['bar','night_club','wine_bar'].includes(x))) out.push('bar');
+  if((types||[]).some(x=>RESTAURANT_TYPES.includes(x))) out.push('restaurant');
+  if((types||[]).some(x=>CAFE_TYPES.includes(x))) out.push('cafe');
+  if((types||[]).some(x=>BAR_TYPES.includes(x))) out.push('bar');
   if(out.length===0) out.push('restaurant');
   return out;
 }
@@ -1034,20 +1048,34 @@ function hoursFromGoogle(place, dayOfWeek){
   return { open, close };
 }
 
-const DISTRICT_QUERIES = {
-  I:   'restaurants, cafes, bars, fast food and street food in Staré Mesto, Bratislava I, Slovakia',
-  II:  'restaurants, cafes, bars, fast food and street food in Ružinov, Bratislava II, Slovakia',
-  III: 'restaurants, cafes, bars, fast food and street food in Nové Mesto, Bratislava III, Slovakia',
-  IV:  'restaurants, cafes, bars, fast food and street food in Karlova Ves, Bratislava IV, Slovakia',
-  V:   'restaurants, cafes, bars, fast food and street food in Petržalka, Bratislava V, Slovakia'
+const DISTRICT_AREAS = {
+  I:   'Staré Mesto, Bratislava I, Slovakia',
+  II:  'Ružinov, Bratislava II, Slovakia',
+  III: 'Nové Mesto, Bratislava III, Slovakia',
+  IV:  'Karlova Ves, Bratislava IV, Slovakia',
+  V:   'Petržalka, Bratislava V, Slovakia'
 };
 
-async function fetchLiveVenues(districts, dayOfWeek, maxBudget){
+// Builds a search query specific to what the group actually asked for —
+// searching only "bars, pubs..." when that's the only type requested keeps
+// real bars from being drowned out among restaurants in Google's results,
+// instead of always searching everything regardless of preference.
+function buildQueryText(areaLabel, typeUnion){
+  const parts = [];
+  if(typeUnion.includes('restaurant')) parts.push('restaurants, fast food and street food');
+  if(typeUnion.includes('cafe')) parts.push('cafes and coffee shops');
+  if(typeUnion.includes('bar')) parts.push('bars, pubs, wine bars and cocktail bars');
+  const desc = parts.length ? parts.join(', ') : 'restaurants, cafes, bars, fast food and street food';
+  return desc + ' in ' + areaLabel;
+}
+
+async function fetchLiveVenues(districts, dayOfWeek, maxBudget, typeUnion){
   const targets = districts.length ? districts : ['I','II','III','IV','V'];
   const priceLevelsParam = priceLevelsParamFor(maxBudget);
+  const types = typeUnion && typeUnion.length ? typeUnion : ['restaurant','cafe','bar'];
   let quotaExceeded = false;
   const batches = await Promise.all(targets.map(d =>
-    fetchPlacesForQuery(DISTRICT_QUERIES[d], priceLevelsParam).then(places => ({d, places})).catch(e => {
+    fetchPlacesForQuery(buildQueryText(DISTRICT_AREAS[d], types), priceLevelsParam).then(places => ({d, places})).catch(e => {
       if(e.message === 'QUOTA_EXCEEDED') quotaExceeded = true;
       return {d, places:[]};
     })
@@ -1066,7 +1094,7 @@ async function fetchLiveVenues(districts, dayOfWeek, maxBudget){
       const hrs = hoursFromGoogle(p, dayOfWeek);
       venues.push({
         n: name,
-        t: typesFromGoogle(p.types),
+        t: typesFromGoogle(p.primaryType, p.types),
         p: priceLevelToNum(p.priceLevel),
         r: p.rating || 4.0,
         veg: p.servesVegetarianFood !== false, // unknown -> assume possible rather than excluding
@@ -1096,6 +1124,7 @@ async function generateSuggestions(){
       return;
     }
     const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
+    const typeUnion = [...new Set(Object.values(participants).flatMap(p=>p.types||[]))];
     const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
 
     // Day/time is set once by the creator, session-wide — not per participant.
@@ -1111,7 +1140,7 @@ async function generateSuggestions(){
 
     let pool;
     try{
-      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek, maxBudget);
+      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek, maxBudget, typeUnion);
     }catch(e){
       if(e.message === 'QUOTA_EXCEEDED'){
         document.getElementById('waitingStatus').textContent = t('waitingStatusQuota');
