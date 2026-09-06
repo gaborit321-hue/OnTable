@@ -145,6 +145,15 @@
     font-size:12px; color:var(--wine); font-weight:600; text-align:center;
   }
   .book-card{background:var(--card-soft); border:1.4px solid var(--basil); border-radius:14px; padding:13px 14px; margin-bottom:9px;}
+  .confirm-card{
+    background: linear-gradient(160deg, rgba(75,122,81,0.12), rgba(232,169,59,0.10));
+    border:1.5px solid rgba(75,122,81,0.35); border-radius:22px; padding:26px 20px;
+    text-align:center; margin-bottom:9px;
+  }
+  .confirm-icon{font-size:30px; margin-bottom:4px;}
+  .confirm-venue{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:25px; color:var(--ink); line-height:1.15;}
+  .confirm-when{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--wine); margin-top:8px; letter-spacing:.02em;}
+  .confirm-by{font-size:11.5px; color:var(--ink-soft); margin-top:8px;}
   .book-card.booked{border-color:var(--basil); background:rgba(75,122,81,0.08);}
   .book-name{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:16px;}
   .book-confirm{font-size:11.5px; color:var(--basil); font-weight:600; margin-top:4px;}
@@ -339,7 +348,7 @@
 // ---------- i18n ----------
 const LANGS = {
 en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever you want.",
-  yourName:"Your name", namePlaceholder:"e.g. Fab", createBtn:"Create a new code",
+  yourName:"Your name", namePlaceholder:"e.g. Alex", createBtn:"Create a new code",
   orJoin:"Or join an existing code", joinPlaceholder:"E.G. 7F3QK", joinBtn:"Join",
   prefsTitle:"Your preferences", prefsSub:"Everyone answers on their own.",
   groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
@@ -362,11 +371,11 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   prefsStatusNoType:"Choose at least one type of place.", prefsStatusError:"Error, try again.",
   waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
   waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.",
-  leadingLabel:"Leading", bookBtn:"Reserve (test)", bookConfirmed:"Reservation requested",
+  leadingLabel:"Leading", bookBtn:"Reserve", bookConfirmed:"Reservation requested",
   whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
-  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again."},
+  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar"},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
-  yourName:"Tvoje meno", namePlaceholder:"napr. Fab", createBtn:"Vytvoriť nový kód",
+  yourName:"Tvoje meno", namePlaceholder:"napr. Alex", createBtn:"Vytvoriť nový kód",
   orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
   prefsTitle:"Tvoje preferencie", prefsSub:"Každý odpovedá sám za seba.",
   groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
@@ -389,11 +398,11 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   prefsStatusNoType:"Vyber aspoň jeden typ podniku.", prefsStatusError:"Chyba, skús to znova.",
   waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
   waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.",
-  leadingLabel:"Vedie", bookBtn:"Rezervovať (test)", bookConfirmed:"Rezervácia odoslaná",
+  leadingLabel:"Vedie", bookBtn:"Rezervovať", bookConfirmed:"Rezervácia odoslaná",
   whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
-  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova."},
+  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára"},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
-  yourName:"A neved", namePlaceholder:"pl. Fab", createBtn:"Új kód létrehozása",
+  yourName:"A neved", namePlaceholder:"pl. Alex", createBtn:"Új kód létrehozása",
   orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
   prefsTitle:"A preferenciáid", prefsSub:"Mindenki saját maga válaszol.",
   groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
@@ -416,11 +425,11 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   prefsStatusNoType:"Válassz legalább egy helytípust.", prefsStatusError:"Hiba, próbáld újra.",
   waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
   waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.",
-  leadingLabel:"Vezet", bookBtn:"Foglalás (teszt)", bookConfirmed:"Foglalás elküldve",
+  leadingLabel:"Vezet", bookBtn:"Foglalás", bookConfirmed:"Foglalás elküldve",
   whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
-  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra."},
+  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz"},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
-  yourName:"Ton prénom", namePlaceholder:"Ex : Fab", createBtn:"Créer un nouveau code",
+  yourName:"Ton prénom", namePlaceholder:"Ex : Alex", createBtn:"Créer un nouveau code",
   orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
   prefsTitle:"Tes préférences", prefsSub:"Chacun répond de son côté.",
   groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
@@ -443,9 +452,9 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   prefsStatusNoType:"Choisis au moins un type de lieu.", prefsStatusError:"Erreur, réessaie.",
   waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
   waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.",
-  leadingLabel:"En tête", bookBtn:"Réserver (test)", bookConfirmed:"Réservation demandée",
+  leadingLabel:"En tête", bookBtn:"Réserver", bookConfirmed:"Réservation demandée",
   whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
-  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer."}
+  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier"}
 };
 let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
@@ -1180,10 +1189,14 @@ function renderBookSection(counts){
   }
 
   if(latestBooking && latestBooking.status === 'confirmed'){
+    const whenText = formatWhenText();
     section.innerHTML = `<div class="section-label">${t('leadingLabel')}</div>
-      <div class="book-card booked">
-        <div class="book-name">${latestBooking.venue}</div>
-        <div class="book-confirm">${latestBooking.by} ${t('bookConfirmedBy')}</div>
+      <div class="confirm-card">
+        <div class="confirm-icon">🎉</div>
+        <div class="confirm-venue">${latestBooking.venue}</div>
+        ${whenText ? `<div class="confirm-when">🗓 ${whenText}</div>` : ''}
+        <div class="confirm-by">${latestBooking.by} ${t('bookConfirmedBy')}</div>
+        <button class="btn btn-primary" style="margin-top:14px;" onclick="addToCalendar()">📅 ${t('addToCalendar')}</button>
       </div>`;
     return;
   }
@@ -1234,6 +1247,47 @@ function resolveReservation(success){
   };
   renderBookSection({});
   storageSet(keyBooking(state.code), JSON.stringify(latestBooking)).catch(()=>{});
+}
+
+// ---------- Add to calendar — a plain .ics file works the same way on every
+// phone (Apple Calendar, Google Calendar, Outlook...), no account needed.
+// Since sessionMeta and latestBooking are already synced to every device via
+// Redis, this produces the exact same event whoever taps the button. ----------
+function addToCalendar(){
+  if(!latestBooking) return;
+  const dateRaw = (sessionMeta && sessionMeta.dateRaw) || new Date().toISOString().slice(0,10);
+  const timeRaw = (sessionMeta && sessionMeta.timeRaw) || '20:00';
+  const [hh, mm] = timeRaw.split(':').map(Number);
+  const start = new Date(dateRaw + 'T' + String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0') + ':00');
+  const end = new Date(start.getTime() + 2*60*60*1000); // 2h default duration
+
+  const fmt = d => d.toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+  const escapeICS = s => String(s).replace(/[\\;,]/g, m => '\\'+m);
+
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//OnTable//FR',
+    'BEGIN:VEVENT',
+    'UID:' + Date.now() + '-ontable@' + state.code,
+    'DTSTAMP:' + fmt(new Date()),
+    'DTSTART:' + fmt(start),
+    'DTEND:' + fmt(end),
+    'SUMMARY:' + escapeICS('OnTable — ' + latestBooking.venue),
+    'LOCATION:' + escapeICS(latestBooking.venue),
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'OnTable.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 renderLangRow();
