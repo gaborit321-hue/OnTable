@@ -312,6 +312,7 @@
           <div class="note" data-i18n="waitingNote"></div>
           <button class="btn btn-primary" id="seeIdeasBtn" onclick="generateSuggestions()"></button>
           <div class="status-line" id="waitingStatus"></div>
+          <button class="btn btn-ghost" id="editFiltersBtn" style="display:none; margin-top:10px;" onclick="reopenFiltersFromWaiting()"></button>
         </div>
 
         <!-- SUGGESTIONS -->
@@ -371,7 +372,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   homeStatusNotFound:"Code not found.", homeStatusError:"Error, try again.", privacyLink:"Privacy policy",
   prefsStatusNoType:"Choose at least one type of place.", prefsStatusError:"Error, try again.",
   waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
-  waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.", waitingStatusQuota:"Daily search limit reached — try again tomorrow.",
+  waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.", waitingStatusQuota:"Daily search limit reached — try again tomorrow.", editFiltersBtn:"Edit my filters", waitingStatusBlockerSelf:"Your own filters are the reason no place fits — try adjusting them.", waitingStatusBlockerOther:"{name}'s filters are the reason no place fits — waiting for them to adjust.",
   leadingLabel:"Leading", bookBtn:"Reserve", bookConfirmed:"Reservation requested",
   whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
   bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm"},
@@ -398,7 +399,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   homeStatusNotFound:"Kód sa nenašiel.", homeStatusError:"Chyba, skús to znova.", privacyLink:"Zásady ochrany osobných údajov",
   prefsStatusNoType:"Vyber aspoň jeden typ podniku.", prefsStatusError:"Chyba, skús to znova.",
   waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
-  waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.", waitingStatusQuota:"Dosiahnutý denný limit vyhľadávania — skús to znova zajtra.",
+  waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.", waitingStatusQuota:"Dosiahnutý denný limit vyhľadávania — skús to znova zajtra.", editFiltersBtn:"Upraviť moje filtre", waitingStatusBlockerSelf:"Dôvodom, prečo sa nenašiel žiadny podnik, sú tvoje vlastné filtre — skús ich upraviť.", waitingStatusBlockerOther:"Dôvodom, prečo sa nenašiel žiadny podnik, sú filtre osoby {name} — počkaj, kým si ich upraví.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať", bookConfirmed:"Rezervácia odoslaná",
   whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
   bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť"},
@@ -425,7 +426,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   homeStatusNotFound:"A kód nem található.", homeStatusError:"Hiba, próbáld újra.", privacyLink:"Adatvédelmi irányelvek",
   prefsStatusNoType:"Válassz legalább egy helytípust.", prefsStatusError:"Hiba, próbáld újra.",
   waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
-  waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.", waitingStatusQuota:"Elérted a napi keresési limitet — próbáld újra holnap.",
+  waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.", waitingStatusQuota:"Elérted a napi keresési limitet — próbáld újra holnap.", editFiltersBtn:"Szűrők szerkesztése", waitingStatusBlockerSelf:"A saját szűrőid miatt nem található hely — próbáld módosítani őket.", waitingStatusBlockerOther:"{name} szűrői miatt nem található hely — várj, amíg módosítja őket.",
   leadingLabel:"Vezet", bookBtn:"Foglalás", bookConfirmed:"Foglalás elküldve",
   whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
   bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés"},
@@ -452,7 +453,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   homeStatusNotFound:"Code introuvable.", homeStatusError:"Erreur, réessaie.", privacyLink:"Politique de confidentialité",
   prefsStatusNoType:"Choisis au moins un type de lieu.", prefsStatusError:"Erreur, réessaie.",
   waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
-  waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.", waitingStatusQuota:"Limite quotidienne de recherche atteinte — réessaie demain.",
+  waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.", waitingStatusQuota:"Limite quotidienne de recherche atteinte — réessaie demain.", editFiltersBtn:"Modifier mes filtres", waitingStatusBlockerSelf:"Ce sont tes propres préférences qui empêchent de trouver un lieu — essaie de les ajuster.", waitingStatusBlockerOther:"Ce sont les préférences de {name} qui empêchent de trouver un lieu — attends qu'il/elle les ajuste.",
   leadingLabel:"En tête", bookBtn:"Réserver", bookConfirmed:"Réservation demandée",
   whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
   bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer"}
@@ -566,6 +567,17 @@ function initPrefsWizard(){
     : ['type','budget','district','restrictions'];
   prefStepIndex = 0;
   renderPrefStep();
+}
+
+// Reopens the preferences wizard from the waiting screen (e.g. when no
+// venue matched). Always starts at "Type of place", skipping "When" even
+// for the creator — this is about fixing a filter deadlock, not replanning
+// the day/time.
+function reopenFiltersFromWaiting(){
+  prefSteps = ['type','budget','district','restrictions'];
+  prefStepIndex = 0;
+  renderPrefStep();
+  showView('prefs');
 }
 
 function renderPrefStep(){
@@ -1075,6 +1087,8 @@ async function generateSuggestions(){
   const btn = document.getElementById('seeIdeasBtn');
   const original = btn.textContent;
   btn.textContent = '…'; btn.disabled = true;
+  document.getElementById('waitingStatus').textContent = '';
+  showEditFiltersBtn(false);
   try{
     const participants = await fetchAllParticipants();
     if(Object.keys(participants).length===0){
@@ -1107,10 +1121,27 @@ async function generateSuggestions(){
     }
     if(pool.length === 0){
       document.getElementById('waitingStatus').textContent = t('waitingStatusNoPlaces');
+      showEditFiltersBtn(true);
       return;
     }
 
     const scored = pool.map(v=>scoreVenue(v, participants, sessionTime)).filter(Boolean);
+
+    if(scored.length === 0){
+      const blocker = diagnoseBlocker(pool, participants, sessionTime);
+      if(blocker === state.name){
+        document.getElementById('waitingStatus').textContent = t('waitingStatusBlockerSelf');
+        showEditFiltersBtn(true);
+      }else if(blocker){
+        document.getElementById('waitingStatus').textContent = t('waitingStatusBlockerOther').replace('{name}', blocker);
+        showEditFiltersBtn(false);
+      }else{
+        document.getElementById('waitingStatus').textContent = t('waitingStatusNoPlaces');
+        showEditFiltersBtn(true);
+      }
+      return;
+    }
+
     scored.sort((a,b)=> b.score - a.score || b.v.r - a.v.r);
     lastResults = scored.slice(0,3);
     latestBooking = null;
@@ -1118,6 +1149,32 @@ async function generateSuggestions(){
     showView('suggestions');
   }catch(e){ document.getElementById('waitingStatus').textContent = t('waitingStatusError'); }
   finally{ btn.textContent = original; btn.disabled = false; }
+}
+
+// If exactly one participant's own district/restriction preferences are the
+// reason nothing matches, name them — this only works for filters applied
+// locally (district, restrictions). Budget is applied server-side in the
+// Google search itself to save API quota, so it can't be diagnosed here
+// without another live search; an ambiguous or budget-caused deadlock falls
+// back to the generic message for everyone.
+function diagnoseBlocker(pool, participants, sessionTime){
+  const names = Object.keys(participants);
+  if(names.length < 2) return null;
+  const blockers = [];
+  for(const name of names){
+    const others = {...participants};
+    delete others[name];
+    if(Object.keys(others).length === 0) continue;
+    const scoredWithout = pool.map(v=>scoreVenue(v, others, sessionTime)).filter(Boolean);
+    if(scoredWithout.length > 0) blockers.push(name);
+  }
+  return blockers.length === 1 ? blockers[0] : null;
+}
+
+function showEditFiltersBtn(show){
+  const btn = document.getElementById('editFiltersBtn');
+  btn.style.display = show ? '' : 'none';
+  if(show) btn.textContent = t('editFiltersBtn');
 }
 
 function openVenueMaps(name){
