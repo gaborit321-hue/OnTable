@@ -577,7 +577,7 @@ function renderPrefStep(){
     `<span class="dot ${i===prefStepIndex?'on':''}"></span>`
   ).join('');
 
-  document.getElementById('prefBackBtn').classList.toggle('hidden', prefStepIndex===0);
+  document.getElementById('prefBackBtn').classList.remove('hidden'); // always available now — goes home from the first step
   document.getElementById('prefBackBtn').textContent = t('backBtn');
   const isLast = prefStepIndex === prefSteps.length-1;
   document.getElementById('prefNextBtn').textContent = isLast ? t('submitPrefsBtn') : t('nextBtn');
@@ -585,7 +585,12 @@ function renderPrefStep(){
 }
 
 function prefBack(){
-  if(prefStepIndex>0){ prefStepIndex--; renderPrefStep(); }
+  if(prefStepIndex>0){
+    prefStepIndex--;
+    renderPrefStep();
+  }else{
+    goHome();
+  }
 }
 
 function prefNext(){
@@ -669,6 +674,21 @@ function goHome(){
   localStorage.removeItem(APP_STATE_KEY);
   state = { code:null, name:null, isCreator:false };
   sessionMeta = null; lastResults = []; latestBooking = null; latestVoteData = {};
+  prefStepIndex = 0; prefSteps = [];
+
+  // Clear every bit of form state too, so the next session starts truly
+  // clean instead of carrying over the previous one's selections.
+  document.getElementById('myName').value = '';
+  document.getElementById('joinCode').value = '';
+  document.getElementById('homeStatus').textContent = '';
+  document.getElementById('prefsStatus').textContent = '';
+  document.querySelectorAll('#view-prefs .chip.on').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.budget-opt.on').forEach(c=>c.classList.remove('on'));
+  document.getElementById('dateInput').value = '';
+  document.getElementById('timeInput').value = '';
+  document.getElementById('dateSelect').value = '';
+  document.getElementById('timeSelect').value = '';
+
   showView('home');
   document.documentElement.classList.remove('restoring');
 }
@@ -939,8 +959,9 @@ function scoreVenue(v, participants, sessionTime){
 }
 
 // ---------- Live venues via Google Places API (New), proxied through the Cloudflare Worker ----------
-async function fetchPlacesForQuery(query){
-  const url = WORKER_URL + '?action=places&query=' + encodeURIComponent(query);
+async function fetchPlacesForQuery(query, priceLevelsParam){
+  let url = WORKER_URL + '?action=places&query=' + encodeURIComponent(query);
+  if(priceLevelsParam) url += '&priceLevels=' + encodeURIComponent(priceLevelsParam);
   const res = await fetch(url);
   const data = await res.json();
   if(data.error){
@@ -952,6 +973,20 @@ async function fetchPlacesForQuery(query){
     return []; // some other Google error for this one district — don't break the whole search over it
   }
   return data.places || [];
+}
+
+// Converts the group's chosen budget ceiling into the matching Google price
+// levels, so the SEARCH itself is restricted to that band server-side —
+// instead of fetching Google's "most prominent" results and hoping enough
+// cheap ones happened to survive. Returns null for "no real constraint"
+// (budget 5, our most permissive default), so unknown-price venues still
+// come through untouched in that case.
+function priceLevelsParamFor(maxBudget){
+  if(maxBudget >= 5) return null;
+  const levels = ['PRICE_LEVEL_INEXPENSIVE'];
+  if(maxBudget >= 3) levels.push('PRICE_LEVEL_MODERATE');
+  if(maxBudget >= 4) levels.push('PRICE_LEVEL_EXPENSIVE');
+  return levels.join(',');
 }
 
 function priceLevelToNum(pl){
@@ -966,7 +1001,7 @@ function priceLevelToNum(pl){
 
 function typesFromGoogle(types){
   const out = [];
-  if((types||[]).some(x=>['restaurant','meal_takeaway','meal_delivery'].includes(x))) out.push('restaurant');
+  if((types||[]).some(x=>['restaurant','meal_takeaway','meal_delivery','fast_food_restaurant','sandwich_shop','hot_dog_stand'].includes(x))) out.push('restaurant');
   if((types||[]).some(x=>['cafe','bakery'].includes(x))) out.push('cafe');
   if((types||[]).some(x=>['bar','night_club','wine_bar'].includes(x))) out.push('bar');
   if(out.length===0) out.push('restaurant');
@@ -988,18 +1023,19 @@ function hoursFromGoogle(place, dayOfWeek){
 }
 
 const DISTRICT_QUERIES = {
-  I:   'restaurants cafes bars in Staré Mesto, Bratislava I, Slovakia',
-  II:  'restaurants cafes bars in Ružinov, Bratislava II, Slovakia',
-  III: 'restaurants cafes bars in Nové Mesto, Bratislava III, Slovakia',
-  IV:  'restaurants cafes bars in Karlova Ves, Bratislava IV, Slovakia',
-  V:   'restaurants cafes bars in Petržalka, Bratislava V, Slovakia'
+  I:   'restaurants, cafes, bars, fast food and street food in Staré Mesto, Bratislava I, Slovakia',
+  II:  'restaurants, cafes, bars, fast food and street food in Ružinov, Bratislava II, Slovakia',
+  III: 'restaurants, cafes, bars, fast food and street food in Nové Mesto, Bratislava III, Slovakia',
+  IV:  'restaurants, cafes, bars, fast food and street food in Karlova Ves, Bratislava IV, Slovakia',
+  V:   'restaurants, cafes, bars, fast food and street food in Petržalka, Bratislava V, Slovakia'
 };
 
-async function fetchLiveVenues(districts, dayOfWeek){
+async function fetchLiveVenues(districts, dayOfWeek, maxBudget){
   const targets = districts.length ? districts : ['I','II','III','IV','V'];
+  const priceLevelsParam = priceLevelsParamFor(maxBudget);
   let quotaExceeded = false;
   const batches = await Promise.all(targets.map(d =>
-    fetchPlacesForQuery(DISTRICT_QUERIES[d]).then(places => ({d, places})).catch(e => {
+    fetchPlacesForQuery(DISTRICT_QUERIES[d], priceLevelsParam).then(places => ({d, places})).catch(e => {
       if(e.message === 'QUOTA_EXCEEDED') quotaExceeded = true;
       return {d, places:[]};
     })
@@ -1046,6 +1082,7 @@ async function generateSuggestions(){
       return;
     }
     const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
+    const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
 
     // Day/time is set once by the creator, session-wide — not per participant.
     let referenceDayOfWeek = null, sessionTime = null;
@@ -1060,7 +1097,7 @@ async function generateSuggestions(){
 
     let pool;
     try{
-      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek);
+      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek, maxBudget);
     }catch(e){
       if(e.message === 'QUOTA_EXCEEDED'){
         document.getElementById('waitingStatus').textContent = t('waitingStatusQuota');
