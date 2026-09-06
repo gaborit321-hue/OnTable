@@ -91,7 +91,7 @@ async function loadBookings(){
   sessionStorage.setItem('ontable-admin-key', key);
 
   try{
-    const res = await fetch(WORKER_URL + '?action=get_bookings_log&adminKey=' + encodeURIComponent(key));
+    const res = await fetch(WORKER_URL + '?action=get_bookings_log', { headers: { 'X-Admin-Key': key } });
     const data = await res.json();
     if(data.error){
       document.getElementById('gateErr').textContent = 'Mot de passe incorrect.';
@@ -154,16 +154,15 @@ async function toggleBilled(id, checked){
   const entry = entriesById[id];
   if(!entry) return;
   entry.billed = checked;
-  const url = WORKER_URL + '?action=update_booking&adminKey=' + encodeURIComponent(currentKey)
-    + '&id=' + encodeURIComponent(id) + '&entry=' + encodeURIComponent(JSON.stringify(entry));
-  await fetch(url).catch(()=>{});
+  const url = WORKER_URL + '?action=update_booking&id=' + encodeURIComponent(id) + '&entry=' + encodeURIComponent(JSON.stringify(entry));
+  await fetch(url, { headers: { 'X-Admin-Key': currentKey } }).catch(()=>{});
   render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
 }
 
 async function deleteBooking(id){
   if(!confirm('Supprimer cette réservation ? Cette action est définitive.')) return;
-  const url = WORKER_URL + '?action=delete_booking&adminKey=' + encodeURIComponent(currentKey) + '&id=' + encodeURIComponent(id);
-  await fetch(url).catch(()=>{});
+  const url = WORKER_URL + '?action=delete_booking&id=' + encodeURIComponent(id);
+  await fetch(url, { headers: { 'X-Admin-Key': currentKey } }).catch(()=>{});
   delete entriesById[id];
   render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
 }
