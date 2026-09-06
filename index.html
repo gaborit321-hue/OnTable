@@ -1056,6 +1056,21 @@ const DISTRICT_AREAS = {
   V:   'Petržalka, Bratislava V, Slovakia'
 };
 
+// Google's Text Search is a loose text match, not a real geographic
+// boundary — searching "bars in Petržalka" can still return a well-known
+// bar from the other side of the city if there aren't many strong matches
+// in that specific area. This keyword lets us cross-check the address
+// Google actually returned, instead of blindly labelling every result with
+// whichever district we searched for.
+const DISTRICT_KEYWORDS = {
+  I: 'staré mesto', II: 'ružinov', III: 'nové mesto', IV: 'karlova ves', V: 'petržalka'
+};
+
+function matchesDistrict(formattedAddress, district){
+  if(!formattedAddress) return true; // nothing to check against — don't punish missing data
+  return formattedAddress.toLowerCase().includes(DISTRICT_KEYWORDS[district]);
+}
+
 // Builds a search query specific to what the group actually asked for —
 // searching only "bars, pubs..." when that's the only type requested keeps
 // real bars from being drowned out among restaurants in Google's results,
@@ -1090,6 +1105,7 @@ async function fetchLiveVenues(districts, dayOfWeek, maxBudget, typeUnion){
     places.forEach(p => {
       const name = p.displayName ? p.displayName.text : null;
       if(!name || seen.has(name)) return;
+      if(!matchesDistrict(p.formattedAddress, d)) return; // discard obvious cross-city mismatches instead of mislabelling them
       seen.add(name);
       const hrs = hoursFromGoogle(p, dayOfWeek);
       venues.push({
