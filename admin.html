@@ -31,7 +31,15 @@
   .stat .num{font-family:'IBM Plex Mono',monospace; font-size:22px; color:var(--wine);}
   .stat .lbl{font-size:11px; color:var(--ink-soft); margin-top:4px; text-transform:uppercase; letter-spacing:.05em;}
 
-  table{width:100%; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden;}
+  .table-scroll{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:16px;}
+  table{width:100%; min-width:760px; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden;}
+  @media (max-width: 640px){
+    .wrap{padding:20px 12px 40px;}
+    .gate{padding:20px 16px; margin:30px auto;}
+    h1{font-size:24px;}
+    .stat{min-width:100%;}
+    td, th{padding:9px 10px; font-size:12.5px;}
+  }
   th{background:var(--card-soft); text-align:left; padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
   td{padding:11px 14px; border-top:1px solid var(--line); font-size:13.5px;}
   tr:hover td{background:rgba(122,46,61,0.04);}
@@ -186,6 +194,7 @@ function render(rawEntries){
   }
 
   wrap.innerHTML = `
+    <div class="table-scroll">
     <table>
       <thead><tr>
         <th>${t('thBilled')}</th><th>${t('thRestaurant')}</th><th>${t('thPeople')}</th><th>${t('thAmount')}</th>
@@ -198,7 +207,7 @@ function render(rawEntries){
           <tr class="${e.billed ? 'billed' : ''}" id="row-${id}">
             <td><input type="checkbox" ${e.billed ? 'checked' : ''} onchange="toggleBilled('${id}', this.checked)"></td>
             <td class="venue">${escapeHtml(e.venue||'—')}</td>
-            <td>${e.partySize ?? '—'}</td>
+            <td><input type="number" min="0" value="${e.partySize ?? 0}" style="width:56px; padding:5px 7px; border-radius:8px; border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:13px;" onchange="updatePartySize('${id}', this.value)"></td>
             <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
             <td>${formatDateRaw(e.dateRaw)}</td>
             <td>${e.timeRaw||'—'}</td>
@@ -209,7 +218,17 @@ function render(rawEntries){
           </tr>`;
         }).join('')}
       </tbody>
-    </table>`;
+    </table>
+    </div>`;
+}
+
+async function updatePartySize(id, newValue){
+  const entry = entriesById[id];
+  if(!entry) return;
+  entry.partySize = parseInt(newValue) || 0;
+  const url = WORKER_URL + '?action=update_booking&id=' + encodeURIComponent(id) + '&entry=' + encodeURIComponent(JSON.stringify(entry));
+  await fetch(url, { headers: { 'X-Admin-Key': currentKey } }).catch(()=>{});
+  render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
 }
 
 async function toggleBilled(id, checked){
