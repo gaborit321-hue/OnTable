@@ -58,6 +58,7 @@
   tr.billed .venue{text-decoration:line-through;}
   .del-btn{background:none; border:1px solid rgba(196,71,46,0.4); color:#C4472E; border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer;}
   .del-btn:hover{background:rgba(196,71,46,0.08);}
+  #searchInput{width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--line); font-size:13.5px; font-family:'Karla',sans-serif;}
 </style>
 </head>
 <body>
@@ -89,6 +90,7 @@
       <div class="stat"><div class="num" id="statPeople">0</div><div class="lbl" id="statPeopleLbl"></div></div>
       <div class="stat"><div class="num" id="statAmount">0 €</div><div class="lbl" id="statAmountLbl"></div></div>
     </div>
+    <input type="text" id="searchInput" oninput="renderFiltered()" style="margin-bottom:14px;">
     <div id="tableWrap"></div>
   </div>
 </div>
@@ -105,25 +107,29 @@ en:{ code:"EN", locale:"en-GB", pageTitle:"Confirmed reservations", gateLabel:"A
   refresh:"↻ Refresh", statReservations:"Reservations", statPeople:"Total people", statAmount:"Remaining to bill (€2/person)",
   thBilled:"Billed", thRestaurant:"Restaurant", thPeople:"People", thAmount:"Amount", thDay:"Planned day", thTime:"Time",
   thConfirmed:"Confirmed on", thBy:"By", thCode:"Code", deleteBtn:"Delete",
-  confirmDelete:"Delete this reservation? This action is permanent.", empty:"No confirmed reservations yet." },
+  confirmDelete:"Delete this reservation? This action is permanent.", empty:"No confirmed reservations yet.",
+  searchPlaceholder:"Search by name or code…", noSearchResults:"No reservation matches your search." },
 sk:{ code:"SK", locale:"sk-SK", pageTitle:"Potvrdené rezervácie", gateLabel:"Admin heslo", loginBtn:"Zobraziť rezervácie",
   errEmpty:"Zadaj heslo.", errWrong:"Nesprávne heslo.", errConn:"Chyba pripojenia, skús znova.",
   refresh:"↻ Obnoviť", statReservations:"Rezervácie", statPeople:"Ľudí spolu", statAmount:"Zostáva vyfakturovať (2€/osoba)",
   thBilled:"Vyfakturované", thRestaurant:"Reštaurácia", thPeople:"Osoby", thAmount:"Suma", thDay:"Plánovaný deň", thTime:"Čas",
   thConfirmed:"Potvrdené dňa", thBy:"Kým", thCode:"Kód", deleteBtn:"Vymazať",
-  confirmDelete:"Vymazať túto rezerváciu? Táto akcia je nezvratná.", empty:"Zatiaľ žiadne potvrdené rezervácie." },
+  confirmDelete:"Vymazať túto rezerváciu? Táto akcia je nezvratná.", empty:"Zatiaľ žiadne potvrdené rezervácie.",
+  searchPlaceholder:"Hľadať podľa mena alebo kódu…", noSearchResults:"Žiadna rezervácia nezodpovedá hľadaniu." },
 hu:{ code:"HU", locale:"hu-HU", pageTitle:"Megerősített foglalások", gateLabel:"Admin jelszó", loginBtn:"Foglalások megtekintése",
   errEmpty:"Add meg a jelszót.", errWrong:"Hibás jelszó.", errConn:"Kapcsolódási hiba, próbáld újra.",
   refresh:"↻ Frissítés", statReservations:"Foglalások", statPeople:"Összes létszám", statAmount:"Kiszámlázandó (2€/fő)",
   thBilled:"Számlázva", thRestaurant:"Étterem", thPeople:"Létszám", thAmount:"Összeg", thDay:"Tervezett nap", thTime:"Időpont",
   thConfirmed:"Megerősítve", thBy:"Ki", thCode:"Kód", deleteBtn:"Törlés",
-  confirmDelete:"Törlöd ezt a foglalást? Ez a művelet végleges.", empty:"Még nincs megerősített foglalás." },
+  confirmDelete:"Törlöd ezt a foglalást? Ez a művelet végleges.", empty:"Még nincs megerősített foglalás.",
+  searchPlaceholder:"Keresés név vagy kód alapján…", noSearchResults:"Nincs a keresésnek megfelelő foglalás." },
 fr:{ code:"FR", locale:"fr-FR", pageTitle:"Réservations confirmées", gateLabel:"Mot de passe admin", loginBtn:"Voir les réservations",
   errEmpty:"Entre le mot de passe.", errWrong:"Mot de passe incorrect.", errConn:"Erreur de connexion, réessaie.",
   refresh:"↻ Actualiser", statReservations:"Réservations", statPeople:"Personnes au total", statAmount:"Restant à facturer (2€/pers.)",
   thBilled:"Facturé", thRestaurant:"Restaurant", thPeople:"Personnes", thAmount:"Montant", thDay:"Jour prévu", thTime:"Heure",
   thConfirmed:"Confirmé le", thBy:"Par", thCode:"Code", deleteBtn:"Supprimer",
-  confirmDelete:"Supprimer cette réservation ? Cette action est définitive.", empty:"Aucune réservation confirmée pour le moment." }
+  confirmDelete:"Supprimer cette réservation ? Cette action est définitive.", empty:"Aucune réservation confirmée pour le moment.",
+  searchPlaceholder:"Rechercher par nom ou code…", noSearchResults:"Aucune réservation ne correspond à ta recherche." }
 };
 let currentLang = localStorage.getItem('ontable-admin-lang') || 'fr';
 function t(k){ return LANGS[currentLang][k] || LANGS.fr[k] || k; }
@@ -148,6 +154,7 @@ function applyLang(){
   document.getElementById('statReservationsLbl').textContent = t('statReservations');
   document.getElementById('statPeopleLbl').textContent = t('statPeople');
   document.getElementById('statAmountLbl').textContent = t('statAmount');
+  document.getElementById('searchInput').placeholder = t('searchPlaceholder');
   if(Object.keys(entriesById).length || document.getElementById('dashboard').style.display !== 'none'){
     render(Object.fromEntries(Object.entries(entriesById).map(([k,v]) => [k, JSON.stringify(v)])));
   }
@@ -179,17 +186,31 @@ function render(rawEntries){
   for(const id in rawEntries){
     try{ entriesById[id] = JSON.parse(rawEntries[id]); }catch(e){}
   }
-  const ids = Object.keys(entriesById).sort((a,b) => (entriesById[b].confirmedAt||0) - (entriesById[a].confirmedAt||0));
-
-  const totalPeopleAll = ids.reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
-  const totalPeopleUnbilled = ids.filter(id => !entriesById[id].billed).reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
-  document.getElementById('statCount').textContent = ids.length;
+  const allIds = Object.keys(entriesById);
+  const totalPeopleAll = allIds.reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
+  const totalPeopleUnbilled = allIds.filter(id => !entriesById[id].billed).reduce((sum,id) => sum + (entriesById[id].partySize||0), 0);
+  document.getElementById('statCount').textContent = allIds.length;
   document.getElementById('statPeople').textContent = totalPeopleAll;
   document.getElementById('statAmount').textContent = (totalPeopleUnbilled * PRICE_PER_PERSON) + ' €';
 
+  renderFiltered();
+}
+
+function renderFiltered(){
+  const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  let ids = Object.keys(entriesById).sort((a,b) => (entriesById[b].confirmedAt||0) - (entriesById[a].confirmedAt||0));
+  if(query){
+    ids = ids.filter(id => {
+      const e = entriesById[id];
+      return (e.venue||'').toLowerCase().includes(query) ||
+             (e.confirmedBy||'').toLowerCase().includes(query) ||
+             (e.code||'').toLowerCase().includes(query);
+    });
+  }
+
   const wrap = document.getElementById('tableWrap');
   if(ids.length === 0){
-    wrap.innerHTML = `<div class="empty">${t('empty')}</div>`;
+    wrap.innerHTML = `<div class="empty">${query ? t('noSearchResults') : t('empty')}</div>`;
     return;
   }
 
