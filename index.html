@@ -201,6 +201,13 @@
 
         <!-- HOME -->
         <div class="view active" id="view-home">
+          <div id="myResCard" style="display:none; margin-bottom:18px; cursor:pointer;" onclick="openMyReservationModal()">
+            <div class="book-card">
+              <div class="book-name" id="myResVenue"></div>
+              <div class="book-confirm" id="myResWhen"></div>
+            </div>
+          </div>
+
           <div class="section-label" data-i18n="yourName"></div>
           <input type="text" id="myName" maxlength="20">
           <button class="btn btn-primary" id="createBtn" onclick="createSession()"></button>
@@ -329,6 +336,20 @@
               <a id="mapModalOpenLink" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:10px;" data-i18n="openInMaps"></a>
             </div>
           </div>
+
+          <div id="myResModal" class="map-modal" onclick="if(event.target===this) closeMyReservationModal()">
+            <div class="map-modal-inner" style="max-height:none;">
+              <div class="map-modal-head">
+                <span id="myResModalTitle"></span>
+                <button class="map-modal-close" onclick="closeMyReservationModal()">✕</button>
+              </div>
+              <div class="confirm-when" id="myResModalWhen" style="margin-bottom:6px;"></div>
+              <div class="confirm-when" id="myResModalCount" style="margin-bottom:16px;"></div>
+              <button class="btn btn-ghost" id="cancelOneBtn" onclick="cancelOnePerson()"></button>
+              <button class="btn btn-primary" id="cancelAllBtn" style="background:var(--tomato); margin-top:8px;" onclick="cancelAllReservation()"></button>
+            </div>
+          </div>
+
           <button class="btn btn-primary" id="launchVoteBtn" onclick="showView('vote')"></button>
         </div>
 
@@ -375,7 +396,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.", waitingStatusQuota:"Daily search limit reached — try again tomorrow.", editFiltersBtn:"Edit my filters", waitingStatusBlockerSelf:"Your own filters are the reason no place fits — try adjusting them.", waitingStatusBlockerOther:"{name}'s filters are the reason no place fits — waiting for them to adjust.",
   leadingLabel:"Leading", bookBtn:"Reserve", bookConfirmed:"Reservation requested",
   whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
-  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm", calendarCodeLabel:"OnTable code"},
+  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm", calendarCodeLabel:"OnTable code", myResPeopleLabel:"{n} people in your reservation", cancelOneBtn:"Cancel one person", cancelAllBtn:"Cancel the whole reservation", confirmCancelOne:"Cancel one person from this reservation?", confirmCancelAll:"Cancel the whole reservation? This can't be undone."},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Alex", createBtn:"Vytvoriť nový kód",
   orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
@@ -402,7 +423,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.", waitingStatusQuota:"Dosiahnutý denný limit vyhľadávania — skús to znova zajtra.", editFiltersBtn:"Upraviť moje filtre", waitingStatusBlockerSelf:"Dôvodom, prečo sa nenašiel žiadny podnik, sú tvoje vlastné filtre — skús ich upraviť.", waitingStatusBlockerOther:"Dôvodom, prečo sa nenašiel žiadny podnik, sú filtre osoby {name} — počkaj, kým si ich upraví.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať", bookConfirmed:"Rezervácia odoslaná",
   whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
-  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť", calendarCodeLabel:"Kód OnTable"},
+  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť", calendarCodeLabel:"Kód OnTable", myResPeopleLabel:"{n} osôb v tvojej rezervácii", cancelOneBtn:"Zrušiť jednu osobu", cancelAllBtn:"Zrušiť celú rezerváciu", confirmCancelOne:"Zrušiť jednu osobu z tejto rezervácie?", confirmCancelAll:"Zrušiť celú rezerváciu? Túto akciu nemožno vrátiť späť."},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Alex", createBtn:"Új kód létrehozása",
   orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
@@ -429,7 +450,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.", waitingStatusQuota:"Elérted a napi keresési limitet — próbáld újra holnap.", editFiltersBtn:"Szűrők szerkesztése", waitingStatusBlockerSelf:"A saját szűrőid miatt nem található hely — próbáld módosítani őket.", waitingStatusBlockerOther:"{name} szűrői miatt nem található hely — várj, amíg módosítja őket.",
   leadingLabel:"Vezet", bookBtn:"Foglalás", bookConfirmed:"Foglalás elküldve",
   whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
-  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés", calendarCodeLabel:"OnTable kód"},
+  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés", calendarCodeLabel:"OnTable kód", myResPeopleLabel:"{n} fő a foglalásodban", cancelOneBtn:"Egy fő lemondása", cancelAllBtn:"Teljes foglalás lemondása", confirmCancelOne:"Lemondasz egy főt ebből a foglalásból?", confirmCancelAll:"Lemondod a teljes foglalást? Ez nem vonható vissza."},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Alex", createBtn:"Créer un nouveau code",
   orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
@@ -456,7 +477,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.", waitingStatusQuota:"Limite quotidienne de recherche atteinte — réessaie demain.", editFiltersBtn:"Modifier mes filtres", waitingStatusBlockerSelf:"Ce sont tes propres préférences qui empêchent de trouver un lieu — essaie de les ajuster.", waitingStatusBlockerOther:"Ce sont les préférences de {name} qui empêchent de trouver un lieu — attends qu'il/elle les ajuste.",
   leadingLabel:"En tête", bookBtn:"Réserver", bookConfirmed:"Réservation demandée",
   whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
-  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer", calendarCodeLabel:"Code OnTable"}
+  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer", calendarCodeLabel:"Code OnTable", myResPeopleLabel:"{n} personnes dans ta réservation", cancelOneBtn:"Annuler une personne", cancelAllBtn:"Annuler toute la réservation", confirmCancelOne:"Annuler une personne de cette réservation ?", confirmCancelAll:"Annuler toute la réservation ? Cette action est irréversible."}
 };
 let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
@@ -662,6 +683,7 @@ function showView(name){
   stopPolling();
   if(name==='waiting'){ refreshWaiting(); startPolling(refreshWaiting); }
   if(name==='vote'){ renderVoteList(); startPolling(renderVoteList); }
+  if(name==='home'){ renderHomeReservationCard(); }
   updateWhenBanner();
   saveAppState();
 }
@@ -1456,8 +1478,104 @@ function resolveReservation(success, partySize){
       confirmedAt: Date.now()
     };
     const url = WORKER_URL + '?action=log_booking&entry=' + encodeURIComponent(JSON.stringify(entry));
-    fetch(url).catch(()=>{});
+    fetch(url).then(r=>r.json()).then(data => {
+      if(data && data.id){
+        saveMyReservation({ id: data.id, ...entry, phone: latestBooking.phone, cancelledCount: 0, cancelled: false });
+      }
+    }).catch(()=>{});
   }
+}
+
+// ---------- "My reservation" card on the home screen — lets whoever made
+// the call cancel a person or the whole thing later, from their own phone,
+// without needing to reopen the session. Visible only to them (kept in
+// this device's own storage), and every change is reflected live in the
+// admin billing log via 'adjust_booking'.
+const MY_RESERVATION_KEY = 'ontable-my-reservation';
+
+function saveMyReservation(record){
+  localStorage.setItem(MY_RESERVATION_KEY, JSON.stringify(record));
+  renderHomeReservationCard();
+}
+
+function loadMyReservation(){
+  try{
+    const raw = localStorage.getItem(MY_RESERVATION_KEY);
+    if(!raw) return null;
+    const rec = JSON.parse(raw);
+    if(rec.cancelled || rec.partySize <= 0) return null;
+    return rec;
+  }catch(e){ return null; }
+}
+
+function formatResWhen(rec){
+  const locale = {en:'en-GB', sk:'sk-SK', hu:'hu-HU', fr:'fr-FR'}[currentLang] || 'en-GB';
+  let dateLabel = '';
+  if(rec.dateRaw){
+    const d = new Date(rec.dateRaw+'T00:00:00');
+    dateLabel = d.toLocaleDateString(locale, {weekday:'short', day:'numeric', month:'short'});
+  }
+  return [dateLabel, rec.timeRaw].filter(Boolean).join(' — ');
+}
+
+function renderHomeReservationCard(){
+  const card = document.getElementById('myResCard');
+  const rec = loadMyReservation();
+  if(!rec){ card.style.display='none'; return; }
+  document.getElementById('myResVenue').textContent = rec.venue;
+  document.getElementById('myResWhen').textContent = '🗓 ' + formatResWhen(rec) + ' · 👥 ' + rec.partySize;
+  card.style.display = '';
+}
+
+function openMyReservationModal(){
+  const rec = loadMyReservation();
+  if(!rec) return;
+  document.getElementById('myResModalTitle').textContent = rec.venue;
+  document.getElementById('myResModalWhen').textContent = '🗓 ' + formatResWhen(rec);
+  document.getElementById('myResModalCount').textContent = '👥 ' + t('myResPeopleLabel').replace('{n}', rec.partySize);
+  document.getElementById('cancelOneBtn').textContent = t('cancelOneBtn');
+  document.getElementById('cancelAllBtn').textContent = t('cancelAllBtn');
+  document.getElementById('cancelOneBtn').style.display = rec.partySize > 1 ? '' : 'none';
+  document.getElementById('myResModal').classList.add('show');
+}
+
+function closeMyReservationModal(){
+  document.getElementById('myResModal').classList.remove('show');
+}
+
+async function adjustBookingOnServer(id, fields){
+  if(!id) return;
+  let url = WORKER_URL + '?action=adjust_booking&id=' + encodeURIComponent(id);
+  if(fields.partySize !== undefined) url += '&partySize=' + encodeURIComponent(fields.partySize);
+  if(fields.cancelledCount !== undefined) url += '&cancelledCount=' + encodeURIComponent(fields.cancelledCount);
+  if(fields.cancelled !== undefined) url += '&cancelled=' + encodeURIComponent(fields.cancelled);
+  await fetch(url).catch(()=>{});
+}
+
+async function cancelOnePerson(){
+  const rec = loadMyReservation();
+  if(!rec || rec.partySize <= 1) return;
+  if(!confirm(t('confirmCancelOne'))) return;
+  rec.partySize -= 1;
+  rec.cancelledCount = (rec.cancelledCount||0) + 1;
+  localStorage.setItem(MY_RESERVATION_KEY, JSON.stringify(rec));
+  await adjustBookingOnServer(rec.id, { partySize: rec.partySize, cancelledCount: rec.cancelledCount });
+  renderHomeReservationCard();
+  openMyReservationModal();
+}
+
+async function cancelAllReservation(){
+  const rec = loadMyReservation();
+  if(!rec) return;
+  if(!confirm(t('confirmCancelAll'))) return;
+  const newlyCancelled = rec.partySize;
+  rec.cancelledCount = (rec.cancelledCount||0) + newlyCancelled;
+  rec.partySize = 0;
+  rec.cancelled = true;
+  localStorage.setItem(MY_RESERVATION_KEY, JSON.stringify(rec));
+  await adjustBookingOnServer(rec.id, { partySize: 0, cancelledCount: rec.cancelledCount, cancelled: true });
+  closeMyReservationModal();
+  renderHomeReservationCard();
 }
 
 // ---------- Add to calendar — a plain .ics file works the same way on every
@@ -1499,6 +1617,7 @@ function addToCalendar(){
 
 renderLangRow();
 applyLang();
+renderHomeReservationCard(); // covers the initial static "home" view, which never goes through showView()
 restoreAppState();
 
 // ---------- PWA: version display + service worker + manual update check ----------
