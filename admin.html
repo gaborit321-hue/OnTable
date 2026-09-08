@@ -108,28 +108,28 @@ en:{ code:"EN", locale:"en-GB", pageTitle:"Confirmed reservations", gateLabel:"A
   thBilled:"Billed", thRestaurant:"Restaurant", thPeople:"People", thAmount:"Amount", thDay:"Planned day", thTime:"Time",
   thConfirmed:"Confirmed on", thBy:"By", thCode:"Code", deleteBtn:"Delete",
   confirmDelete:"Delete this reservation? This action is permanent.", empty:"No confirmed reservations yet.",
-  searchPlaceholder:"Search by name or code…", noSearchResults:"No reservation matches your search." },
+  searchPlaceholder:"Search by name or code…", noSearchResults:"No reservation matches your search.", cancelledHint:"{n} cancelled" },
 sk:{ code:"SK", locale:"sk-SK", pageTitle:"Potvrdené rezervácie", gateLabel:"Admin heslo", loginBtn:"Zobraziť rezervácie",
   errEmpty:"Zadaj heslo.", errWrong:"Nesprávne heslo.", errConn:"Chyba pripojenia, skús znova.",
   refresh:"↻ Obnoviť", statReservations:"Rezervácie", statPeople:"Ľudí spolu", statAmount:"Zostáva vyfakturovať (2€/osoba)",
   thBilled:"Vyfakturované", thRestaurant:"Reštaurácia", thPeople:"Osoby", thAmount:"Suma", thDay:"Plánovaný deň", thTime:"Čas",
   thConfirmed:"Potvrdené dňa", thBy:"Kým", thCode:"Kód", deleteBtn:"Vymazať",
   confirmDelete:"Vymazať túto rezerváciu? Táto akcia je nezvratná.", empty:"Zatiaľ žiadne potvrdené rezervácie.",
-  searchPlaceholder:"Hľadať podľa mena alebo kódu…", noSearchResults:"Žiadna rezervácia nezodpovedá hľadaniu." },
+  searchPlaceholder:"Hľadať podľa mena alebo kódu…", noSearchResults:"Žiadna rezervácia nezodpovedá hľadaniu.", cancelledHint:"{n} zrušených" },
 hu:{ code:"HU", locale:"hu-HU", pageTitle:"Megerősített foglalások", gateLabel:"Admin jelszó", loginBtn:"Foglalások megtekintése",
   errEmpty:"Add meg a jelszót.", errWrong:"Hibás jelszó.", errConn:"Kapcsolódási hiba, próbáld újra.",
   refresh:"↻ Frissítés", statReservations:"Foglalások", statPeople:"Összes létszám", statAmount:"Kiszámlázandó (2€/fő)",
   thBilled:"Számlázva", thRestaurant:"Étterem", thPeople:"Létszám", thAmount:"Összeg", thDay:"Tervezett nap", thTime:"Időpont",
   thConfirmed:"Megerősítve", thBy:"Ki", thCode:"Kód", deleteBtn:"Törlés",
   confirmDelete:"Törlöd ezt a foglalást? Ez a művelet végleges.", empty:"Még nincs megerősített foglalás.",
-  searchPlaceholder:"Keresés név vagy kód alapján…", noSearchResults:"Nincs a keresésnek megfelelő foglalás." },
+  searchPlaceholder:"Keresés név vagy kód alapján…", noSearchResults:"Nincs a keresésnek megfelelő foglalás.", cancelledHint:"{n} lemondva" },
 fr:{ code:"FR", locale:"fr-FR", pageTitle:"Réservations confirmées", gateLabel:"Mot de passe admin", loginBtn:"Voir les réservations",
   errEmpty:"Entre le mot de passe.", errWrong:"Mot de passe incorrect.", errConn:"Erreur de connexion, réessaie.",
   refresh:"↻ Actualiser", statReservations:"Réservations", statPeople:"Personnes au total", statAmount:"Restant à facturer (2€/pers.)",
   thBilled:"Facturé", thRestaurant:"Restaurant", thPeople:"Personnes", thAmount:"Montant", thDay:"Jour prévu", thTime:"Heure",
   thConfirmed:"Confirmé le", thBy:"Par", thCode:"Code", deleteBtn:"Supprimer",
   confirmDelete:"Supprimer cette réservation ? Cette action est définitive.", empty:"Aucune réservation confirmée pour le moment.",
-  searchPlaceholder:"Rechercher par nom ou code…", noSearchResults:"Aucune réservation ne correspond à ta recherche." }
+  searchPlaceholder:"Rechercher par nom ou code…", noSearchResults:"Aucune réservation ne correspond à ta recherche.", cancelledHint:"{n} annulé(s)" }
 };
 let currentLang = localStorage.getItem('ontable-admin-lang') || 'fr';
 function t(k){ return LANGS[currentLang][k] || LANGS.fr[k] || k; }
@@ -228,7 +228,10 @@ function renderFiltered(){
           <tr class="${e.billed ? 'billed' : ''}" id="row-${id}">
             <td><input type="checkbox" ${e.billed ? 'checked' : ''} onchange="toggleBilled('${id}', this.checked)"></td>
             <td class="venue">${escapeHtml(e.venue||'—')}</td>
-            <td><input type="number" min="0" value="${e.partySize ?? 0}" style="width:56px; padding:5px 7px; border-radius:8px; border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:13px;" onchange="updatePartySize('${id}', this.value)"></td>
+            <td>
+              <input type="number" min="0" value="${e.partySize ?? 0}" style="width:56px; padding:5px 7px; border-radius:8px; border:1px solid var(--line); font-family:'Karla',sans-serif; font-size:13px;" onchange="updatePartySize('${id}', this.value)">
+              ${e.cancelledCount ? `<div style="font-size:10px; color:#C4472E; margin-top:3px;">${t('cancelledHint').replace('{n}', e.cancelledCount)}</div>` : ''}
+            </td>
             <td class="amount">${(e.partySize||0) * PRICE_PER_PERSON} €</td>
             <td>${formatDateRaw(e.dateRaw)}</td>
             <td>${e.timeRaw||'—'}</td>
