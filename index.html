@@ -216,6 +216,7 @@
           <div class="section-label" data-i18n="yourName"></div>
           <input type="text" id="myName" maxlength="20">
           <button class="btn btn-primary" id="createBtn" onclick="createSession()"></button>
+          <div class="status-line" id="createStatus" style="font-size:14px; font-weight:700; color:var(--tomato); margin-top:8px;"></div>
 
           <div class="section-label" data-i18n="orJoin"></div>
           <input type="text" id="joinCode" maxlength="6" style="text-transform:uppercase">
@@ -731,6 +732,7 @@ function goHome(){
   document.getElementById('myName').value = '';
   document.getElementById('joinCode').value = '';
   document.getElementById('homeStatus').textContent = '';
+  document.getElementById('createStatus').textContent = '';
   document.getElementById('prefsStatus').textContent = '';
   document.querySelectorAll('#view-prefs .chip.on').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('.budget-opt.on').forEach(c=>c.classList.remove('on'));
@@ -898,7 +900,8 @@ function showToast(msg){
 
 function createSession(){
   const name = document.getElementById('myName').value.trim();
-  if(!name){ document.getElementById('homeStatus').textContent=t('homeStatusNoName'); return; }
+  if(!name){ document.getElementById('createStatus').textContent=t('homeStatusNoName'); return; }
+  document.getElementById('createStatus').textContent = '';
   const code = randCode();
   // Optimistic: the code is generated locally, so there's nothing to wait
   // for before showing the next screen — the write to the backend happens
