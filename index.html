@@ -8,7 +8,7 @@
 // flash of the wrong screen while restoreAppState() does its (async) work.
 (function(){
   try{
-    if(localStorage.getItem('ontable-app-state')){
+    if(localStorage.getItem('wemeeat-app-state')){
       document.documentElement.classList.add('restoring');
     }
   }catch(e){}
@@ -19,16 +19,16 @@
 <meta name="theme-color" content="#7A2E3D">
 <meta name="description" content="Decide together where to eat, in one shared code.">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="icons/favicon-16.png" sizes="16x16" type="image/png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" href="icons2/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons2/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons2/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons2/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons2/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons2/apple-touch-icon-120.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="OnTable">
-<title>OnTable</title>
+<meta name="apple-mobile-web-app-title" content="WeMeEat">
+<title>WeMeEat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -197,12 +197,12 @@
 
 <div class="screen">
   <div id="bootLoader">
-    <div class="brand">ONTABLE</div>
+    <div class="brand">WEMEEAT</div>
     <div class="spinner"></div>
   </div>
       <div class="topbar">
         <div class="topbar-row">
-          <div class="brand" onclick="goHome()" style="cursor:pointer;">ONTABLE</div>
+          <div class="brand" onclick="goHome()" style="cursor:pointer;">WEMEEAT</div>
           <div class="lang-row" id="langRow"></div>
         </div>
         <div class="screen-title" id="title"></div>
@@ -391,7 +391,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   orJoin:"Or join an existing code", joinPlaceholder:"E.G. 7F3QK", joinBtn:"Join",
   prefsTitle:"Your preferences", prefsSub:"Everyone answers on their own.",
   groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
-  shareBtn:"Share the code", shareMessage:"Join me on OnTable — code {code}:", shareCopied:"Copied to clipboard",
+  shareBtn:"Share the code", shareMessage:"Join me on WeMeEat — code {code}:", shareCopied:"Copied to clipboard",
   typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Max budget", budgetLow:"Affordable", budgetMid:"Mid-range", budgetHigh:"Upscale", districtLabel:"District (Bratislava I–V)",
   restrictionsLabel:"Dietary restrictions", vegetarianChip:"Vegetarian", veganChip:"Vegan", glutenChip:"Gluten-free", lactoseChip:"Lactose-free", noneChip:"None", backBtn:"Back", nextBtn:"Next",
@@ -412,13 +412,13 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.", waitingStatusQuota:"Daily search limit reached — try again tomorrow.", editFiltersBtn:"Edit my filters", waitingStatusBlockerSelf:"Your own filters are the reason no place fits — try adjusting them.", waitingStatusBlockerOther:"{name}'s filters are the reason no place fits — waiting for them to adjust.",
   leadingLabel:"Leading", bookBtn:"Reserve", bookConfirmed:"Reservation requested",
   whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
-  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm", calendarCodeLabel:"OnTable code", myResPeopleLabel:"{n} people in your reservation", cancelOneBtn:"Cancel one person", cancelAllBtn:"Cancel the whole reservation", confirmCancelOne:"Cancel one person from this reservation?", confirmCancelAll:"Cancel the whole reservation? This can't be undone.", myResLabel:"Upcoming reservation", myResSelectPlaceholder:"Choose a reservation…"},
+  bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm", calendarCodeLabel:"WeMeEat code", myResPeopleLabel:"{n} people in your reservation", cancelOneBtn:"Cancel one person", cancelAllBtn:"Cancel the whole reservation", confirmCancelOne:"Cancel one person from this reservation?", confirmCancelAll:"Cancel the whole reservation? This can't be undone.", myResLabel:"Upcoming reservation", myResSelectPlaceholder:"Choose a reservation…"},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Alex", createBtn:"Vytvoriť nový kód",
   orJoin:"Alebo sa pripoj k existujúcemu kódu", joinPlaceholder:"NAPR. 7F3QK", joinBtn:"Pripojiť sa",
   prefsTitle:"Tvoje preferencie", prefsSub:"Každý odpovedá sám za seba.",
   groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
-  shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na OnTable — kód {code}:", shareCopied:"Skopírované do schránky",
+  shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na WeMeEat — kód {code}:", shareCopied:"Skopírované do schránky",
   typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
   budgetLabel:"Maximálny rozpočet", budgetLow:"Lacné", budgetMid:"Stredné", budgetHigh:"Luxusné", districtLabel:"Mestská časť (Bratislava I–V)",
   restrictionsLabel:"Stravovacie obmedzenia", vegetarianChip:"Vegetariánske", veganChip:"Vegánske", glutenChip:"Bezlepkové", lactoseChip:"Bez laktózy", noneChip:"Žiadne", backBtn:"Späť", nextBtn:"Ďalej",
@@ -439,13 +439,13 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.", waitingStatusQuota:"Dosiahnutý denný limit vyhľadávania — skús to znova zajtra.", editFiltersBtn:"Upraviť moje filtre", waitingStatusBlockerSelf:"Dôvodom, prečo sa nenašiel žiadny podnik, sú tvoje vlastné filtre — skús ich upraviť.", waitingStatusBlockerOther:"Dôvodom, prečo sa nenašiel žiadny podnik, sú filtre osoby {name} — počkaj, kým si ich upraví.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať", bookConfirmed:"Rezervácia odoslaná",
   whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
-  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť", calendarCodeLabel:"Kód OnTable", myResPeopleLabel:"{n} osôb v tvojej rezervácii", cancelOneBtn:"Zrušiť jednu osobu", cancelAllBtn:"Zrušiť celú rezerváciu", confirmCancelOne:"Zrušiť jednu osobu z tejto rezervácie?", confirmCancelAll:"Zrušiť celú rezerváciu? Túto akciu nemožno vrátiť späť.", myResLabel:"Nadchádzajúca rezervácia", myResSelectPlaceholder:"Vyber rezerváciu…"},
+  bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť", calendarCodeLabel:"Kód WeMeEat", myResPeopleLabel:"{n} osôb v tvojej rezervácii", cancelOneBtn:"Zrušiť jednu osobu", cancelAllBtn:"Zrušiť celú rezerváciu", confirmCancelOne:"Zrušiť jednu osobu z tejto rezervácie?", confirmCancelAll:"Zrušiť celú rezerváciu? Túto akciu nemožno vrátiť späť.", myResLabel:"Nadchádzajúca rezervácia", myResSelectPlaceholder:"Vyber rezerváciu…"},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Alex", createBtn:"Új kód létrehozása",
   orJoin:"Vagy csatlakozz egy meglévő kódhoz", joinPlaceholder:"PL. 7F3QK", joinBtn:"Csatlakozás",
   prefsTitle:"A preferenciáid", prefsSub:"Mindenki saját maga válaszol.",
   groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
-  shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az OnTable-ön — kód {code}:", shareCopied:"Vágólapra másolva",
+  shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az WeMeEat-ön — kód {code}:", shareCopied:"Vágólapra másolva",
   typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
   budgetLabel:"Maximális költségkeret", budgetLow:"Olcsó", budgetMid:"Közepes", budgetHigh:"Elegáns", districtLabel:"Kerület (Pozsony I–V)",
   restrictionsLabel:"Étkezési korlátozások", vegetarianChip:"Vegetáriánus", veganChip:"Vegán", glutenChip:"Gluténmentes", lactoseChip:"Laktózmentes", noneChip:"Nincs", backBtn:"Vissza", nextBtn:"Tovább",
@@ -466,13 +466,13 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.", waitingStatusQuota:"Elérted a napi keresési limitet — próbáld újra holnap.", editFiltersBtn:"Szűrők szerkesztése", waitingStatusBlockerSelf:"A saját szűrőid miatt nem található hely — próbáld módosítani őket.", waitingStatusBlockerOther:"{name} szűrői miatt nem található hely — várj, amíg módosítja őket.",
   leadingLabel:"Vezet", bookBtn:"Foglalás", bookConfirmed:"Foglalás elküldve",
   whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
-  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés", calendarCodeLabel:"OnTable kód", myResPeopleLabel:"{n} fő a foglalásodban", cancelOneBtn:"Egy fő lemondása", cancelAllBtn:"Teljes foglalás lemondása", confirmCancelOne:"Lemondasz egy főt ebből a foglalásból?", confirmCancelAll:"Lemondod a teljes foglalást? Ez nem vonható vissza.", myResLabel:"Közelgő foglalás", myResSelectPlaceholder:"Válassz egy foglalást…"},
+  bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés", calendarCodeLabel:"WeMeEat kód", myResPeopleLabel:"{n} fő a foglalásodban", cancelOneBtn:"Egy fő lemondása", cancelAllBtn:"Teljes foglalás lemondása", confirmCancelOne:"Lemondasz egy főt ebből a foglalásból?", confirmCancelAll:"Lemondod a teljes foglalást? Ez nem vonható vissza.", myResLabel:"Közelgő foglalás", myResSelectPlaceholder:"Válassz egy foglalást…"},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Alex", createBtn:"Créer un nouveau code",
   orJoin:"Ou rejoindre un code existant", joinPlaceholder:"EX : 7F3QK", joinBtn:"Rejoindre",
   prefsTitle:"Tes préférences", prefsSub:"Chacun répond de son côté.",
   groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
-  shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur OnTable — code {code} :", shareCopied:"Copié dans le presse-papiers",
+  shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur WeMeEat — code {code} :", shareCopied:"Copié dans le presse-papiers",
   typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
   budgetLabel:"Budget max", budgetLow:"Abordable", budgetMid:"Modéré", budgetHigh:"Chic", districtLabel:"Quartier (Bratislava I–V)",
   restrictionsLabel:"Restrictions alimentaires", vegetarianChip:"Végétarien", veganChip:"Végan", glutenChip:"Sans gluten", lactoseChip:"Sans lactose", noneChip:"Aucune", backBtn:"Retour", nextBtn:"Suivant",
@@ -493,7 +493,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.", waitingStatusQuota:"Limite quotidienne de recherche atteinte — réessaie demain.", editFiltersBtn:"Modifier mes filtres", waitingStatusBlockerSelf:"Ce sont tes propres préférences qui empêchent de trouver un lieu — essaie de les ajuster.", waitingStatusBlockerOther:"Ce sont les préférences de {name} qui empêchent de trouver un lieu — attends qu'il/elle les ajuste.",
   leadingLabel:"En tête", bookBtn:"Réserver", bookConfirmed:"Réservation demandée",
   whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
-  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer", calendarCodeLabel:"Code OnTable", myResPeopleLabel:"{n} personnes dans ta réservation", cancelOneBtn:"Annuler une personne", cancelAllBtn:"Annuler toute la réservation", confirmCancelOne:"Annuler une personne de cette réservation ?", confirmCancelAll:"Annuler toute la réservation ? Cette action est irréversible.", myResLabel:"Prochaine réservation", myResSelectPlaceholder:"Choisir une réservation…"}
+  bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer", calendarCodeLabel:"Code WeMeEat", myResPeopleLabel:"{n} personnes dans ta réservation", cancelOneBtn:"Annuler une personne", cancelAllBtn:"Annuler toute la réservation", confirmCancelOne:"Annuler une personne de cette réservation ?", confirmCancelAll:"Annuler toute la réservation ? Cette action est irréversible.", myResLabel:"Prochaine réservation", myResSelectPlaceholder:"Choisir une réservation…"}
 };
 let currentLang = 'en';
 function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
@@ -538,10 +538,10 @@ async function hashGetAll(hashKey){
   return data.data || {}; // { name: rawValueString, ... }
 }
 
-function keyMeta(code){ return 'ontable:'+code+':meta'; }
-function prefsHashKey(code){ return 'ontable:'+code+':prefs'; }
-function voteHashKey(code){ return 'ontable:'+code+':votes'; }
-function keyBooking(code){ return 'ontable:'+code+':booking'; }
+function keyMeta(code){ return 'wemeeat:'+code+':meta'; }
+function prefsHashKey(code){ return 'wemeeat:'+code+':prefs'; }
+function voteHashKey(code){ return 'wemeeat:'+code+':votes'; }
+function keyBooking(code){ return 'wemeeat:'+code+':booking'; }
 
 
 function renderLangRow(){
@@ -705,9 +705,9 @@ function showView(name){
 }
 
 // ---------- Survive a page refresh: stay on the current screen instead of
-// bouncing back to the home screen. Explicit "start over" is the ONTABLE
+// bouncing back to the home screen. Explicit "start over" is the WEMEEAT
 // title (goHome), not an accidental reload. ----------
-const APP_STATE_KEY = 'ontable-app-state';
+const APP_STATE_KEY = 'wemeeat-app-state';
 
 function saveAppState(){
   if(currentView === 'home'){
@@ -860,7 +860,7 @@ async function shareCode(){
   // have installed) — this is what most phones support best.
   if(navigator.share){
     try{
-      await navigator.share({ title: 'OnTable', text: shareText, url: shareUrl });
+      await navigator.share({ title: 'WeMeEat', text: shareText, url: shareUrl });
       return;
     }catch(e){ return; } // person cancelled the share sheet — do nothing further
   }
@@ -1507,7 +1507,7 @@ function resolveReservation(success, partySize){
 // without needing to reopen the session. Visible only to them (kept in
 // this device's own storage), and every change is reflected live in the
 // admin billing log via 'adjust_booking'.
-const MY_RESERVATIONS_KEY = 'ontable-my-reservations'; // now a list, not a single record
+const MY_RESERVATIONS_KEY = 'wemeeat-my-reservations'; // now a list, not a single record
 let currentModalResId = null;
 
 function isReservationExpired(rec){
@@ -1666,7 +1666,7 @@ function addToCalendar(){
   // — nothing downloads, nothing to reopen separately afterward.
   const params = new URLSearchParams({
     action: 'TEMPLATE',
-    text: 'OnTable - ' + latestBooking.venue + ' - ' + state.code,
+    text: 'WeMeEat - ' + latestBooking.venue + ' - ' + state.code,
     dates: fmt(start) + '/' + fmt(end),
     location: latestBooking.venue,
     details: t('calendarCodeLabel') + ': ' + state.code
