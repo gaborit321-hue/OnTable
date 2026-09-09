@@ -1,6 +1,6 @@
 importScripts('./version.js');
 
-const CACHE_NAME = 'ontable-cache-' + self.APP_VERSION;
+const CACHE_NAME = 'wemeeat-cache-' + self.APP_VERSION;
 
 const ASSETS_TO_CACHE = [
   './',
