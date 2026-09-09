@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OnTable — Réservations</title>
+<title>WeMeEat — Réservations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -65,7 +65,7 @@
 
 <div class="wrap">
   <div class="top-row">
-    <div class="brand">ONTABLE — ADMIN</div>
+    <div class="brand">WEMEEAT — ADMIN</div>
     <div class="lang-row" id="langRow"></div>
   </div>
   <h1 id="pageTitle"></h1>
@@ -79,10 +79,10 @@
 
   <div id="dashboard" style="display:none;">
     <div class="links-row">
-      <a class="link-chip" href="https://console.cloud.google.com/google/maps-apis/quotas?project=ontable-506512&api=places.googleapis.com" target="_blank" rel="noopener">📍 Google Places — Quotas</a>
-      <a class="link-chip" href="https://dash.cloudflare.com/fc0d3ebc1680e0674c62a0807860b1ad/workers/services/view/ontable-api/production" target="_blank" rel="noopener">⚡ Cloudflare Worker</a>
+      <a class="link-chip" href="https://console.cloud.google.com/google/maps-apis/quotas?project=wemeeat-506512&api=places.googleapis.com" target="_blank" rel="noopener">📍 Google Places — Quotas</a>
+      <a class="link-chip" href="https://dash.cloudflare.com/fc0d3ebc1680e0674c62a0807860b1ad/workers/services/view/wemeeat-api/production" target="_blank" rel="noopener">⚡ Cloudflare Worker</a>
       <a class="link-chip" href="https://console.upstash.com/redis/eefcac47-c06c-4fad-af37-8b0d686c7339/details?teamid=0" target="_blank" rel="noopener">🗄️ Upstash Redis</a>
-      <a class="link-chip" href="https://github.com/gaborit321-hue/OnTable/tree/main" target="_blank" rel="noopener">💻 GitHub — OnTable</a>
+      <a class="link-chip" href="https://github.com/gaborit321-hue/WeMeEat/tree/main" target="_blank" rel="noopener">💻 GitHub — WeMeEat</a>
     </div>
     <button class="refresh" onclick="loadBookings()" id="refreshBtn"></button>
     <div class="summary">
@@ -131,7 +131,7 @@ fr:{ code:"FR", locale:"fr-FR", pageTitle:"Réservations confirmées", gateLabel
   confirmDelete:"Supprimer cette réservation ? Cette action est définitive.", empty:"Aucune réservation confirmée pour le moment.",
   searchPlaceholder:"Rechercher par nom ou code…", noSearchResults:"Aucune réservation ne correspond à ta recherche.", cancelledHint:"{n} annulé(s)" }
 };
-let currentLang = localStorage.getItem('ontable-admin-lang') || 'fr';
+let currentLang = localStorage.getItem('wemeeat-admin-lang') || 'fr';
 function t(k){ return LANGS[currentLang][k] || LANGS.fr[k] || k; }
 
 function renderLangRow(){
@@ -141,7 +141,7 @@ function renderLangRow(){
 }
 function setLang(l){
   currentLang = l;
-  localStorage.setItem('ontable-admin-lang', l);
+  localStorage.setItem('wemeeat-admin-lang', l);
   renderLangRow();
   applyLang();
 }
@@ -164,7 +164,7 @@ async function loadBookings(){
   const key = document.getElementById('adminKeyInput').value.trim();
   if(!key){ document.getElementById('gateErr').textContent = t('errEmpty'); return; }
   currentKey = key;
-  sessionStorage.setItem('ontable-admin-key', key);
+  sessionStorage.setItem('wemeeat-admin-key', key);
 
   try{
     const res = await fetch(WORKER_URL + '?action=get_bookings_log', { headers: { 'X-Admin-Key': key } });
@@ -285,7 +285,7 @@ function formatDateRaw(dateRaw){
 renderLangRow();
 applyLang();
 
-const savedKey = sessionStorage.getItem('ontable-admin-key');
+const savedKey = sessionStorage.getItem('wemeeat-admin-key');
 if(savedKey){
   document.getElementById('adminKeyInput').value = savedKey;
   loadBookings();
