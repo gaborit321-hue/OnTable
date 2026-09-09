@@ -502,7 +502,7 @@ function t(k){ return LANGS[currentLang][k] || LANGS.en[k] || k; }
 // Paste your deployed Cloudflare Worker URL here (ends with .workers.dev, or
 // your custom domain). It's just a public endpoint, not a secret — the real
 // secrets (Upstash token, Google API key) live only inside the Worker itself.
-const WORKER_URL = 'https://ontable-api.gaborit321.workers.dev';
+const WORKER_URL = 'https://wemeeat-api.gaborit321.workers.dev';
 
 async function storageGet(key){
   const url = WORKER_URL + '?action=get&key=' + encodeURIComponent(key);
