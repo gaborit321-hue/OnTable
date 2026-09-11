@@ -97,10 +97,24 @@
   .chip{padding:9px 14px; border-radius:999px; border:1.4px solid var(--line); background:var(--card-soft); font-size:12.5px; cursor:pointer; user-select:none;}
   .chip.on{background:var(--wine); color:var(--card); border-color:var(--wine);}
   .chip.warn.on{background:var(--tomato); border-color:var(--tomato);}
-  .budget-row{display:flex; gap:8px;}
-  .budget-opt{flex:1; text-align:center; padding:11px 4px; border-radius:12px; border:1.4px solid var(--line); font-size:13px; cursor:pointer; background:var(--card-soft);}
-  .budget-opt.on{background:var(--citrus); border-color:var(--citrus); color:var(--ink);}
-  .budget-symbol{font-family:'IBM Plex Mono', monospace; font-size:14px; margin-bottom:2px;}
+  .price-labels{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:14px; font-weight:600; color:var(--wine); margin-top:6px;}
+  .price-slider-wrap{position:relative; height:34px; margin-top:12px;}
+  .price-slider-track{position:absolute; top:14px; left:0; right:0; height:6px; background:rgba(43,22,32,0.12); border-radius:999px;}
+  .price-slider-fill{position:absolute; top:14px; height:6px; background:var(--wine); border-radius:999px;}
+  .price-slider-wrap input[type=range]{
+    position:absolute; left:0; right:0; top:7px; height:20px; width:100%; margin:0;
+    -webkit-appearance:none; appearance:none; background:transparent; pointer-events:none;
+  }
+  .price-slider-wrap input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; pointer-events:auto; width:20px; height:20px; border-radius:50%;
+    background:var(--wine); cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.3); border:2px solid var(--card);
+  }
+  .price-slider-wrap input[type=range]::-moz-range-thumb{
+    pointer-events:auto; width:20px; height:20px; border-radius:50%; background:var(--wine);
+    cursor:pointer; border:2px solid var(--card); box-shadow:0 1px 4px rgba(0,0,0,0.3);
+  }
+  .price-slider-wrap input[type=range]::-webkit-slider-runnable-track{background:transparent;}
+  .price-slider-wrap input[type=range]::-moz-range-track{background:transparent;}
   .ticket{margin-top:6px; background:var(--card-soft); border-radius:16px; padding:20px; text-align:center; border:1.5px dashed rgba(122,46,61,0.35);}
   .ticket-code{font-family:'Cormorant Garamond', serif; font-weight:600; font-size:36px; letter-spacing:0.12em; color:var(--wine); margin:4px 0;}
   .copy-hint{font-size:10.5px; color:var(--ink-soft); margin-top:4px;}
@@ -261,6 +275,7 @@
             <select id="dateSelect" onchange="onDateSelectChange(this.value)" style="margin-top:8px;"></select>
 
             <div class="chip-grid" style="margin-top:14px;" id="timeChips">
+              <div class="chip" onclick="pickTimePreset(this,9)" data-i18n="timeBrunch"></div>
               <div class="chip" onclick="pickTimePreset(this,12.5)" data-i18n="timeLunch"></div>
               <div class="chip" onclick="pickTimePreset(this,18)" data-i18n="timeAperitif"></div>
               <div class="chip" onclick="pickTimePreset(this,20)" data-i18n="timeDinner"></div>
@@ -282,20 +297,17 @@
 
           <div class="prefstep" id="step-budget">
             <div class="section-label" data-i18n="budgetLabel"></div>
-            <div class="budget-row">
-              <div class="budget-opt" data-val="2" onclick="budgetSelect(this)">
-                <div class="budget-symbol">€</div>
-                <div data-i18n="budgetLow"></div>
-              </div>
-              <div class="budget-opt" data-val="3" onclick="budgetSelect(this)">
-                <div class="budget-symbol">€€</div>
-                <div data-i18n="budgetMid"></div>
-              </div>
-              <div class="budget-opt" data-val="5" onclick="budgetSelect(this)">
-                <div class="budget-symbol">€€€</div>
-                <div data-i18n="budgetHigh"></div>
-              </div>
+            <div class="price-labels">
+              <span id="priceMinLabel">0 €</span>
+              <span id="priceMaxLabel">100 €+</span>
             </div>
+            <div class="price-slider-wrap">
+              <div class="price-slider-track"></div>
+              <div class="price-slider-fill" id="priceSliderFill"></div>
+              <input type="range" id="priceMinSlider" min="0" max="100" step="5" value="0" oninput="onPriceSliderChange('min')">
+              <input type="range" id="priceMaxSlider" min="0" max="100" step="5" value="100" oninput="onPriceSliderChange('max')">
+            </div>
+            <div class="note" data-i18n="priceNote" style="margin-top:14px;"></div>
           </div>
 
           <div class="prefstep" id="step-district">
@@ -395,7 +407,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   groupCode:"Group code", shareHint:"Share this code — everyone enters it on their phone",
   shareBtn:"Share the code", shareMessage:"Join me on WeMeEat — code {code}:", shareCopied:"Copied to clipboard",
   typeLabel:"Type of place", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
-  budgetLabel:"Max budget", budgetLow:"Affordable", budgetMid:"Mid-range", budgetHigh:"Upscale", districtLabel:"District (Bratislava I–V)",
+  budgetLabel:"Price range (per person)", budgetLow:"Affordable", budgetMid:"Mid-range", budgetHigh:"Upscale", priceNote:"Drag both ends to set a range. We'll only keep places within it.", districtLabel:"District (Bratislava I–V)",
   restrictionsLabel:"Dietary restrictions", vegetarianChip:"Vegetarian", veganChip:"Vegan", glutenChip:"Gluten-free", lactoseChip:"Lactose-free", noneChip:"None", backBtn:"Back", nextBtn:"Next",
   vegNote:"Vegetarian/vegan is a real filter, based on Google's data — we keep any place offering at least one vegetarian dish (100% veg/vegan restaurants get a separate badge). Google doesn't distinguish vegan specifically, so \"vegan\" uses the same signal as a safe approximation.",
   glutenNote:"Gluten-free and lactose-free aren't filtered yet — Google has no reliable data for these. They're shown to the group as a heads-up; always confirm with the venue.",
@@ -413,7 +425,7 @@ en:{ code:"EN", homeTitle:"Where to?", homeSub:"Create a code, invite whoever yo
   waitingStatusNoAnswer:"No one has answered yet.", waitingStatusError:"Error, try again.",
   waitingStatusNoPlaces:"No places found for these criteria — try widening a filter.", waitingStatusQuota:"Daily search limit reached — try again tomorrow.", editFiltersBtn:"Edit my filters", waitingStatusBlockerSelf:"Your own filters are the reason no place fits — try adjusting them.", waitingStatusBlockerOther:"{name}'s filters are the reason no place fits — waiting for them to adjust.",
   leadingLabel:"Leading", bookBtn:"Reserve", bookConfirmed:"Reservation requested",
-  whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
+  whenLabel:"When?", selectPlaceholder:"Select…", whenPendingNote:"{by} hasn't picked a day and time yet.", whenSetNote:"Day and time set by {by}: {when}", dateToday:"Today", dateTomorrow:"Tomorrow", dateWeekend:"This weekend", timeBrunch:"Brunch", timeLunch:"Lunch", timeAperitif:"Drinks", timeDinner:"Dinner", timeNote:"Optional — leave blank for no constraint. We'll only keep places open on that day and time.",
   bookPendingBy:"is reserving", bookConfirmedBy:"reserved", bookCallingBy:"is calling to reserve", bookCallBtn:"Call", bookNoPhone:"No phone number available for this test entry.", bookYes:"Reservation made", bookNo:"Couldn't book", bookFailedBy:"couldn't reserve", bookRetryHint:"Feel free to try again.", addToCalendar:"Add to calendar", partySizeLabel:"How many people?", confirmBtn:"Confirm", calendarCodeLabel:"WeMeEat code", myResPeopleLabel:"{n} {word} in your reservation", myResCodeLabel:"Code", cancelOneBtn:"Cancel one person", cancelAllBtn:"Cancel the whole reservation", confirmCancelOne:"Cancel one person from this reservation?", confirmCancelAll:"Cancel the whole reservation? This can't be undone.", myResLabel:"Upcoming reservation", myResSelectPlaceholder:"Choose a reservation…"},
 sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľvek chceš.",
   yourName:"Tvoje meno", namePlaceholder:"napr. Alex", createBtn:"Vytvoriť nový kód",
@@ -422,7 +434,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   groupCode:"Kód skupiny", shareHint:"Zdieľaj tento kód — každý ho zadá na svojom telefóne",
   shareBtn:"Zdieľať kód", shareMessage:"Pridaj sa ku mne na WeMeEat — kód {code}:", shareCopied:"Skopírované do schránky",
   typeLabel:"Typ podniku", restaurantChip:"Reštaurácia", cafeChip:"Kaviareň", barChip:"Bar",
-  budgetLabel:"Maximálny rozpočet", budgetLow:"Lacné", budgetMid:"Stredné", budgetHigh:"Luxusné", districtLabel:"Mestská časť (Bratislava I–V)",
+  budgetLabel:"Cenové rozpätie (na osobu)", budgetLow:"Lacné", budgetMid:"Stredné", budgetHigh:"Luxusné", priceNote:"Potiahni oba konce a nastav rozpätie. Ponecháme len podniky v tomto rozmedzí.", districtLabel:"Mestská časť (Bratislava I–V)",
   restrictionsLabel:"Stravovacie obmedzenia", vegetarianChip:"Vegetariánske", veganChip:"Vegánske", glutenChip:"Bezlepkové", lactoseChip:"Bez laktózy", noneChip:"Žiadne", backBtn:"Späť", nextBtn:"Ďalej",
   vegNote:"Vegetariánske/vegánske je skutočný filter založený na dátach Google — ponecháme podniky s aspoň jedným vegetariánskym jedlom (100% vege/vegánske majú vlastný odznak). Google nerozlišuje vegánske osobitne, takže sa použije rovnaký signál ako priblíženie.",
   glutenNote:"Bezlepkové a bez laktózy sa zatiaľ nefiltrujú — Google na to nemá spoľahlivé dáta. Skupina to len uvidí ako upozornenie — vždy si to over priamo v podniku.",
@@ -440,7 +452,7 @@ sk:{ code:"SK", homeTitle:"Kam pôjdeme?", homeSub:"Vytvor kód, pozvi kohokoľv
   waitingStatusNoAnswer:"Zatiaľ nikto neodpovedal.", waitingStatusError:"Chyba, skús to znova.",
   waitingStatusNoPlaces:"Pre tieto kritériá sa nenašli žiadne podniky — skús rozšíriť niektorý filter.", waitingStatusQuota:"Dosiahnutý denný limit vyhľadávania — skús to znova zajtra.", editFiltersBtn:"Upraviť moje filtre", waitingStatusBlockerSelf:"Dôvodom, prečo sa nenašiel žiadny podnik, sú tvoje vlastné filtre — skús ich upraviť.", waitingStatusBlockerOther:"Dôvodom, prečo sa nenašiel žiadny podnik, sú filtre osoby {name} — počkaj, kým si ich upraví.",
   leadingLabel:"Vedie", bookBtn:"Rezervovať", bookConfirmed:"Rezervácia odoslaná",
-  whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeLunch:"Obed", timeAperitif:"Aperitív", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
+  whenLabel:"Kedy?", selectPlaceholder:"Vybrať…", whenPendingNote:"{by} ešte nevybral(a) deň a čas.", whenSetNote:"Deň a čas nastavil(a) {by}: {when}", dateToday:"Dnes", dateTomorrow:"Zajtra", dateWeekend:"Tento víkend", timeBrunch:"Brunch", timeLunch:"Obed", timeAperitif:"Nápoje", timeDinner:"Večera", timeNote:"Nepovinné — nechaj prázdne, ak nezáleží. Ponecháme len podniky otvorené v tento deň a čas.",
   bookPendingBy:"práve rezervuje", bookConfirmedBy:"zarezervoval(a)", bookCallingBy:"telefonuje kvôli rezervácii v", bookCallBtn:"Zavolať", bookNoPhone:"Pre túto testovaciu položku nie je k dispozícii telefónne číslo.", bookYes:"Rezervácia hotová", bookNo:"Nepodarilo sa", bookFailedBy:"sa nepodarilo zarezervovať", bookRetryHint:"Skús to pokojne znova.", addToCalendar:"Pridať do kalendára", partySizeLabel:"Koľko ľudí?", confirmBtn:"Potvrdiť", calendarCodeLabel:"Kód WeMeEat", myResPeopleLabel:"{n} {word} v tvojej rezervácii", myResCodeLabel:"Kód", cancelOneBtn:"Zrušiť jednu osobu", cancelAllBtn:"Zrušiť celú rezerváciu", confirmCancelOne:"Zrušiť jednu osobu z tejto rezervácie?", confirmCancelAll:"Zrušiť celú rezerváciu? Túto akciu nemožno vrátiť späť.", myResLabel:"Nadchádzajúca rezervácia", myResSelectPlaceholder:"Vyber rezerváciu…"},
 hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, hívj meg bárkit.",
   yourName:"A neved", namePlaceholder:"pl. Alex", createBtn:"Új kód létrehozása",
@@ -449,7 +461,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   groupCode:"Csoportkód", shareHint:"Oszd meg ezt a kódot — mindenki beírja a saját telefonján",
   shareBtn:"Kód megosztása", shareMessage:"Csatlakozz hozzám az WeMeEat-ön — kód {code}:", shareCopied:"Vágólapra másolva",
   typeLabel:"Hely típusa", restaurantChip:"Étterem", cafeChip:"Kávézó", barChip:"Bár",
-  budgetLabel:"Maximális költségkeret", budgetLow:"Olcsó", budgetMid:"Közepes", budgetHigh:"Elegáns", districtLabel:"Kerület (Pozsony I–V)",
+  budgetLabel:"Ártartomány (fejenként)", budgetLow:"Olcsó", budgetMid:"Közepes", budgetHigh:"Elegáns", priceNote:"Húzd mindkét véget a tartomány beállításához. Csak az ezen belüli helyeket tartjuk meg.", districtLabel:"Kerület (Pozsony I–V)",
   restrictionsLabel:"Étkezési korlátozások", vegetarianChip:"Vegetáriánus", veganChip:"Vegán", glutenChip:"Gluténmentes", lactoseChip:"Laktózmentes", noneChip:"Nincs", backBtn:"Vissza", nextBtn:"Tovább",
   vegNote:"A vegetáriánus/vegán valódi szűrő, Google adatai alapján — megtartunk minden helyet, ahol van legalább egy vegetáriánus fogás (a 100%-ban vegetáriánus/vegán helyek külön jelvényt kapnak). A Google nem különbözteti meg külön a vegánt, ezért ugyanazt a jelzést használjuk közelítésként.",
   glutenNote:"A gluténmentes és laktózmentes még nincs szűrve — ehhez a Google-nak nincs megbízható adata. A csoport csak tájékoztatásul látja — mindig érdemes rákérdezni a helyszínen.",
@@ -467,7 +479,7 @@ hu:{ code:"HU", homeTitle:"Hová menjünk?", homeSub:"Hozz létre egy kódot, h�
   waitingStatusNoAnswer:"Még senki sem válaszolt.", waitingStatusError:"Hiba, próbáld újra.",
   waitingStatusNoPlaces:"Nem található hely ezekkel a szűrőkkel — próbálj tágítani valamin.", waitingStatusQuota:"Elérted a napi keresési limitet — próbáld újra holnap.", editFiltersBtn:"Szűrők szerkesztése", waitingStatusBlockerSelf:"A saját szűrőid miatt nem található hely — próbáld módosítani őket.", waitingStatusBlockerOther:"{name} szűrői miatt nem található hely — várj, amíg módosítja őket.",
   leadingLabel:"Vezet", bookBtn:"Foglalás", bookConfirmed:"Foglalás elküldve",
-  whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeLunch:"Ebéd", timeAperitif:"Aperitif", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
+  whenLabel:"Mikor?", selectPlaceholder:"Válassz…", whenPendingNote:"{by} még nem választott napot és időpontot.", whenSetNote:"A napot és időpontot {by} adta meg: {when}", dateToday:"Ma", dateTomorrow:"Holnap", dateWeekend:"Ezen a hétvégén", timeBrunch:"Brunch", timeLunch:"Ebéd", timeAperitif:"Ital", timeDinner:"Vacsora", timeNote:"Nem kötelező — hagyd üresen, ha nem számít. Csak az ekkor és ezen a napon nyitva tartó helyeket tartjuk meg.",
   bookPendingBy:"éppen foglal", bookConfirmedBy:"lefoglalta", bookCallingBy:"telefonál a foglalás miatt ide:", bookCallBtn:"Hívás", bookNoPhone:"Ehhez a teszt-bejegyzéshez nincs telefonszám.", bookYes:"Foglalás megtörtént", bookNo:"Nem sikerült", bookFailedBy:"nem tudta lefoglalni:", bookRetryHint:"Nyugodtan próbáld újra.", addToCalendar:"Hozzáadás a naptárhoz", partySizeLabel:"Hányan lesznek?", confirmBtn:"Megerősítés", calendarCodeLabel:"WeMeEat kód", myResPeopleLabel:"{n} {word} a foglalásodban", myResCodeLabel:"Kód", cancelOneBtn:"Egy fő lemondása", cancelAllBtn:"Teljes foglalás lemondása", confirmCancelOne:"Lemondasz egy főt ebből a foglalásból?", confirmCancelAll:"Lemondod a teljes foglalást? Ez nem vonható vissza.", myResLabel:"Közelgő foglalás", myResSelectPlaceholder:"Válassz egy foglalást…"},
 fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu veux.",
   yourName:"Ton prénom", namePlaceholder:"Ex : Alex", createBtn:"Créer un nouveau code",
@@ -476,7 +488,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   groupCode:"Code du groupe", shareHint:"Partage ce code — chacun l'entre sur son téléphone",
   shareBtn:"Partager le code", shareMessage:"Rejoins-moi sur WeMeEat — code {code} :", shareCopied:"Copié dans le presse-papiers",
   typeLabel:"Type de lieu", restaurantChip:"Restaurant", cafeChip:"Café", barChip:"Bar",
-  budgetLabel:"Budget max", budgetLow:"Abordable", budgetMid:"Modéré", budgetHigh:"Chic", districtLabel:"Quartier (Bratislava I–V)",
+  budgetLabel:"Fourchette de prix (par personne)", budgetLow:"Abordable", budgetMid:"Modéré", budgetHigh:"Chic", priceNote:"Fais glisser les deux extrémités pour définir une fourchette. On ne garde que les lieux dans cet intervalle.", districtLabel:"Quartier (Bratislava I–V)",
   restrictionsLabel:"Restrictions alimentaires", vegetarianChip:"Végétarien", veganChip:"Végan", glutenChip:"Sans gluten", lactoseChip:"Sans lactose", noneChip:"Aucune", backBtn:"Retour", nextBtn:"Suivant",
   vegNote:"Végétarien/végan est un vrai filtre, basé sur les données Google — on garde tout lieu proposant au moins un plat végétarien (les restaurants 100% végé/vegan ont un badge à part). Google ne distingue pas le vegan spécifiquement, donc \"végan\" utilise le même signal en approximation.",
   glutenNote:"Sans gluten et sans lactose ne sont pas encore filtrés — Google n'a pas de donnée fiable là-dessus. Le groupe le voit juste comme information — à reconfirmer directement auprès de l'établissement.",
@@ -494,7 +506,7 @@ fr:{ code:"FR", homeTitle:"Où va-t-on ?", homeSub:"Crée un code, invite qui tu
   waitingStatusNoAnswer:"Personne n'a encore répondu.", waitingStatusError:"Erreur, réessaie.",
   waitingStatusNoPlaces:"Aucun lieu trouvé pour ces critères — essaie d'élargir un filtre.", waitingStatusQuota:"Limite quotidienne de recherche atteinte — réessaie demain.", editFiltersBtn:"Modifier mes filtres", waitingStatusBlockerSelf:"Ce sont tes propres préférences qui empêchent de trouver un lieu — essaie de les ajuster.", waitingStatusBlockerOther:"Ce sont les préférences de {name} qui empêchent de trouver un lieu — attends qu'il/elle les ajuste.",
   leadingLabel:"En tête", bookBtn:"Réserver", bookConfirmed:"Réservation demandée",
-  whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
+  whenLabel:"Quand ?", selectPlaceholder:"Choisir…", whenPendingNote:"{by} n'a pas encore choisi de jour ni d'heure.", whenSetNote:"Jour et heure fixés par {by} : {when}", dateToday:"Aujourd'hui", dateTomorrow:"Demain", dateWeekend:"Ce week-end", timeBrunch:"Brunch", timeLunch:"Déjeuner", timeAperitif:"Apéro", timeDinner:"Dîner", timeNote:"Facultatif — laisse vide si ça n'a pas d'importance. On ne garde alors que les lieux ouverts ce jour-là à cette heure.",
   bookPendingBy:"est en train de réserver", bookConfirmedBy:"a réservé", bookCallingBy:"appelle pour réserver", bookCallBtn:"Appeler", bookNoPhone:"Pas de numéro disponible pour cette entrée de test.", bookYes:"Réservation faite", bookNo:"Pas réussi", bookFailedBy:"n'a pas réussi à réserver", bookRetryHint:"N'hésite pas à réessayer.", addToCalendar:"Ajouter au calendrier", partySizeLabel:"Combien de personnes ?", confirmBtn:"Confirmer", calendarCodeLabel:"Code WeMeEat", myResPeopleLabel:"{n} {word} dans ta réservation", myResCodeLabel:"Code", cancelOneBtn:"Annuler une personne", cancelAllBtn:"Annuler toute la réservation", confirmCancelOne:"Annuler une personne de cette réservation ?", confirmCancelAll:"Annuler toute la réservation ? Cette action est irréversible.", myResLabel:"Prochaine réservation", myResSelectPlaceholder:"Choisir une réservation…"}
 };
 let currentLang = 'en';
@@ -736,7 +748,9 @@ function goHome(){
   document.getElementById('createStatus').textContent = '';
   document.getElementById('prefsStatus').textContent = '';
   document.querySelectorAll('#view-prefs .chip.on').forEach(c=>c.classList.remove('on'));
-  document.querySelectorAll('.budget-opt.on').forEach(c=>c.classList.remove('on'));
+  document.getElementById('priceMinSlider').value = 0;
+  document.getElementById('priceMaxSlider').value = 100;
+  onPriceSliderChange('min');
   document.getElementById('dateInput').value = '';
   document.getElementById('timeInput').value = '';
   document.getElementById('dateSelect').value = '';
@@ -777,9 +791,20 @@ async function restoreAppState(){
 }
 
 function toggleChip(el){ el.classList.toggle('on'); }
-function budgetSelect(el){
-  el.parentElement.querySelectorAll('.budget-opt').forEach(o=>o.classList.remove('on'));
-  el.classList.add('on');
+function onPriceSliderChange(moved){
+  const minEl = document.getElementById('priceMinSlider');
+  const maxEl = document.getElementById('priceMaxSlider');
+  let minV = parseInt(minEl.value);
+  let maxV = parseInt(maxEl.value);
+  // keep the two handles from crossing past each other
+  if(minV > maxV){
+    if(moved === 'min'){ minV = maxV; minEl.value = minV; }
+    else { maxV = minV; maxEl.value = maxV; }
+  }
+  document.getElementById('priceMinLabel').textContent = minV + ' €';
+  document.getElementById('priceMaxLabel').textContent = (maxV >= 100 ? '100 €+' : maxV + ' €');
+  document.getElementById('priceSliderFill').style.left = minV + '%';
+  document.getElementById('priceSliderFill').style.width = (maxV - minV) + '%';
 }
 function randCode(){
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -947,14 +972,15 @@ function submitPrefs(){
   const types = [...document.querySelectorAll('#step-type .chip.on[data-val]')].map(c=>c.dataset.val);
   const districts = [...document.querySelectorAll('#step-district .chip.on[data-val]')].map(c=>c.dataset.val);
   const restrictions = [...document.querySelectorAll('#step-restrictions .chip.warn.on')].map(c=>c.dataset.val);
-  const budgetEl = document.querySelector('#step-budget .budget-opt.on');
-  const budget = budgetEl ? parseInt(budgetEl.dataset.val) : 5;
+  const priceMin = parseInt(document.getElementById('priceMinSlider').value) || 0;
+  const priceMaxRaw = parseInt(document.getElementById('priceMaxSlider').value);
+  const priceMax = priceMaxRaw >= 100 ? 999 : priceMaxRaw; // 100 on the slider means "no real ceiling"
 
   // Optimistic: we already know what was chosen, so move to "waiting" right
   // away — the write happens in the background. Day/time was already saved
   // when the creator finished that step, earlier in the wizard.
   showView('waiting');
-  const data = { types, districts, restrictions, budget, at: Date.now() };
+  const data = { types, districts, restrictions, priceMin, priceMax, at: Date.now() };
   hashSet(prefsHashKey(state.code), state.name, JSON.stringify(data))
     .catch(()=> showToast(t('prefsStatusError')));
 }
@@ -995,8 +1021,13 @@ function scoreVenue(v, participants, sessionTime){
   // Note: gluten-free / lactose-free are recorded in each participant's prefs
   // but not filtered here — Google Places has no reliable field for either,
   // so a "hard filter" would just be guessing. Shown as informational only.
-  const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
-  if(v.p !== null && v.p > maxBudget) return null;
+  // Group price range = the overlap of everyone's slider — the highest of
+  // everyone's minimums, the lowest of everyone's maximums. A venue matches
+  // if its own (real or estimated) price range overlaps that window at all.
+  const groupPriceMin = Math.max(...Object.values(participants).map(p=>p.priceMin ?? 0));
+  const groupPriceMax = Math.min(...Object.values(participants).map(p=>p.priceMax ?? 999));
+  if(v.priceMax !== null && v.priceMax < groupPriceMin) return null;
+  if(v.priceMin !== null && v.priceMin > groupPriceMax) return null;
   for(const p of Object.values(participants)){
     if(p.districts && p.districts.length>0 && !p.districts.includes(v.district)) return null;
   }
@@ -1013,9 +1044,8 @@ function scoreVenue(v, participants, sessionTime){
 }
 
 // ---------- Live venues via Google Places API (New), proxied through the Cloudflare Worker ----------
-async function fetchPlacesForQuery(query, priceLevelsParam){
-  let url = WORKER_URL + '?action=places&query=' + encodeURIComponent(query);
-  if(priceLevelsParam) url += '&priceLevels=' + encodeURIComponent(priceLevelsParam);
+async function fetchPlacesForQuery(query){
+  const url = WORKER_URL + '?action=places&query=' + encodeURIComponent(query);
   const res = await fetch(url);
   const data = await res.json();
   if(data.error){
@@ -1029,27 +1059,22 @@ async function fetchPlacesForQuery(query, priceLevelsParam){
   return data.places || [];
 }
 
-// Converts the group's chosen budget ceiling into the matching Google price
-// levels, so the SEARCH itself is restricted to that band server-side —
-// instead of fetching Google's "most prominent" results and hoping enough
-// cheap ones happened to survive. Returns null for "no real constraint"
-// (budget 5, our most permissive default), so unknown-price venues still
-// come through untouched in that case.
-function priceLevelsParamFor(maxBudget){
-  if(maxBudget >= 5) return null;
-  const levels = ['PRICE_LEVEL_INEXPENSIVE'];
-  if(maxBudget >= 3) levels.push('PRICE_LEVEL_MODERATE');
-  if(maxBudget >= 4) levels.push('PRICE_LEVEL_EXPENSIVE');
-  return levels.join(',');
-}
-
-function priceLevelToNum(pl){
-  switch(pl){
-    case 'PRICE_LEVEL_INEXPENSIVE': return 2;
-    case 'PRICE_LEVEL_MODERATE': return 3;
-    case 'PRICE_LEVEL_EXPENSIVE': return 4;
-    case 'PRICE_LEVEL_VERY_EXPENSIVE': return 5;
-    default: return null; // Google has no price data for this venue — don't guess a tier that could wrongly exclude it
+function priceRangeFromGoogle(p){
+  // Real numeric range, when Google has it for this venue.
+  if(p.priceRange && p.priceRange.startPrice && p.priceRange.endPrice){
+    const min = parseFloat(p.priceRange.startPrice.units || 0);
+    const max = parseFloat(p.priceRange.endPrice.units || min);
+    return { min, max };
+  }
+  // Fallback: a rough estimate from the coarse 4-level category, only used
+  // when the real range isn't available. Fully unknown -> null/null, so it
+  // isn't wrongly excluded by a range filter that has no basis to apply.
+  switch(p.priceLevel){
+    case 'PRICE_LEVEL_INEXPENSIVE':   return { min: 0,  max: 15 };
+    case 'PRICE_LEVEL_MODERATE':      return { min: 15, max: 30 };
+    case 'PRICE_LEVEL_EXPENSIVE':     return { min: 30, max: 60 };
+    case 'PRICE_LEVEL_VERY_EXPENSIVE':return { min: 60, max: 150 };
+    default: return { min: null, max: null };
   }
 }
 
@@ -1126,13 +1151,12 @@ function buildQueryText(areaLabel, typeUnion){
   return desc + ' in ' + areaLabel;
 }
 
-async function fetchLiveVenues(districts, dayOfWeek, maxBudget, typeUnion){
+async function fetchLiveVenues(districts, dayOfWeek, typeUnion){
   const targets = districts.length ? districts : ['I','II','III','IV','V'];
-  const priceLevelsParam = priceLevelsParamFor(maxBudget);
   const types = typeUnion && typeUnion.length ? typeUnion : ['restaurant','cafe','bar'];
   let quotaExceeded = false;
   const batches = await Promise.all(targets.map(d =>
-    fetchPlacesForQuery(buildQueryText(DISTRICT_AREAS[d], types), priceLevelsParam).then(places => ({d, places})).catch(e => {
+    fetchPlacesForQuery(buildQueryText(DISTRICT_AREAS[d], types)).then(places => ({d, places})).catch(e => {
       if(e.message === 'QUOTA_EXCEEDED') quotaExceeded = true;
       return {d, places:[]};
     })
@@ -1150,10 +1174,12 @@ async function fetchLiveVenues(districts, dayOfWeek, maxBudget, typeUnion){
       if(!matchesDistrict(p.formattedAddress, d)) return; // discard obvious cross-city mismatches instead of mislabelling them
       seen.add(name);
       const hrs = hoursFromGoogle(p, dayOfWeek);
+      const pr = priceRangeFromGoogle(p);
       venues.push({
         n: name,
         t: typesFromGoogle(p.primaryType, p.types),
-        p: priceLevelToNum(p.priceLevel),
+        priceMin: pr.min,
+        priceMax: pr.max,
         r: p.rating || 4.0,
         veg: p.servesVegetarianFood !== false, // unknown -> assume possible rather than excluding
         vegOnly: false,
@@ -1183,7 +1209,6 @@ async function generateSuggestions(){
     }
     const districtUnion = [...new Set(Object.values(participants).flatMap(p=>p.districts||[]))];
     const typeUnion = [...new Set(Object.values(participants).flatMap(p=>p.types||[]))];
-    const maxBudget = Math.min(...Object.values(participants).map(p=>p.budget));
 
     // Day/time is set once by the creator, session-wide — not per participant.
     let referenceDayOfWeek = null, sessionTime = null;
@@ -1198,7 +1223,7 @@ async function generateSuggestions(){
 
     let pool;
     try{
-      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek, maxBudget, typeUnion);
+      pool = await fetchLiveVenues(districtUnion, referenceDayOfWeek, typeUnion);
     }catch(e){
       if(e.message === 'QUOTA_EXCEEDED'){
         document.getElementById('waitingStatus').textContent = t('waitingStatusQuota');
@@ -1279,6 +1304,12 @@ function closeMapModal(){
   document.getElementById('mapFrame').src = ''; // stop the embed from loading in the background
 }
 
+function formatPriceRange(v){
+  if(v.priceMin === null || v.priceMax === null) return t('priceUnknown');
+  if(v.priceMin === v.priceMax) return v.priceMin + ' €';
+  return v.priceMin + '–' + v.priceMax + ' €';
+}
+
 function renderResults(){
   const list = document.getElementById('resultsList');
   if(lastResults.length===0){
@@ -1290,7 +1321,7 @@ function renderResults(){
       <div class="result-top">
         <div>
           <div class="result-name">${r.v.n}</div>
-          <div class="result-type">${r.v.t.join(' · ')} · ${r.v.p!==null ? '€'.repeat(r.v.p-1) : t('priceUnknown')} · Bratislava ${r.v.district} – ${r.v.area}</div>
+          <div class="result-type">${r.v.t.join(' · ')} · ${formatPriceRange(r.v)} · Bratislava ${r.v.district} – ${r.v.area}</div>
         </div>
         <div class="score-badge" style="background:${r.score>=80?'var(--basil)':r.score>=50?'var(--citrus)':'var(--tomato)'}; color:${r.score>=50&&r.score<80?'var(--ink)':'white'}">${r.score}%</div>
       </div>
@@ -1691,6 +1722,7 @@ function addToCalendar(){
 renderLangRow();
 applyLang();
 renderHomeReservationCard(); // covers the initial static "home" view, which never goes through showView()
+onPriceSliderChange('min'); // paint the price slider's initial fill bar
 restoreAppState();
 
 // ---------- PWA: version display + service worker + manual update check ----------
